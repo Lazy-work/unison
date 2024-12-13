@@ -4,6 +4,7 @@ import { InjectionPlugin } from './apiInject';
 export {
   $bridge,
   createReactHook,
+  useBridge,
   $if,
   $switch,
   v,
@@ -24,9 +25,26 @@ export {
   withAsyncContext
 } from '@bridge/core';
 
+export {
+  AppProvider,
+} from './app';
+export { createApp } from './apiCreateApp'
+export type {
+  App,
+  AppConfig,
+  AppContext,
+  Plugin,
+  ObjectPlugin,
+  FunctionPlugin,
+  CreateAppFunction,
+  OptionMergeFunction,
+} from './apiCreateApp'
+
 usePlugin(InjectionPlugin);
 
 export { inject, provide, hasInjectionContext, type InjectionKey } from './apiInject';
+
+export { FastRefreshStoragePlugin } from './apiDebug';
 
 export { toBridgeHook } from './hook-manager';
 
@@ -71,6 +89,7 @@ export function reactRef<T>(initialValue: T) {
   ref.value = initialValue;
   return ref;
 }
+export * from './app';
 
 export {
   // core
@@ -153,4 +172,3 @@ export type {
   Raw,
   Reactive,
 } from '@vue/runtime-core';
-export * from './app';

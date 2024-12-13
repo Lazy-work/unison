@@ -1,24 +1,19 @@
 import React, { useEffect, useInsertionEffect, useLayoutEffect, useState } from 'react';
-import { isArray, NOOP } from '#vue-internals/shared/index';
-import { EffectScope, shallowReactive } from '#vue-internals/reactivity/index';
+import { isArray, NOOP } from '@vue-internals/shared/index';
 import {
+  SchedulerJob,
   flushJobsUntil,
   flushPostJobsUntil,
   getJobAt,
   switchToAuto,
   switchToManual,
-} from '#vue-internals/runtime-core/scheduler';
-import { warn } from '#vue-internals/runtime-core/warning';
-import { getCurrentInstance } from './index';
-import { LifecycleHooks } from '#vue-internals/runtime-core/enums';
-
-import type {
-  SchedulerJob,
-} from '#vue-internals/runtime-core/scheduler';
-import type { ComponentInternalInstance } from './index';
-import { ReactiveEffect } from '#vue-internals/reactivity/index';
-import type { WatchEffectOptions } from '#vue-internals/runtime-core/apiWatch';
-import type { BridgePlugin, BridgePluginClass } from './plugins/index';
+} from '@vue-internals/runtime-core/scheduler';
+import { EffectScope, shallowReactive, ReactiveEffect } from '@vue-internals/reactivity/index';
+import { warn } from '@vue-internals/runtime-core/warning';
+import { WatchEffectOptions } from '@vue-internals/runtime-core/apiWatch';
+import { LifecycleHooks } from '@vue-internals/runtime-core/enums';
+import { BridgePlugin, BridgePluginClass } from './plugins/index';
+import { ComponentInternalInstance, getCurrentInstance } from './index';
 
 let id = 0;
 
@@ -64,6 +59,7 @@ export type Event = {
 type OnFlushCallback = (event: Partial<Event>) => void;
 class Context {
   #id = id++;
+  idTest = Math.random();
   #parent: ComponentInternalInstance | null;
   #renderTrigger: () => void = __DEV__
     ? () => {
@@ -149,6 +145,9 @@ class Context {
     this.#nbExecution++;
     this.#isRunning = true;
     this.#scope.on();
+    if (this.isFastRefresh() && !window.__BRIDGE_REFRESH__.root) {
+      window.__BRIDGE_REFRESH__.root = this;
+    }
   }
   get isRunning() {
     return this.#isRunning;
@@ -338,6 +337,9 @@ class Context {
       this.#updated = false;
       this.#isRunning = false;
       this.#scope.off();
+      if (this.isFastRefresh() && window.__BRIDGE_REFRESH__.root === this) {
+        window.__BRIDGE_REFRESH__ = undefined;
+      }
       switchToAuto();
     });
 
@@ -361,6 +363,10 @@ class Context {
 
   isExecuted() {
     return this.#executed;
+  }
+
+  isFastRefresh() {
+    return !!(typeof window !== 'undefined' && window.__BRIDGE_REFRESH__);
   }
 
   executed() {

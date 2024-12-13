@@ -17,7 +17,7 @@ export function usePlugin<T extends BridgePluginClass, O extends object>(pluginC
   pluginsList.add(pluginClass);
 }
 
-function initInstance() {
+export function initInstance() {
   const instance = new Context();
   for (const Plugin of pluginsList) {
     const plugin = new (Plugin as any)();
@@ -27,26 +27,11 @@ function initInstance() {
   return instance;
 }
 
-type AnyFunction = (...args: any[]) => any
+type AnyFunction = (...args: any[]) => any;
 export function createReactHook<T extends AnyFunction>(bridgeHook: T) {
-  return (...args: Parameters<T>) => {
-    if (isReactComponent() && !getCurrentInstance()) {
-      const instance = useMemo(initInstance, deps);
-      const unset = setCurrentInstance(instance);
-      instance.init();
-      instance.setupState();
-
-      if (!instance.isExecuted()) {
-        instance.children = bridgeHook(...args);
-      }
-
-      instance.runEffects();
-      useEffect(unset);
-      instance.executed();
-      return instance.children;
-    } else {
-      return bridgeHook(...args);
-    }
+  return <P extends Parameters<T>>(...args: P): ReturnType<T> => {
+    const [result] = useState(() => bridgeHook(...args));
+    return result;
   };
 }
 

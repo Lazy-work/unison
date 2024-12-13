@@ -179,15 +179,17 @@ class Context {
     }
   }
 
+  invalidateChildren() {
+    this.#shouldGenerateTemplate = true;
+  }
+
   render() {
     if (this.#shouldGenerateTemplate) {
       this.#template = this.#renderEffect.run();
     }
     const result = this.#template;
     this.#shouldGenerateTemplate = false;
-    this.#isRunning = false;
     this.#renderingScheduled = false;
-    this.#scope.off();
     return result;
   }
 
@@ -329,6 +331,7 @@ class Context {
       this.resetPendingQueues();
       this.#executed = true;
       this.#updated = false;
+      this.#isRunning = false;
       switchToAuto();
     });
     // TODO: handle React strict mode, two time running

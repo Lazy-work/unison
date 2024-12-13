@@ -1,19 +1,10 @@
-import App from './app';
-import { onMounted, onUnmounted, $bridge } from '../index';
+import { App } from '../apiCreateApp';
+import { onUnmounted, $bridge } from '../index';
 
-export function createApp() {
-  return new App();
-}
-
-export const AppProvider = $bridge<{ app: App; children: React.ReactNode }>(({ app, children = null }) => {
-  app.install();
-  onMounted(() => {
-    app.mount();
-  });
-
+export const AppProvider = $bridge<{ app: App; children: React.ReactNode }>((props) => {
   onUnmounted(() => {
-    app.unmount();
+    props.app.unmount();
   });
 
-  return () => children;
-});
+  return () => props.children;
+}, "AppProvider");

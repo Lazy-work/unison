@@ -1,0 +1,41 @@
+{
+  "name": "babel-plugin-bridge-fast-refresh",
+  "version": "0.1.0",
+  "packageManager": "pnpm@8.15.3",
+  "scripts": {
+    "test": "vitest --",
+    "build": "rimraf dist && rollup -c --bundleConfigAsCjs",
+    "release": "release-it"
+  },
+  "main": "./dist/bridge-fast-refresh.js",
+  "exports": {
+    ".": "./dist/bridge-fast-refresh.cjs.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@babel/generator": "^7.26.2",
+    "@rollup/plugin-alias": "^5.1.1",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^5.0.5",
+    "esbuild": "^0.20.2",
+    "prettier": "^3.2.5",
+    "rimraf": "^5.0.5",
+    "rollup": "^4.17.2",
+    "rollup-plugin-esbuild": "^6.1.1",
+    "vitest": "^1.5.2"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "release-it": {
+    "git": false,
+    "plugins": {
+      "release-it-pnpm": {}
+    }
+  }
+}

@@ -1,15 +1,15 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import Context from './context';
-import { isReactComponent } from './utils';
-import { getCurrentInstance, setCurrentInstance } from './index';
+import { setCurrentInstance } from './index';
+
 import type { BridgePluginClass } from './plugins';
-import type { ShallowReactive } from '@vue-internals/reactivity/index';
+import type { ShallowReactive } from '#vue-internals/reactivity/index';
 
 const pluginsList = new Set<BridgePluginClass>();
 
 /**
- * 
- * @param pluginClass 
+ *
+ * @param pluginClass
  * @param options
  */
 export function usePlugin<T extends BridgePluginClass, O extends object>(pluginClass: T, options?: O) {
@@ -17,7 +17,7 @@ export function usePlugin<T extends BridgePluginClass, O extends object>(pluginC
   pluginsList.add(pluginClass);
 }
 
-function initInstance() {
+export function initInstance() {
   const instance = new Context();
   for (const Plugin of pluginsList) {
     const plugin = new (Plugin as any)();
@@ -26,28 +26,12 @@ function initInstance() {
   }
   return instance;
 }
-const deps = [] as const;
 
-type AnyFunction = (...args: any[]) => any
+type AnyFunction = (...args: any[]) => any;
 export function createReactHook<T extends AnyFunction>(bridgeHook: T) {
-  return (...args: Parameters<T>) => {
-    if (isReactComponent() && !getCurrentInstance()) {
-      const instance = useMemo(initInstance, deps);
-      const unset = setCurrentInstance(instance);
-      instance.init();
-      instance.setupState();
-
-      if (!instance.isExecuted()) {
-        instance.children = bridgeHook(...args);
-      }
-
-      instance.runEffects();
-      useEffect(unset);
-      instance.executed();
-      return instance.children;
-    } else {
-      return bridgeHook(...args);
-    }
+  return <P extends Parameters<T>>(...args: P): ReturnType<T> => {
+    const [result] = useState(() => bridgeHook(...args));
+    return result;
   };
 }
 
@@ -56,20 +40,27 @@ export type SetupComponent<T extends Record<string, any>> = (props: ShallowReact
 /**
  * @param fn - bridge component setup
  */
-export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>) {
-  return (props: T) => {
-    const instance = useMemo(initInstance, deps);
+export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
+  const component = React.forwardRef<T['ref'], Exclude<T, 'ref'>>((props, ref) => {
+    const [instance] = useState(initInstance);
     const unset = setCurrentInstance(instance);
     instance.init();
     instance.setupState();
-    const trackedProps = instance.trackProps(props);
+    const trackedProps = instance.trackProps({ ...props, ref });
 
-    if (!instance.isExecuted()) {
+    if (!instance.isExecuted() || instance.isFastRefresh()) {
       instance.children = fn(trackedProps);
+      instance.invalidateChildren();
     }
 
     instance.runEffects();
     useEffect(unset);
     return instance.render();
-  };
+  });
+  if (name) {
+    Object.defineProperty(component, 'name', {
+      value: name,
+    });
+  }
+  return component;
 }

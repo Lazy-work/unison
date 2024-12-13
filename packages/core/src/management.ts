@@ -57,12 +57,12 @@ export type SetupComponent<T extends Record<string, any>> = (props: ShallowReact
  * @param name - component name
  */
 export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
-  const component = (props: T) => {
+  const component = React.forwardRef<T['ref'], Exclude<T, 'ref'>>((props, ref) => {
     const [instance] = useState(initInstance);
     const unset = setCurrentInstance(instance);
     instance.init();
     instance.setupState();
-    const trackedProps = instance.trackProps(props);
+    const trackedProps = instance.trackProps({ ...props, ref });
 
     if (!instance.isExecuted() || instance.isFastRefresh()) {
       instance.children = fn(trackedProps);
@@ -72,13 +72,11 @@ export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>, na
     instance.runEffects();
     useEffect(unset);
     return instance.render();
-  };
-
+  });
   if (name) {
     Object.defineProperty(component, 'name', {
       value: name,
     });
   }
-  
   return component;
 }

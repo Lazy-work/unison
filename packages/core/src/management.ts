@@ -8,8 +8,8 @@ import type { ShallowReactive } from '#vue-internals/reactivity/index';
 const pluginsList = new Set<BridgePluginClass>();
 
 /**
- *
- * @param pluginClass
+ * 
+ * @param pluginClass 
  * @param options
  */
 export function usePlugin<T extends BridgePluginClass, O extends object>(pluginClass: T, options?: O) {
@@ -17,7 +17,7 @@ export function usePlugin<T extends BridgePluginClass, O extends object>(pluginC
   pluginsList.add(pluginClass);
 }
 
-export function initInstance() {
+function initInstance() {
   const instance = new Context();
   for (const Plugin of pluginsList) {
     const plugin = new (Plugin as any)();
@@ -27,11 +27,26 @@ export function initInstance() {
   return instance;
 }
 
-type AnyFunction = (...args: any[]) => any;
+type AnyFunction = (...args: any[]) => any
 export function createReactHook<T extends AnyFunction>(bridgeHook: T) {
-  return <P extends Parameters<T>>(...args: P): ReturnType<T> => {
-    const [result] = useState(() => bridgeHook(...args));
-    return result;
+  return (...args: Parameters<T>) => {
+    if (isReactComponent() && !getCurrentInstance()) {
+      const instance = useMemo(initInstance, deps);
+      const unset = setCurrentInstance(instance);
+      instance.init();
+      instance.setupState();
+
+      if (!instance.isExecuted()) {
+        instance.children = bridgeHook(...args);
+      }
+
+      instance.runEffects();
+      useEffect(unset);
+      instance.executed();
+      return instance.children;
+    } else {
+      return bridgeHook(...args);
+    }
   };
 }
 
@@ -39,14 +54,15 @@ export type SetupComponent<T extends Record<string, any>> = (props: ShallowReact
 
 /**
  * @param fn - bridge component setup
+ * @param name - component name
  */
 export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
-  const component = React.forwardRef<T['ref'], Exclude<T, 'ref'>>((props, ref) => {
+  const component = (props: T) => {
     const [instance] = useState(initInstance);
     const unset = setCurrentInstance(instance);
     instance.init();
     instance.setupState();
-    const trackedProps = instance.trackProps({ ...props, ref });
+    const trackedProps = instance.trackProps(props);
 
     if (!instance.isExecuted() || instance.isFastRefresh()) {
       instance.children = fn(trackedProps);
@@ -56,11 +72,13 @@ export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>, na
     instance.runEffects();
     useEffect(unset);
     return instance.render();
-  });
+  };
+
   if (name) {
     Object.defineProperty(component, 'name', {
       value: name,
     });
   }
+  
   return component;
 }

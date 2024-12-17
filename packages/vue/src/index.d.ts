@@ -1,6 +1,3 @@
-import { usePlugin } from '@bridge/core';
-import { InjectionPlugin } from './apiInject';
-
 export {
   $bridge,
   createReactHook,
@@ -38,59 +35,27 @@ export type {
   FunctionPlugin,
   CreateAppFunction,
   OptionMergeFunction,
-} from './apiCreateApp'
-
-usePlugin(InjectionPlugin);
-
+} from './types'
 export { inject, provide, hasInjectionContext, type InjectionKey } from './apiInject';
-
 export { FastRefreshStoragePlugin } from './apiDebug';
-
 export { toBridgeHook } from './hook-manager';
-
 export { rsx } from './jsx-runtime';
-
-export const isVue2 = false;
-export const isVue3 = true;
-export const version = '3.0.0';
-
-export const Fragment = {};
-export const TransitionGroup = {};
-export const Transition = {};
-export function defineComponent(options: any) {
-  throw new Error('Not implemented yet');
-}
-export function h() {
-  throw new Error('Not implemented yet');
-}
-export function set(target: any, key: any, val: any) {
-  if (Array.isArray(target)) {
-    target.length = Math.max(target.length, key);
-    target.splice(key, 1, val);
-    return val;
-  }
-  target[key] = val;
-  return val;
-}
-
-export function del(target: any, key: any) {
-  if (Array.isArray(target)) {
-    target.splice(key, 1);
-    return;
-  }
-  delete target[key];
-}
-
-export function reactRef<T>(initialValue: T) {
-  type ReactRef<T> = { value: T };
-  function ref(this: ReactRef<T>, newValue: T) {
-    this.value = newValue;
-  }
-  ref.value = initialValue;
-  return ref;
-}
-export * from './app';
-
+export declare const isVue2 = false;
+export declare const isVue3 = true;
+export declare const version = "3.0.0";
+export declare const Fragment: {};
+export declare const TransitionGroup: {};
+export declare const Transition: {};
+export declare function defineComponent(options: any): void;
+export declare function h(): void;
+export declare function set(target: any, key: any, val: any): any;
+export declare function del(target: any, key: any): void;
+export declare function reactRef<T>(initialValue: T): {
+  (this: {
+    value: T;
+  }, newValue: T): void;
+  value: T;
+};
 export {
   // core
   reactive,
@@ -127,15 +92,15 @@ export {
   EffectScope,
   getCurrentScope,
   onScopeDispose,
-} from '@vue/runtime-core';
+} from '#vue/runtime-core';
 export {
   watch,
   watchEffect,
   watchPostEffect,
   watchSyncEffect
-} from '@vue/runtime-core';
+} from '#vue/runtime-core';
 
-export { TrackOpTypes, TriggerOpTypes } from '@vue/reactivity';
+export { TrackOpTypes, TriggerOpTypes } from '#vue/reactivity';
 
 export type {
   MultiWatchSources,
@@ -171,4 +136,4 @@ export type {
   DebuggerEventExtraInfo,
   Raw,
   Reactive,
-} from '@vue/runtime-core';
+} from '#vue/runtime-core';

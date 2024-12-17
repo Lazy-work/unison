@@ -7,7 +7,7 @@ export function isReactComponent() {
 }
 
 export function mustBeBridgeComponent() {
-  if (__DEV__ && isReactComponent() && !getCurrentInstance()) {
+  if (!!(process.env.NODE_ENV !== 'production') && isReactComponent() && !getCurrentInstance()) {
     throw new Error('Cannot use inside a none reactive component');
   }
 }

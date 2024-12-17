@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
-import { createListener, setCurrentListener } from '@vue-internals/reactivity/reactive';
+import { createListener, setCurrentListener } from '#vue-internals/reactivity/reactive';
 import { initInstance } from './management';
 import { setCurrentInstance } from './index';
 
 class DisposeManager {
-  #queue: Function[] = [];
+  /**
+   * @type {Function[]}
+   */
+  #queue = [];
   #isFlushPending = false;
   #isFlushing = false;
 
@@ -23,8 +26,11 @@ class DisposeManager {
       this.#isFlushPending = true;
     }
   }
-
-  queueJob(dispose: Function) {
+  
+  /**
+   * @param {Function} dispose
+   */
+  queueJob(dispose) {
     this.#queue.push(dispose);
     this.queueFlush();
   }

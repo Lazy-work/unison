@@ -1,15 +1,28 @@
-type DeepPartial<T> = T extends object ? {
-    [P in keyof T]?: DeepPartial<T[P]>;
-} : T;
-type CaseParams<T> = T extends object ? [...(DeepPartial<T> | boolean)[], any] : [...(T | boolean)[], any];
-class SwitchEvaluation<T> {
-    #input: T;
-    #result: any;
-    constructor(input: T) {
+
+/**
+ * @template T
+ */
+class SwitchEvaluation{
+    /**
+     * @type {T}
+     */
+    #input;
+    #result;
+
+    /**
+     * 
+     * @param {T} input 
+     */
+    constructor(input) {
         this.#input = input;
     }
-
-    case(...args: CaseParams<T>) {
+    
+    /**
+     * 
+     * @param  {CaseParams<T>[]} args 
+     * @returns 
+     */
+    case(...args) {
         const patterns = args.slice(0, -1);
         const expression = args.at(-1);
         if (this.#result !== undefined) return this;
@@ -36,7 +49,7 @@ class SwitchEvaluation<T> {
         return this;
     }
 
-    #matchPattern(input: any, pattern: any) {
+    #matchPattern(input, pattern) {
         if (typeof input !== 'object' || input === null) return false;
         for (const [key, value] of Object.entries(pattern)) {
             const hasKey = key in input;
@@ -52,7 +65,12 @@ class SwitchEvaluation<T> {
         return true;
     }
 
-    default(expression?: any) {
+    /**
+     * 
+     * @param {any} [expression] 
+     * @returns 
+     */
+    default(expression) {
         let result = this.#result === undefined ? expression : this.#result;
         if (typeof result === "function") return result(this.#input);
         return result;

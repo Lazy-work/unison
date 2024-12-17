@@ -3,29 +3,43 @@
   "version": "0.2.2",
   "packageManager": "pnpm@8.15.3",
   "type": "module",
-  "main": "./dist/bridge-vue.cjs.js",
-  "module": "./dist/bridge-vue.esm-bundler.js",
-  "types": "./dist/types.d.ts",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
   "scripts": {
     "test": "vitest --",
-    "build": "rimraf dist && rollup -c && pnpm build-dts && pnpm copy-dts && pnpm build-docs",
-    "build-dts": "rimraf temp && tsc --project tsconfig.build.json --noCheck && pnpm copy-dts && tsc-alias -p tsconfig.build.json && api-extractor run --local",
-    "copy-dts": "copyfiles  \"src/**/*.d.ts\" temp/packages/vue",
-    "build-docs": "api-documenter markdown -i temp -o docs",
+    "build": "pnpm build-vue && pnpm dlx tsc-alias -p vue/tsconfig.json",
+    "build-vue": "(rimraf vue/temp && cd vue && pnpm tsc --noCheck || exit 0) && cd vue &&./replace_constants.sh",
     "release": "release-it"
   },
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/types.d.ts",
-        "default": "./dist/bridge-vue.esm-bundler.js"
+        "types": "./src/index.d.ts",
+        "default": "./src/index.js"
       },
       "require": {
-        "types": "./dist/types.d.ts",
-        "default": "./dist/bridge-vue.cjs.js"
+        "types": "./src/index.d.ts",
+        "default": "./src/index.js"
       }
     },
     "./package.json": "./package.json"
+  },
+  "imports": {
+    "#vue-internals/reactivity/*": "./vue/temp/packages/reactivity/src/*.js",
+    "#vue-internals/runtime-core/*": "./vue/temp/packages/runtime-core/src/*.js",
+    "#vue-internals/shared/*": "./vue/temp/packages/shared/src/*.js",
+    "#vue-internals": "./vue/temp/packages/vue/src/*.js",
+    "#vue/compat": "./vue/temp/packages/vue-compat/src/index.js",
+    "#vue/reactivity": "./vue/temp/packages/reactivity/src/index.js",
+    "#vue/runtime-core": "./vue/temp/packages/runtime-core/src/index.js",
+    "#vue/runtime-dom": "./vue/temp/packages/runtime-dom/src/index.js",
+    "#vue/runtime-test": "./vue/temp/packages/runtime-test/src/index.js",
+    "#vue/server-renderer": "./vue/temp/packages/server-renderer/src/index.js",
+    "#vue/shared": "./vue/temp/packages/shared/src/index.js",
+    "#vue/vue": "./vue/temp/packages/vue/src/index.js",
+    "#vue/vue-compat": "./vue/temp/packages/vue-compat/src/index.js",
+    "#vue/*": "./vue/temp/packages/*/src/index.js"
   },
   "sideEffects": false,
   "files": [
@@ -41,10 +55,8 @@
       "release-it-pnpm": {}
     }
   },
-  "dependencies": {
-    "@bridge/core": "workspace:*"
-  },
   "devDependencies": {
+    "@bridge/core": "workspace:*",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.5",
@@ -55,6 +67,10 @@
     "rollup": "^4.17.2",
     "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-esbuild": "^6.1.1",
-    "tsc-alias": "^1.8.10"
+    "tsc-alias": "^1.8.10",
+    "unplugin-inline-enum": "^0.2.0"
+  },
+  "peerDependencies": {
+    "@bridge/core": "^0.2.0"
   }
 }

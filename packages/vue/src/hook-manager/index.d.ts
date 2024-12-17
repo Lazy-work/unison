@@ -1,4 +1,4 @@
-import { ToRef } from 'vue';
+import { ToRef } from '@bridge/vue';
 import HookRef from '../react-hook/hookRef';
 import { BridgeHookOptions } from '@bridge/core';
 

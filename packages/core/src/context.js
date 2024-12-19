@@ -1,23 +1,23 @@
-/** @import { BridgePlugin, BridgePluginClass } from './plugins/index' */
-/** @import { WatchEffectOptions } from '#vue-internals/runtime-core/apiWatch' */
-/** @import { ComponentInternalInstance } from './index' */
-/** @import { SchedulerJob } from '#vue-internals/runtime-core/scheduler' */
-/** @import { Event, EventType } from './types.d.ts' */
+/** @import { BridgePlugin, BridgePluginClass } from './plugins/index.js' */
+/** @import { WatchEffectOptions } from '#vue-internals/runtime-core/apiWatch.js' */
+/** @import { ComponentInternalInstance } from './index.js' */
+/** @import { SchedulerJob } from '#vue-internals/runtime-core/scheduler.js' */
+/** @import { Event, EventType } from './types.js' */
 
 import { useEffect, useInsertionEffect, useLayoutEffect, useState } from 'react';
-import { isArray, NOOP } from '#vue-internals/shared/index';
+import { isArray, NOOP } from '#vue-internals/shared/index.js';
 import {
   flushJobsUntil,
   flushPostJobsUntil,
   getJobAt,
   switchToAuto,
   switchToManual,
-} from '#vue-internals/runtime-core/scheduler';
-import { EffectScope, shallowReactive, ReactiveEffect } from '#vue-internals/reactivity/index';
-import { warn } from '#vue-internals/runtime-core/warning';
+} from '#vue-internals/runtime-core/scheduler.js';
+import { EffectScope, shallowReactive, ReactiveEffect } from '#vue-internals/reactivity/index.js';
+import { warn } from '#vue-internals/runtime-core/warning.js';
 
-import { LifecycleHooks } from '#vue-internals/runtime-core/enums';
-import { getCurrentInstance } from './index';
+import { LifecycleHooks } from '#vue-internals/runtime-core/enums.js';
+import { getCurrentInstance } from './index.js';
 
 let id = 0;
 
@@ -239,7 +239,7 @@ class Context {
 
   /**
    * Retrieves the parent component instance.
-   * 
+   *
    * @returns {ComponentInternalInstance | null}
    */
   get parent() {
@@ -248,7 +248,7 @@ class Context {
 
   /**
    * Initializes the instance, incrementing execution count and enabling the effect scope.
-   * 
+   *
    * @returns {void}
    */
   init() {
@@ -261,7 +261,7 @@ class Context {
   }
   /**
    * Indicates whether the instance is running.
-   * 
+   *
    * @returns {boolean}
    */
   get isRunning() {
@@ -270,7 +270,7 @@ class Context {
 
   /**
    * Sets a plugin in the internal plugin registry.
-   * 
+   *
    * @param {BridgePluginClass} key - The class of the plugin.
    * @param {BridgePlugin} plugin - The plugin instance to set.
    * @returns {void}
@@ -283,7 +283,7 @@ class Context {
 
   /**
    * Retrieves a plugin from the internal plugin registry.
-   * 
+   *
    * @template T
    * @param {T} key - The class of the plugin.
    * @returns {InstanceType<T> | undefined} - The plugin instance, or undefined if not found.
@@ -294,7 +294,7 @@ class Context {
 
   /**
    * Sets the children rendering function.
-   * 
+   *
    * @param {() => React.ReactNode} children - The function to render children.
    * @returns {void}
    */
@@ -304,7 +304,7 @@ class Context {
 
   /**
    * Initializes the state and sets up the rendering trigger.
-   * 
+   *
    * @returns {void}
    */
   setupState() {
@@ -318,7 +318,7 @@ class Context {
 
   /**
    * Triggers a rendering process if not already running or scheduled.
-   * 
+   *
    * @returns {void}
    */
   triggerRendering() {
@@ -330,7 +330,7 @@ class Context {
 
   /**
    * Marks the children for regeneration.
-   * 
+   *
    * @returns {void}
    */
   invalidateChildren() {
@@ -339,7 +339,7 @@ class Context {
 
   /**
    * Renders the component, regenerating the template if necessary.
-   * 
+   *
    * @returns {React.ReactNode} - The rendered template.
    */
   render() {
@@ -359,7 +359,7 @@ class Context {
 
   /**
    * Queues an effect index based on the flush type.
-   * 
+   *
    * @param {"pre" | "post" | "layout" | "insertion"} flush - The type of flush effect.
    * @param {number} index - The index of the effect to queue.
    */
@@ -382,7 +382,7 @@ class Context {
 
   /**
    * Checks if the instance is mounted.
-   * 
+   *
    * @returns {boolean} - True if mounted, otherwise false.
    */
   isMounted() {
@@ -398,7 +398,7 @@ class Context {
 
   /**
    * Gets the current effect position and increments it.
-   * 
+   *
    * @returns {number} - The current effect position.
    */
   getEffectPosition() {
@@ -407,7 +407,7 @@ class Context {
 
   /**
    * Computes and executes lifecycle hooks of a specified type.
-   * 
+   *
    * @param {FlushType} type - The type of lifecycle hooks.
    * @returns {void}
    */
@@ -419,7 +419,7 @@ class Context {
 
   /**
    * Computes and executes event listeners of a specified type.
-   * 
+   *
    * @param {EventType} type - The type of event.
    * @param {Partial<Event>} [event={}] - The event object to pass to listeners.
    * @returns {void}
@@ -434,7 +434,7 @@ class Context {
 
   /**
    * Resets all pending effect queues.
-   * 
+   *
    * @returns {void}
    */
   resetPendingQueues() {
@@ -446,7 +446,7 @@ class Context {
 
   /**
    * Adds an event listener for a specific event type.
-   * 
+   *
    * @param {EventType} type - The type of event.
    * @param {OnFlushCallback} listener - The callback function to invoke when the event is triggered.
    * @returns {void}
@@ -459,7 +459,7 @@ class Context {
 
   /**
    * Flushes pre-effects up to the specified index.
-   * 
+   *
    * @param {number} index - The index up to which pre-effects should be flushed.
    * @returns {void}
    */
@@ -591,7 +591,7 @@ class Context {
 
   /**
   * Defines the keys to be used as static props.
-  * 
+  *
   * @param {string[]} keys - An array of strings representing the keys to define.
   * @returns {void}
   */
@@ -606,7 +606,7 @@ class Context {
 
   /**
    * Tracks props dynamically, adding all keys and their values from the given props object.
-   * 
+   *
    * @template T
    * @param {T} props - The props object to track dynamically.
    * @returns {Record<string, any>} - The updated props object.
@@ -621,7 +621,7 @@ class Context {
 
   /**
    * Tracks props statically, adding only predefined keys and their values from the given props object.
-   * 
+   *
    * @template T
    * @param {T} props - The props object to track statically.
    * @returns {Record<string, any>} - The updated props object.
@@ -638,7 +638,7 @@ class Context {
 
   /**
    * Tracks props based on the current tracking mode (static or dynamic).
-   * 
+   *
    * @template T
    * @param {T} props - The props object to track.
    * @returns {Record<string, any>} - The updated props object.

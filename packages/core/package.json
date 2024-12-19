@@ -1,49 +1,49 @@
 {
-  "name": "@bridge/core",
-  "version": "0.2.2",
+  "name": "@briddge/core",
+  "version": "0.3.13",
   "packageManager": "pnpm@8.15.3",
   "type": "module",
-  "main": "./src/index.js",
-  "module": "./src/index.js",
+  "main": "./dist/briddge-core.cjs.js",
+  "module": "./dist/briddge-core.esm-bundler.js",
   "types": "./src/index.d.ts",
   "scripts": {
     "test": "vitest --",
     "build": "pnpm build-vue && pnpm dlx tsc-alias -p vue/tsconfig.json",
-    "build-vue": "rimraf vue/temp && cd vue && pnpm tsc --noCheck || exit 0;",
+    "build-vue": "(rimraf vue/temp && cd vue && pnpm tsc --noCheck) || exit 0;",
     "release": "release-it"
   },
   "exports": {
     ".": {
-      "default": "./src/index.js",
-      "types": "./src/index.d.ts"
+      "import": {
+        "default": "./dist/briddge-core.esm-bundler.js",
+        "types": "./src/index.d.ts"
+      },
+      "require": {
+        "default": "./dist/briddge-core.cjs.js",
+        "types": "./src/index.d.ts"
+      }
     },
     "./package.json": "./package.json"
   },
   "imports": {
-    "#vue-internals/reactivity/*": "./vue/temp/packages/reactivity/src/*.js",
-    "#vue-internals/runtime-core/*": "./vue/temp/packages/runtime-core/src/*.js",
-    "#vue-internals/shared/*": "./vue/temp/packages/shared/src/*.js",
-    "#vue-internals": "./vue/temp/packages/vue/src/*.js",
-    "#vue/compat": "./vue/temp/packages/vue-compat/src/index.js",
-    "#vue/reactivity": "./vue/temp/packages/reactivity/src/index.js",
-    "#vue/runtime-core": "./vue/temp/packages/runtime-core/src/index.js",
-    "#vue/runtime-dom": "./vue/temp/packages/runtime-dom/src/index.js",
-    "#vue/runtime-test": "./vue/temp/packages/runtime-test/src/index.js",
-    "#vue/server-renderer": "./vue/temp/packages/server-renderer/src/index.js",
-    "#vue/shared": "./vue/temp/packages/shared/src/index.js",
-    "#vue/vue": "./vue/temp/packages/vue/src/index.js",
-    "#vue/vue-compat": "./vue/temp/packages/vue-compat/src/index.js",
-    "#vue/*": "./vue/temp/packages/*/src/index.js"
+    "#vue-internals/reactivity/*.js": "./vue/temp/packages/reactivity/src/*.js",
+    "#vue-internals/runtime-core/*.js": "./vue/temp/packages/runtime-core/src/*.js",
+    "#vue-internals/shared/*.js": "./vue/temp/packages/shared/src/*.js",
+    "#vue/reactivity.js": "./vue/temp/packages/reactivity/src/index.js",
+    "#vue/runtime-core.js": "./vue/temp/packages/runtime-core/src/index.js",
+    "#vue/shared.js": "./vue/temp/packages/shared/src/index.js"
   },
   "sideEffects": false,
   "files": [
+    "dist",
     "src",
-    "vue",
-    "../../vue/temp",
-    "README.md"
+    "vue/temp/packages/runtime-core/src",
+    "vue/temp/packages/reactivity/src",
+    "vue/temp/packages/shared/src",
+    "global.d.ts"
   ],
   "peerDependencies": {
-    "react": "^18.0.0"
+    "react": ">=18.0.0"
   },
   "devDependencies": {
     "@microsoft/api-documenter": "^7.26.2",

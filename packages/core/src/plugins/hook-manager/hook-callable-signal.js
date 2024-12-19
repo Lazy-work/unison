@@ -1,5 +1,4 @@
-
-import { activeSub, shouldTrack, ReactiveEffect } from '#vue-internals/reactivity/effect'
+import { activeSub, shouldTrack, ReactiveEffect } from '#vue-internals/reactivity/effect.js'
 
 class HookCallableSignal {
   #manager;

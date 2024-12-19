@@ -1,8 +1,8 @@
-/** @import { BridgePluginClass } from './plugins' */
-/** @import { SetupComponent } from './types' */
+/** @import { BridgePluginClass } from './plugins.js' */
+/** @import { SetupComponent } from './types.js' */
 import React, { useEffect, useState } from 'react';
-import Context from './context';
-import { setCurrentInstance } from './index';
+import Context from './context.js';
+import { setCurrentInstance } from './index.js';
 
 
 const pluginsList = new Set();
@@ -10,7 +10,7 @@ const pluginsList = new Set();
 /**
  * @template {BridgePluginClass} T
  * @template {object} O
- * @param {T} pluginClass 
+ * @param {T} pluginClass
  * @param {O} [options]
  */
 export function usePlugin(pluginClass, options) {
@@ -32,13 +32,13 @@ export function initInstance() {
 
 /**
  * @template {AnyFunction} T
- * @param {T} bridgeHook 
- * @returns 
+ * @param {T} bridgeHook
+ * @returns
  */
 export function createReactHook(bridgeHook) {
 /**
  * @template {Parameters<T>} P
- * @param {...P} params 
+ * @param {...P} params
  * @returns {ReturnType<T>}
  */
   return (...args) => {
@@ -53,8 +53,8 @@ export function createReactHook(bridgeHook) {
  * @param {SetupComponent<T>} fn - bridge component setup
  * @param {string} [name] - component name
  */
-export function $bridge(fn, name) { 
-  /** @type {React.ForwardRefExoticComponent<PropsWithoutRef<T['ref']> & RefAttributes<Exclude<T, 'ref'>>>} */
+export function $bridge(fn, name) {
+  /** @type {React.ForwardRefExoticComponent<T>} */
   const component = React.forwardRef((props, ref) => {
     const [instance] = useState(initInstance);
     const unset = setCurrentInstance(instance);

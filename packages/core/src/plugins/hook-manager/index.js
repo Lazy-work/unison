@@ -1,10 +1,10 @@
-import { Events } from '../../context';
 import React, { useState } from 'react';
-import { NOOP, isFunction, isObject } from '#vue-internals/shared/general';
-import { ReactiveEffect } from '#vue-internals/reactivity/effect';
-import { getCurrentInstance } from '../../index';
-import HookCallableSignal from './hook-callable-signal';
-import { mustBeBridgeComponent } from '../../utils';
+import { Events } from '../../context.js';
+import { NOOP, isFunction, isObject } from '#vue-internals/shared/general.js';
+import { ReactiveEffect } from '#vue-internals/reactivity/effect.js';
+import { getCurrentInstance } from '../../index.js';
+import HookCallableSignal from './hook-callable-signal.js';
+import { mustBeBridgeComponent } from '../../utils.js';
 
 const nativeHooks = [
   React.useReducer,
@@ -205,7 +205,7 @@ export class HookManager {
   }
 }
 
-export function toBridgeHook(hook = {}) {
+export function toBridgeHook(hook = {}, options = {}) {
   return (...params) => {
     mustBeBridgeComponent();
 

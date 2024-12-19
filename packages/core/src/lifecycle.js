@@ -1,13 +1,13 @@
-/** @import {ComponentInternalInstance} from './index' */
-import { LifecycleHooks } from '#vue-internals/runtime-core/enums';
-import { getCurrentInstance } from './index';
+/** @import {ComponentInternalInstance} from './index.js' */
+import { LifecycleHooks } from '#vue-internals/runtime-core/enums.js';
+import { getCurrentInstance } from './index.js';
 
 export function hasInjectionContext() {
   return !!getCurrentInstance();
 }
 
 /**
- * 
+ *
  * @param {ComponentInternalInstance | null} instance
  * @param {LifecycleHooks} type
  * @param {Function} hook
@@ -22,7 +22,7 @@ function injectHook(instance, type, hook) {
 /** @typedef {() => void} Hook */
 
 /**
- * 
+ *
  * @param {Hook} callback
  */
 export function onUpdated(callback) {
@@ -31,7 +31,7 @@ export function onUpdated(callback) {
 }
 
 /**
- * 
+ *
  * @param {Hook} callback
  */
 export function onBeforeUpdate(callback) {
@@ -41,7 +41,7 @@ export function onBeforeUpdate(callback) {
 
 
 /**
- * 
+ *
  * @param {Hook} callback
  */
 export function onBeforeMount(callback) {
@@ -51,7 +51,7 @@ export function onBeforeMount(callback) {
 
 
 /**
- * 
+ *
  * @param {Hook} callback
  */
 export function onMounted(callback) {
@@ -61,7 +61,7 @@ export function onMounted(callback) {
 
 
 /**
- * 
+ *
  * @param {Hook} callback
  */
 export function onBeforeUnmount(callback) {
@@ -70,7 +70,7 @@ export function onBeforeUnmount(callback) {
 
 
 /**
- * 
+ *
  * @param {Hook} callback
  */
 export function onUnmounted(callback) {

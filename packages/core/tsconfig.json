@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",    
+    "baseUrl": ".",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -22,21 +22,9 @@
       "#vue-internals/reactivity/*": ["vue/packages/reactivity/src/*"],
       "#vue-internals/runtime-core/*": ["vue/packages/runtime-core/src/*"],
       "#vue-internals/shared/*": ["vue/packages/shared/src/*"],
-      "vue-internals": ["vue/packages/vue/src/*"],
-      "#vue/compat": ["vue/packages/vue-compat/src"],
-      "#vue/compiler-dom": ["vue/packages/compiler-dom/src"],
-      "#vue/compiler-core": ["vue/packages/compiler-core/src"],
-      "#vue/compiler-sfc": ["vue/packages/compiler-sfc/src"],
-      "#vue/runtime-ssr": ["vue/packages/runtime-ssr/src"],
       "#vue/reactivity": ["vue/packages/reactivity/src"],
       "#vue/runtime-core": ["vue/packages/runtime-core/src"],
-      "#vue/runtime-dom": ["vue/packages/runtime-dom/src"],
-      "#vue/runtime-test": ["vue/packages/runtime-test/src"],
-      "#vue/server-renderer": ["vue/packages/server-renderer/src"],
-      "#vue/shared": ["vue/packages/shared/src"],
-      "#vue/vue": ["vue/packages/vue/src"],
-      "#vue/vue-compat": ["vue/packages/vue-compat/src"],
-      "#vue/*": ["vue/packages/*/src"],
+      "#vue/shared": ["vue/packages/shared/src"]
     },
     "types": ["vitest/globals", "node"],
     "composite": true

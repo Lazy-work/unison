@@ -8,8 +8,10 @@
   "types": "./src/index.d.ts",
   "scripts": {
     "test": "vitest --",
-    "build": "pnpm build-vue && pnpm dlx tsc-alias -p vue/tsconfig.json",
+    "build": "pnpm build-rm-alias && pnpm build-js",
+    "build-js": "rimraf dist && pnpm rollup -c rollup.config.js",
     "build-vue": "(rimraf vue/temp && cd vue && pnpm tsc --noCheck) || exit 0;",
+    "build-rm-alias": "(pnpm build-vue && pnpm dlx tsc-alias -p vue/tsconfig.json) || exit 0;",
     "release": "release-it"
   },
   "exports": {

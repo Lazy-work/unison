@@ -1,5 +1,5 @@
-import { usePlugin } from '@bridge/core';
-import { InjectionPlugin } from './apiInject';
+import { usePlugin } from '@briddge/core';
+import { InjectionPlugin } from './apiInject.js';
 export {
   $bridge,
   createReactHook,
@@ -15,18 +15,18 @@ export {
   onUpdated,
   onBeforeUnmount,
   onUnmounted,
-} from '@bridge/core';
+} from '@briddge/core';
 /**
  * @internal
  */
-export { withAsyncContext } from '@bridge/core';
-export { AppProvider } from './app';
-export { createApp } from './apiCreateApp';
+export { withAsyncContext } from '@briddge/core';
+export { AppProvider } from './app.js';
+export { createApp } from './apiCreateApp.js';
 usePlugin(InjectionPlugin);
-export { inject, provide, hasInjectionContext } from './apiInject';
-export { FastRefreshStoragePlugin } from './apiDebug';
-export { toBridgeHook } from './hook-manager';
-export { rsx } from './jsx-runtime';
+export { inject, provide, hasInjectionContext } from './apiInject.js';
+export { FastRefreshStoragePlugin } from './apiDebug.js';
+export { toBridgeHook } from './hook-manager/index.js';
+export { rsx } from './jsx-runtime.js';
 export const isVue2 = false;
 export const isVue3 = true;
 export const version = '3.0.0';
@@ -62,7 +62,6 @@ export function reactRef(initialValue) {
   ref.value = initialValue;
   return ref;
 }
-export * from './app';
 export {
   // core
   reactive,
@@ -99,6 +98,6 @@ export {
   EffectScope,
   getCurrentScope,
   onScopeDispose,
-} from '#vue/runtime-core';
-export { watch, watchEffect, watchPostEffect, watchSyncEffect } from '#vue/runtime-core';
-export { TrackOpTypes, TriggerOpTypes } from '#vue/reactivity';
+} from './reactivity/index.js';
+export { watch, watchEffect, watchPostEffect, watchSyncEffect } from './apiWatch.js';
+export { TrackOpTypes, TriggerOpTypes } from './reactivity/index.js';

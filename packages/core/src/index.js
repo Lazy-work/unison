@@ -1,9 +1,10 @@
-export { $bridge, createReactHook, usePlugin } from './management';
-export { useBridge } from './use-bridge';
+export { $bridge, createReactHook, usePlugin } from './management.js';
+export { useBridge } from './use-bridge.js';
 
-export * from './plugins/hook-manager';
+export * from './plugins/hook-manager/index.js';
 
 export {
+  effect,
   ReactiveEffect,
   activeSub,
   resetTracking,
@@ -16,7 +17,14 @@ export {
   onEffectCleanup,
   refreshComputed,
   EffectFlags,
-} from '#vue-internals/reactivity/effect';
+} from '#vue-internals/reactivity/effect.js';
+
+export {
+  effectScope,
+  EffectScope,
+  getCurrentScope,
+  onScopeDispose,
+} from '#vue-internals/reactivity/effectScope.js';
 
 export {
   Dep,
@@ -28,7 +36,7 @@ export {
   ARRAY_ITERATE_KEY,
   ITERATE_KEY,
   MAP_KEY_ITERATE_KEY,
-} from '#vue-internals/reactivity/dep';
+} from '#vue-internals/reactivity/dep.js';
 
 export {
   queueJob,
@@ -43,21 +51,32 @@ export {
   getJobAt,
   endFlush,
   SchedulerJobFlags,
-} from '#vue-internals/runtime-core/scheduler';
+} from '#vue-internals/runtime-core/scheduler.js';
 
-export { nextTick } from '#vue-internals/runtime-core/scheduler';
+export {
+  currentListener,
+  createListener,
+  getCurrentListener,
+  setCurrentListener
+} from './listener.js'
 
-export { withAsyncContext } from '#vue-internals/runtime-core/apiSetupHelpers';
+export { nextTick } from '#vue-internals/runtime-core/scheduler.js';
 
-export { getCurrentInstance, setCurrentInstance } from '#vue-internals/runtime-core/component';
+export { withAsyncContext } from '#vue-internals/runtime-core/apiSetupHelpers.js';
 
-export * from './lifecycle';
-export * from './conditional';
+export { getCurrentInstance, setCurrentInstance, currentInstance } from '#vue-internals/runtime-core/component.js';
+
+export {
+  validateComponentName,
+} from '#vue-internals/runtime-core/component.js'
+export { validateDirectiveName } from '#vue-internals/runtime-core/directives.js'
+export { ErrorCodes, callWithAsyncErrorHandling } from '#vue-internals/runtime-core/errorHandling.js'
+
+export * from './lifecycle.js';
+export * from './conditional/index.js';
 
 function define(globals) {
   for (const [key, value] of Object.entries(globals)) {
     globalThis[key] = value;
   }
 }
-
-

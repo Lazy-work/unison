@@ -13,19 +13,19 @@ export {
   onUpdated,
   onBeforeUnmount,
   onUnmounted,
-} from '@bridge/core';
+} from '@briddge/core';
 
 /**
  * @internal
  */
 export {
   withAsyncContext
-} from '@bridge/core';
+} from '@briddge/core';
 
 export {
   AppProvider,
-} from './app';
-export { createApp } from './apiCreateApp'
+} from './app.js';
+export { createApp } from './apiCreateApp.js'
 export type {
   App,
   AppConfig,
@@ -35,11 +35,12 @@ export type {
   FunctionPlugin,
   CreateAppFunction,
   OptionMergeFunction,
-} from './types'
-export { inject, provide, hasInjectionContext, type InjectionKey } from './apiInject';
-export { FastRefreshStoragePlugin } from './apiDebug';
-export { toBridgeHook } from './hook-manager';
-export { rsx } from './jsx-runtime';
+  InjectionKey
+} from './types.js'
+export { inject, provide, hasInjectionContext } from './apiInject.js';
+export { FastRefreshStoragePlugin } from './apiDebug.js';
+export { toBridgeHook } from './hook-manager/index.js';
+export { rsx } from './jsx-runtime.js';
 export declare const isVue2 = false;
 export declare const isVue3 = true;
 export declare const version = "3.0.0";
@@ -92,15 +93,15 @@ export {
   EffectScope,
   getCurrentScope,
   onScopeDispose,
-} from '#vue/runtime-core';
+} from './reactivity/index.js';
 export {
   watch,
   watchEffect,
   watchPostEffect,
   watchSyncEffect
-} from '#vue/runtime-core';
+} from './apiWatch.js';
 
-export { TrackOpTypes, TriggerOpTypes } from '#vue/reactivity';
+export type { TrackOpTypes, TriggerOpTypes } from './reactivity/types.js';
 
 export type {
   MultiWatchSources,
@@ -136,4 +137,4 @@ export type {
   DebuggerEventExtraInfo,
   Raw,
   Reactive,
-} from '#vue/runtime-core';
+} from './reactivity/types.js';

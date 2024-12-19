@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { createListener, setCurrentListener } from '#vue-internals/reactivity/reactive';
-import { initInstance } from './management';
-import { setCurrentInstance } from './index';
+import { createListener, setCurrentListener } from './listener.js';
+import { initInstance } from './management.js';
+import { setCurrentInstance } from './index.js';
 
 class DisposeManager {
   /**

@@ -47,6 +47,7 @@ export {
   flushPostFlushCbs,
   switchToAuto,
   switchToManual,
+  getMode,
   toggleMode,
   getJobAt,
   endFlush,

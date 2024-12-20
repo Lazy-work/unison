@@ -3,8 +3,8 @@
 // sync
 // layout
 
-import { ShallowReactive } from "#vue-internals/reactivity/reactive";
-import { Events } from "./context";
+import { ShallowReactive } from "#vue-internals/reactivity/reactive.js";
+import { Events } from "./context.js";
 
 // insertion
 type EventTypes = typeof Events;
@@ -20,6 +20,12 @@ export type Event = {
 export type SetupComponent<T extends Record<string, any>> = (props: ShallowReactive<T>) => () => React.ReactNode;
 
 export type DeepPartial<T> = T extends object ? {
-    [P in keyof T]?: DeepPartial<T[P]>;
+  [P in keyof T]?: DeepPartial<T[P]>;
 } : T;
 export type CaseParams<T> = T extends object ? [...(DeepPartial<T> | boolean)[], any] : [...(T | boolean)[], any];
+
+export interface Listener {
+  trigger?: (value?: any, oldValue?: any) => void;
+  clean?: () => void;
+  cleanups?: (() => void)[];
+}

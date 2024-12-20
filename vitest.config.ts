@@ -24,7 +24,6 @@ export default defineConfig({
       "@vue-internals/shared": path.resolve(__dirname, "./vue/packages/shared/src"),
       "@vue-internals/reactivity": path.resolve(__dirname, "./vue/packages/reactivity/src"),
       "@vue-internals/runtime-core": path.resolve(__dirname, "./vue/packages/runtime-core/src"),
-      "@bridge/core": path.resolve(__dirname, "./packages/core/src/index.ts"),
       ...entries
     }
   },

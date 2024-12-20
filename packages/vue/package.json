@@ -1,6 +1,6 @@
 {
-  "name": "@bridge/vue",
-  "version": "0.2.2",
+  "name": "@briddge/vue",
+  "version": "0.2.20",
   "packageManager": "pnpm@8.15.3",
   "type": "module",
   "main": "./src/index.js",
@@ -8,8 +8,6 @@
   "types": "./src/index.d.ts",
   "scripts": {
     "test": "vitest --",
-    "build": "pnpm build-vue && pnpm dlx tsc-alias -p vue/tsconfig.json",
-    "build-vue": "(rimraf vue/temp && cd vue && pnpm tsc --noCheck || exit 0) && cd vue &&./replace_constants.sh",
     "release": "release-it"
   },
   "exports": {
@@ -25,25 +23,10 @@
     },
     "./package.json": "./package.json"
   },
-  "imports": {
-    "#vue-internals/reactivity/*": "./vue/temp/packages/reactivity/src/*.js",
-    "#vue-internals/runtime-core/*": "./vue/temp/packages/runtime-core/src/*.js",
-    "#vue-internals/shared/*": "./vue/temp/packages/shared/src/*.js",
-    "#vue-internals": "./vue/temp/packages/vue/src/*.js",
-    "#vue/compat": "./vue/temp/packages/vue-compat/src/index.js",
-    "#vue/reactivity": "./vue/temp/packages/reactivity/src/index.js",
-    "#vue/runtime-core": "./vue/temp/packages/runtime-core/src/index.js",
-    "#vue/runtime-dom": "./vue/temp/packages/runtime-dom/src/index.js",
-    "#vue/runtime-test": "./vue/temp/packages/runtime-test/src/index.js",
-    "#vue/server-renderer": "./vue/temp/packages/server-renderer/src/index.js",
-    "#vue/shared": "./vue/temp/packages/shared/src/index.js",
-    "#vue/vue": "./vue/temp/packages/vue/src/index.js",
-    "#vue/vue-compat": "./vue/temp/packages/vue-compat/src/index.js",
-    "#vue/*": "./vue/temp/packages/*/src/index.js"
-  },
   "sideEffects": false,
   "files": [
-    "dist",
+    "src",
+    "global.d.ts",
     "README.md"
   ],
   "publishConfig": {
@@ -56,7 +39,7 @@
     }
   },
   "devDependencies": {
-    "@bridge/core": "workspace:*",
+    "@briddge/core": "workspace:*",
     "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.5",
@@ -71,6 +54,9 @@
     "unplugin-inline-enum": "^0.2.0"
   },
   "peerDependencies": {
-    "@bridge/core": "^0.2.0"
+    "@briddge/core": ">=0.3.5"
+  },
+  "dependencies": {
+    "@vue/shared": "^3.5.13"
   }
 }

@@ -1,27 +1,24 @@
 {
-  "name": "babel-plugin-reactive-vue-optimizer",
+  "name": "babel-plugin-bridge-compiler",
   "version": "0.1.0",
   "packageManager": "pnpm@8.15.3",
-  "main": "./dist/reactive-vue-compiler.js",
   "scripts": {
     "test": "vitest --",
     "build": "rimraf dist && rollup -c --bundleConfigAsCjs",
     "release": "release-it"
   },
+  "main": "./dist/bridge-compiler.js",
   "exports": {
-    ".": {
-      "require": {
-        "default": "./dist/reactive-vue-compiler.cjs.js"
-      }
-    },
+    ".": "./dist/bridge-compiler.cjs.js",
     "./package.json": "./package.json"
   },
-  "sideEffects": false,
   "files": [
     "dist",
     "README.md"
   ],
   "devDependencies": {
+    "@babel/generator": "^7.26.2",
+    "@rollup/plugin-alias": "^5.1.1",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-replace": "^5.0.5",
@@ -31,9 +28,6 @@
     "rollup": "^4.17.2",
     "rollup-plugin-esbuild": "^6.1.1",
     "vitest": "^1.5.2"
-  },
-  "peerDependencies": {
-    "@lazywork/reactive-vue-jsx-runtime": "workspace:^"
   },
   "publishConfig": {
     "access": "public"

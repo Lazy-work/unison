@@ -1,5 +1,5 @@
 import { watchEffect as effect, isReactive, reactive, toRaw, nextTick } from '../../src';
-import { $bridge } from '@bridge/core';
+import { $bridge } from '@briddge/core';
 import { act, render } from '@testing-library/react';
 
 describe('reactivity/collections', () => {

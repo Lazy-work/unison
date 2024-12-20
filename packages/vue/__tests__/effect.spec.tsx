@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import {
   type DebuggerEvent,
   type ReactiveEffectRunner,
@@ -16,8 +16,8 @@ import {
   nextTick,
   ref,
   $bridge,
-} from '../src/index';
-import { ITERATE_KEY } from '@vue/reactivity';
+} from '../src/index.js';
+import { ITERATE_KEY } from '@briddge/core';
 
 describe('reactivity/effect', () => {
   it('should run the passed function once (wrapped by a effect)', async () => {

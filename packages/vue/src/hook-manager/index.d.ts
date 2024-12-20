@@ -1,6 +1,5 @@
-import { ToRef } from '@bridge/vue';
-import HookRef from '../react-hook/hookRef';
-import { BridgeHookOptions } from '@bridge/core';
+import { ToRef } from '@briddge/vue';
+import { BridgeHookOptions } from '@briddge/core';
 
 type AnyFunction = (...args: any[]) => any;
 type ToRefs<T> = T extends object ? { [P in keyof T]: T[P] extends Function ? T[P] : ToRef<T[P]> } : T;

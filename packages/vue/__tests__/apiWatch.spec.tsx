@@ -1,5 +1,4 @@
 import {
-  type ComponentInternalInstance,
   computed,
   getCurrentInstance,
   nextTick,
@@ -23,11 +22,10 @@ import {
   TrackOpTypes,
   TriggerOpTypes,
   onWatcherCleanup,
-} from '../src/index';
+} from '../src/index.js';
 
-import { ITERATE_KEY } from '@vue/reactivity';
-import { act, render } from '@testing-library/react';
-import { getMode } from '@vue-internals/runtime-core/scheduler';
+import { ITERATE_KEY, getMode } from '@briddge/core';
+import { render } from '@testing-library/react';
 
 // reference: https://vue-composition-api-rfc.netlify.com/api.html#watch
 

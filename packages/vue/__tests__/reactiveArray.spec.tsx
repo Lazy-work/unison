@@ -1,5 +1,5 @@
 import { nextTick, isReactive, reactive, toRaw, isRef, ref, watchEffect as effect } from '../src/index';
-import { $bridge } from '@bridge/core';
+import { $bridge } from '@briddge/core';
 import { act, render } from '@testing-library/react';
 import React from 'react';
 

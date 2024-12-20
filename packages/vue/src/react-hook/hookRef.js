@@ -1,6 +1,6 @@
-import { HookManager } from '@bridge/core';
-import { ReactiveFlags, TrackOpTypes } from '#vue-internals/reactivity/constants';
-import { Dep } from '#vue-internals/reactivity/dep';
+/** @import { HookManager } from '@briddge/core' */
+import { Dep } from '@briddge/core';
+import { ReactiveFlags, TrackOpTypes } from '../reactivity/constants.js';
 
 /**
  * @template {any} T

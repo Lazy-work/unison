@@ -1,22 +1,18 @@
-import {
-    type ComponentInternalInstance,
-    type ConcreteComponent,
-    type Data
-} from '#vue-internals/runtime-core/component'
-import type {
-    MergedComponentOptions,
-    RuntimeCompilerOptions,
-} from '#vue-internals/runtime-core/componentOptions'
 import type {
     ComponentCustomProperties,
     ComponentPublicInstance,
-} from '#vue-internals/runtime-core/componentPublicInstance'
-import type { ElementNamespace } from '#vue-internals/runtime-core/renderer'
-import type { InjectionKey } from '#vue-internals/runtime-core/apiInject'
-import { type VNode } from '#vue-internals/runtime-core/vnode'
-import type { NormalizedPropsOptions } from '#vue-internals/runtime-core/componentProps'
-import type { ObjectEmitsOptions } from '#vue-internals/runtime-core/componentEmits'
-import type { DefineComponent } from '#vue-internals/runtime-core/apiDefineComponent'
+    DefineComponent,
+    ElementNamespace,
+    InjectionKey,
+    MergedComponentOptions,
+    NormalizedPropsOptions,
+    ObjectEmitsOptions,
+    RuntimeCompilerOptions,
+    type ComponentInternalInstance,
+    type ConcreteComponent,
+    type Data,
+    type VNode
+} from '@briddge/core'
 
 export interface App<HostElement = any> {
     version: string
@@ -178,6 +174,8 @@ export interface AppContext {
     filters?: Record<string, Function>
 }
 
+export type InjectionKey = symbol & InjectionConstraint<T>
+
 type PluginInstallFunction<Options = any[]> = Options extends unknown[]
     ? (app: App, ...options: Options) => any
     : (app: App, options: Options) => any
@@ -196,3 +194,32 @@ export type CreateAppFunction<HostElement> = (
     rootComponent: Component,
     rootProps?: Data | null,
 ) => App<HostElement>
+
+export type { WatchHandle, WatchStopHandle, WatchEffect, WatchSource, WatchCallback, OnCleanup } from './reactivity';
+import type { WatchSource } from './reactivity';
+
+export type MaybeUndefined<T, I> = I extends true ? T | undefined : T;
+
+export type MapSources<T, Immediate> = {
+  [K in keyof T]: T[K] extends WatchSource<infer V>
+    ? MaybeUndefined<V, Immediate>
+    : T[K] extends object
+      ? MaybeUndefined<T[K], Immediate>
+      : never;
+};
+
+export interface WatchEffectOptions extends DebuggerOptions {
+  flush?: 'pre' | 'post' | 'sync' | 'insertion' | 'layout';
+}
+
+export interface WatchOptions<Immediate = boolean> extends WatchEffectOptions {
+  immediate?: Immediate;
+  deep?: boolean | number;
+  once?: boolean;
+}
+
+export type MultiWatchSources = (WatchSource<unknown> | object)[];
+
+// in the codebase we enforce es2016, but user code may run in environments
+// higher than that
+export type ArrayMethods = keyof Array<any> | 'findLast' | 'findLastIndex'

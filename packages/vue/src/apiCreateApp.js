@@ -1,19 +1,16 @@
-/** @import { Component, Data } from '#vue-internals/runtime-core/component' */
-/** @import { App, AppContext, Plugin } from './types' */
-/** @import { ComponentOptions } from '#vue-internals/runtime-core/componentOptions' */
-/** @import { Directive } from '#vue-internals/runtime-core/directives' */
-/** @import { Directive } from '#vue-internals/runtime-core/directives' */
+/** @import { App, AppContext, Plugin } from './types.js' */
+/** @import { Component, Data, Directive, ComponentOptions } from '@briddge/core' */
 import {
-  validateComponentName,
-} from '#vue-internals/runtime-core/component'
-import { validateDirectiveName } from '#vue-internals/runtime-core/directives'
-import { warn } from '#vue-internals/runtime-core/warning'
-import { NO, isFunction } from '#vue/shared'
-import { version } from '.'
-import { ErrorCodes, callWithAsyncErrorHandling } from '#vue-internals/runtime-core/errorHandling'
+    ErrorCodes, callWithAsyncErrorHandling,
+    validateComponentName,
+    validateDirectiveName,
+} from '@briddge/core'
+import { NO, isFunction } from '@vue/shared'
+import { version } from './index.js'
+import { warn } from './reactivity/warning.js'
 
 /**
- * 
+ *
  * @returns {AppContext}
  */
 export function createAppContext() {
@@ -76,10 +73,10 @@ export function createApp() {
     },
 
     /**
-     * 
-     * @param {Plugin} plugin 
-     * @param {any[]} options 
-     * @returns 
+     *
+     * @param {Plugin} plugin
+     * @param {any[]} options
+     * @returns
      */
     use(plugin, ...options) {
       if (installedPlugins.has(plugin)) {
@@ -101,7 +98,7 @@ export function createApp() {
 
     /**
      * @param {ComponentOptions} mixin
-     * 
+     *
      */
     mixin(mixin) {
       if (!!(process.env.NODE_ENV !== 'production')) {
@@ -111,9 +108,9 @@ export function createApp() {
     },
 
     /**
-     * 
-     * @param {string} name 
-     * @param {Component} [component] 
+     *
+     * @param {string} name
+     * @param {Component} [component]
      * @returns any
      */
     component(name, component) {
@@ -132,10 +129,10 @@ export function createApp() {
 
 
     /**
-     * 
-     * @param {string} name 
-     * @param {Directive} [component] 
-     * @returns 
+     *
+     * @param {string} name
+     * @param {Directive} [component]
+     * @returns
      */
     directive(name, directive) {
       if (!!(process.env.NODE_ENV !== 'production')) {
@@ -164,8 +161,8 @@ export function createApp() {
     },
 
     /**
-     * 
-     * @param {() => void} cleanupFn 
+     *
+     * @param {() => void} cleanupFn
      */
     onUnmount(cleanupFn) {
       if (!!(process.env.NODE_ENV !== 'production') && typeof cleanupFn !== 'function') {

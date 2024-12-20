@@ -1,7 +1,7 @@
-/** @import { BridgePlugin, ComponentInternalInstance } from '@bridge/core' */
-/** @import { Reactive, Ref } from '#vue/reactivity' */
-import { usePlugin } from '@bridge/core';
-import { isReactive, isReadonly, isRef } from '#vue/reactivity';
+/** @import { BridgePlugin, ComponentInternalInstance } from '@briddge/core' */
+/** @import { Reactive, Ref } from './reactivity/index.js' */
+import { usePlugin } from '@briddge/core';
+import { isReactive, isReadonly, isRef } from './reactivity/index.js';
 
 /**
  * @implements {BridgePlugin}

@@ -1,8 +1,8 @@
-/** @import { BridgePlugin, ComponentInternalInstance } from '@bridge/core' */
-/** @import { ComputedRefImpl } from '#vue-internals/reactivity/computed' */
-import { usePlugin, getCurrentInstance } from '@bridge/core';
-import { unref } from './index';
-import { computed } from '#vue-internals/reactivity/computed';
+/** @import { BridgePlugin, ComponentInternalInstance } from '@briddge/core' */
+/** @import { ComputedRefImpl } from './reactivity/computed.js' */
+import { usePlugin, getCurrentInstance } from '@briddge/core';
+import { unref } from './index.js';
+import { computed } from './reactivity/computed.js';
 
 
 /**

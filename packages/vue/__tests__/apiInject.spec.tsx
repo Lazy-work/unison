@@ -1,9 +1,8 @@
 import { act, render } from '@testing-library/react';
-import { type Ref, hasInjectionContext, reactive, readonly, ref, $bridge, nextTick } from '../src';
-import { inject, provide } from '../src/index';
-import { type InjectionKey } from '../src/index';
-import { createApp, nodeOps, serialize } from '@vue/runtime-test';
-import { getMode } from '@vue-internals/runtime-core/scheduler';
+import { type Ref, hasInjectionContext, reactive, readonly, ref, $bridge, nextTick, createApp } from '../src/index.js';
+import { inject, provide } from '../src/index.js';
+import { type InjectionKey } from '../src/index.js';
+import { nodeOps, serialize } from '@vue/runtime-test';
 
 // reference: https://vue-composition-api-rfc.netlify.com/api.html#provide-inject
 describe('api: provide/inject', () => {
@@ -253,6 +252,7 @@ describe('api: provide/inject', () => {
     });
 
     const root = document.createElement('div');
+    createApp();
     render(<Provider />, { container: root });
     expect(root.outerHTML).toBe(`<div></div>`);
     expect(`injection "foo" not found.`).toHaveBeenWarned();
@@ -307,7 +307,7 @@ describe('api: provide/inject', () => {
 
     it('should be true within app.runWithContext()', () => {
       expect.assertions(1);
-      createApp({}).runWithContext(() => {
+      createApp().runWithContext(() => {
         expect(hasInjectionContext()).toBe(true);
       });
     });

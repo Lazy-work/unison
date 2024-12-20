@@ -1,9 +1,9 @@
-/** @import { BridgePlugin, ComponentInternalInstance } from '@bridge/core' */
-/** @import { AppContext } from './apiCreateApp' */
-import { getCurrentInstance } from '@bridge/core';
-import { isFunction } from '#vue/shared';
-import { warn } from '#vue-internals/reactivity/warning';
-import { createAppContext, currentApp, currentAppContext } from './apiCreateApp';
+/** @import { BridgePlugin, ComponentInternalInstance } from '@briddge/core' */
+/** @import { AppContext, InjectionKey } from './types.js' */
+import { getCurrentInstance } from '@briddge/core';
+import { isFunction } from '@vue/shared';
+import { warn } from './reactivity/warning.js';
+import { createAppContext, currentApp, currentAppContext } from './apiCreateApp.js';
 
 /**
  * @typedef {Record<string, unknown>} Data
@@ -58,14 +58,8 @@ export class InjectionPlugin {
    * Hook triggered when a component instance is disposed.
    * @param {ComponentInternalInstance} instance - The component instance being disposed.
    */
-  onInstanceDisposed(instance) {}
+  onInstanceDisposed() {}
 }
-
-/**
- * @template T
- * @typedef {symbol & InjectionConstraint<T>} InjectionKey
- * Represents a unique key used for dependency injection.
- */
 
 /**
  * Provides a value associated with a key for dependency injection.

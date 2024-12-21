@@ -1,13 +1,3 @@
-/** @import {EffectScheduler} from '@briddge/core' */
-/** @import {WatchErrorCodes, WatchHandle} from './types.js' */
-import {
-  EffectFlags,
-  ReactiveEffect,
-  getCurrentInstance,
-  getCurrentScope,
-  pauseTracking,
-  resetTracking,
-} from '@briddge/core'
 import {
   EMPTY_OBJ,
   NOOP,
@@ -20,42 +10,82 @@ import {
   isSet,
   remove,
 } from '@vue/shared'
-import { ReactiveFlags } from './constants.js'
-import { isReactive, isShallow } from './reactive.js'
-import { isRef } from './ref.js'
-import { warn } from './warning.js'
+import { warn } from './warning'
+import type { ComputedRef } from './computed'
+import { ReactiveFlags } from './constants'
+import {
+  type DebuggerOptions,
+  EffectFlags,
+  type EffectScheduler,
+  ReactiveEffect,
+  pauseTracking,
+  resetTracking,
+  getCurrentScope,
+} from '@briddge/core'
+import { isReactive, isShallow } from './reactive'
+import { type Ref, isRef } from './ref'
 
 // These errors were transferred from `packages/runtime-core/src/errorHandling.ts`
 // to @vue/reactivity to allow co-location with the moved base watch logic, hence
 // it is essential to keep these values unchanged.
+export enum WatchErrorCodes {
+  WATCH_GETTER = 2,
+  WATCH_CALLBACK,
+  WATCH_CLEANUP,
+}
 
-/** @type {WatchErrorCodes} */
-export const WatchErrorCodes = {
-  WATCH_GETTER: 2,
-  WATCH_CALLBACK: 3,
-  WATCH_CLEANUP: 4,
-};
+export type WatchEffect = (onCleanup: OnCleanup) => void
 
+export type WatchSource<T = any> = Ref<T, any> | ComputedRef<T> | (() => T)
+
+export type WatchCallback<V = any, OV = any> = (
+  value: V,
+  oldValue: OV,
+  onCleanup: OnCleanup,
+) => any
+
+export type OnCleanup = (cleanupFn: () => void) => void
+
+export interface WatchOptions<Immediate = boolean> extends DebuggerOptions {
+  immediate?: Immediate
+  deep?: boolean | number
+  once?: boolean
+  scheduler?: WatchScheduler
+  onWarn?: (msg: string, ...args: any[]) => void
+  /**
+   * @internal
+   */
+  augmentJob?: (job: (...args: any[]) => void) => void
+  /**
+   * @internal
+   */
+  call?: (
+    fn: Function | Function[],
+    type: WatchErrorCodes,
+    args?: unknown[],
+  ) => void
+}
+
+export type WatchStopHandle = () => void
+
+export interface WatchHandle extends WatchStopHandle {
+  pause: () => void
+  resume: () => void
+  stop: () => void
+}
 
 // initial value for watchers to trigger on undefined initial values
 const INITIAL_WATCHER_VALUE = {}
 
-/**
- * @type {WeakMap<ReactiveEffect, (() => void)[]>}
- */
-const cleanupMap = new WeakMap()
+export type WatchScheduler = (job: () => void, isFirstRun: boolean) => void
 
-/**
- * @type {(ReactiveEffect | undefined)}
- */
-let activeWatcher = undefined
+const cleanupMap: WeakMap<ReactiveEffect, (() => void)[]> = new WeakMap()
+let activeWatcher: ReactiveEffect | undefined = undefined
 
 /**
  * Returns the current active effect if there is one.
- *
- * @returns {ReactiveEffect<any> | undefined}
  */
-export function getCurrentWatcher() {
+export function getCurrentWatcher(): ReactiveEffect<any> | undefined {
   return activeWatcher
 }
 
@@ -64,67 +94,46 @@ export function getCurrentWatcher() {
  * registered cleanup callback will be invoked right before the
  * associated effect re-runs.
  *
- * @param {() => void} cleanupFn - The callback function to attach to the effect's cleanup.
- * @param {boolean} failSilently - if `true`, will not throw warning when called without
+ * @param cleanupFn - The callback function to attach to the effect's cleanup.
+ * @param failSilently - if `true`, will not throw warning when called without
  * an active effect.
- * @param {ReactiveEffect | undefined} owner - The effect that this cleanup function should be attached to.
+ * @param owner - The effect that this cleanup function should be attached to.
  * By default, the current active effect.
- *
- * @returns
  */
 export function onWatcherCleanup(
-  cleanupFn,
+  cleanupFn: () => void,
   failSilently = false,
-  owner = activeWatcher,
-) {
+  owner: ReactiveEffect | undefined = activeWatcher,
+): void {
   if (owner) {
     let cleanups = cleanupMap.get(owner)
     if (!cleanups) cleanupMap.set(owner, (cleanups = []))
     cleanups.push(cleanupFn)
-  } else if (!!(process.env.NODE_ENV !== 'production') && !failSilently) {
+  } else if (__DEV__ && !failSilently) {
     warn(
       `onWatcherCleanup() was called when there was no active watcher` +
-      ` to associate with.`,
+        ` to associate with.`,
     )
   }
 }
 
-
-/**
- *
- * @param {(WatchSource | WatchSource[] | WatchEffect | object)} source
- * @param {?(WatchCallback | null)} [cb]
- * @param {WatchOptions} [options=EMPTY_OBJ]
- * @returns {WatchHandle}
- */
 export function watch(
-  source,
-  cb,
-  options = EMPTY_OBJ,
-) {
+  source: WatchSource | WatchSource[] | WatchEffect | object,
+  cb?: WatchCallback | null,
+  options: WatchOptions = EMPTY_OBJ,
+): WatchHandle {
   const { immediate, deep, once, scheduler, augmentJob, call } = options
 
-
-  /**
-   *
-   * @param {unknown} s
-   */
-  const warnInvalidSource = (s) => {
-    ; (options.onWarn || warn)(
+  const warnInvalidSource = (s: unknown) => {
+    ;(options.onWarn || warn)(
       `Invalid watch source: `,
       s,
       `A watch source can only be a getter/effect function, a ref, ` +
-      `a reactive object, or an array of these types.`,
+        `a reactive object, or an array of these types.`,
     )
   }
 
-
-  /**
-   *
-   * @param {object} source
-   * @returns {unknown}
-   */
-  const reactiveGetter = (source) => {
+  const reactiveGetter = (source: object) => {
     // traverse will happen in wrapped getter below
     if (deep) return source
     // for `deep: false | 0` or shallow reactive, only traverse root-level properties
@@ -134,14 +143,10 @@ export function watch(
     return traverse(source)
   }
 
-  /** @type {ReactiveEffect} */
-  let effect
-  /** @type {() => any} */
-  let getter
-  /** @type {(() => void) | undefined} */
-  let cleanup
-  /** @type {typeof onWatcherCleanup} */
-  let boundCleanup
+  let effect: ReactiveEffect
+  let getter: () => any
+  let cleanup: (() => void) | undefined
+  let boundCleanup: typeof onWatcherCleanup
   let forceTrigger = false
   let isMultiSource = false
 
@@ -163,7 +168,7 @@ export function watch(
         } else if (isFunction(s)) {
           return call ? call(s, WatchErrorCodes.WATCH_GETTER) : s()
         } else {
-          !!(process.env.NODE_ENV !== 'production') && warnInvalidSource(s)
+          __DEV__ && warnInvalidSource(s)
         }
       })
   } else if (isFunction(source)) {
@@ -171,7 +176,7 @@ export function watch(
       // getter with cb
       getter = call
         ? () => call(source, WatchErrorCodes.WATCH_GETTER)
-        : /** @type {() => any} */ source
+        : (source as () => any)
     } else {
       // no cb -> simple effect
       getter = () => {
@@ -196,7 +201,7 @@ export function watch(
     }
   } else {
     getter = NOOP
-    !!(process.env.NODE_ENV !== 'production') && warnInvalidSource(source)
+    __DEV__ && warnInvalidSource(source)
   }
 
   if (cb && deep) {
@@ -206,9 +211,7 @@ export function watch(
   }
 
   const scope = getCurrentScope()
-
-  /** @type {WatchHandle} */
-  const watchHandle = () => {
+  const watchHandle: WatchHandle = () => {
     effect.stop()
     if (scope) {
       remove(scope.effects, effect)
@@ -231,17 +234,11 @@ export function watch(
     }
   }
 
-  let oldValue = isMultiSource
-    ? new Array(source.length).fill(INITIAL_WATCHER_VALUE)
+  let oldValue: any = isMultiSource
+    ? new Array((source as []).length).fill(INITIAL_WATCHER_VALUE)
     : INITIAL_WATCHER_VALUE
 
-
-  /**
-   *
-   * @param {?boolean} [immediateFirstRun]
-   * @returns
-   */
-  const job = (immediateFirstRun) => {
+  const job = (immediateFirstRun?: boolean) => {
     if (
       !(effect.flags & EffectFlags.ACTIVE) ||
       (!effect.dirty && !immediateFirstRun)
@@ -255,7 +252,7 @@ export function watch(
         deep ||
         forceTrigger ||
         (isMultiSource
-          ? newValue.some((v, i) => hasChanged(v, oldValue[i]))
+          ? (newValue as any[]).some((v, i) => hasChanged(v, oldValue[i]))
           : hasChanged(newValue, oldValue))
       ) {
         // cleanup before running cb again
@@ -276,9 +273,9 @@ export function watch(
             boundCleanup,
           ]
           call
-            ? call(cb, WatchErrorCodes.WATCH_CALLBACK, args)
+            ? call(cb!, WatchErrorCodes.WATCH_CALLBACK, args)
             : // @ts-expect-error
-            cb(...args)
+              cb!(...args)
           oldValue = newValue
         } finally {
           activeWatcher = currentWatcher
@@ -296,15 +293,9 @@ export function watch(
 
   effect = new ReactiveEffect(getter)
 
-  const instance = getCurrentInstance()
   effect.scheduler = scheduler
     ? () => scheduler(job, false)
-    : /** @type {EffectScheduler} */ job
-
-  if (instance) {
-    job.i = instance
-    job.position = instance.getEffectPosition()
-  }
+    : (job as EffectScheduler)
 
   boundCleanup = fn => onWatcherCleanup(fn, false, effect)
 
@@ -320,7 +311,7 @@ export function watch(
     }
   }
 
-  if (!!(process.env.NODE_ENV !== 'production')) {
+  if (__DEV__) {
     effect.onTrack = options.onTrack
     effect.onTrigger = options.onTrigger
   }
@@ -345,20 +336,12 @@ export function watch(
   return watchHandle
 }
 
-
-/**
- *
- * @param {unknown} value
- * @param {number} [depth=Infinity]
- * @param {?Set<unknown>} [seen]
- * @returns {unknown}
- */
 export function traverse(
-  value,
-  depth = Infinity,
-  seen,
-) {
-  if (depth <= 0 || !isObject(value) || value[ReactiveFlags.SKIP]) {
+  value: unknown,
+  depth: number = Infinity,
+  seen?: Set<unknown>,
+): unknown {
+  if (depth <= 0 || !isObject(value) || (value as any)[ReactiveFlags.SKIP]) {
     return value
   }
 
@@ -375,7 +358,7 @@ export function traverse(
       traverse(value[i], depth, seen)
     }
   } else if (isSet(value) || isMap(value)) {
-    value.forEach((v) => {
+    value.forEach((v: any) => {
       traverse(v, depth, seen)
     })
   } else if (isPlainObject(value)) {
@@ -384,7 +367,7 @@ export function traverse(
     }
     for (const key of Object.getOwnPropertySymbols(value)) {
       if (Object.prototype.propertyIsEnumerable.call(value, key)) {
-        traverse(value[key], depth, seen)
+        traverse(value[key as any], depth, seen)
       }
     }
   }

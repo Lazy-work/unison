@@ -1,63 +1,78 @@
-/** @import { Target, UnwrapNestedRefs, DeepReadonly, Raw, TargetType } from './types.js' */
-/** @import { Listener } from '@briddge/core' */
-import { currentListener } from '@briddge/core';
-import { def, hasOwn, isObject, toRawType } from '@vue/shared';
-import { mutableHandlers, readonlyHandlers, shallowReactiveHandlers, shallowReadonlyHandlers } from './baseHandlers.js';
+import { def, hasOwn, isObject, toRawType } from '@vue/shared'
+import {
+  mutableHandlers,
+  readonlyHandlers,
+  shallowReactiveHandlers,
+  shallowReadonlyHandlers,
+} from './baseHandlers'
 import {
   mutableCollectionHandlers,
   readonlyCollectionHandlers,
   shallowCollectionHandlers,
   shallowReadonlyCollectionHandlers,
-} from './collectionHandlers.js';
-import { ReactiveFlags } from './constants.js';
-import { warn } from './warning.js';
+} from './collectionHandlers'
+import type { RawSymbol, Ref, UnwrapRefSimple } from './ref'
+import { ReactiveFlags } from './constants'
+import { warn } from './warning'
+import { type Listener, currentListener } from '@briddge/core';
 
-/** @type {WeakMap<Target, any>} */
-export const reactiveMap = new WeakMap();
-/** @type {WeakMap<Target, any>} */
-export const shallowReactiveMap = new WeakMap();
+export interface Target {
+  [ReactiveFlags.SKIP]?: boolean
+  [ReactiveFlags.IS_REACTIVE]?: boolean
+  [ReactiveFlags.IS_READONLY]?: boolean
+  [ReactiveFlags.IS_SHALLOW]?: boolean
+  [ReactiveFlags.RAW]?: any
+}
 
-/** @type {WeakMap<Target, any>} */
-export const readonlyMap = new WeakMap();
-/** @type {WeakMap<Target, any>} */
-export const shallowReadonlyMap = new WeakMap();
+export const reactiveMap: WeakMap<Target, any> = new WeakMap<Target, any>()
+export const shallowReactiveMap: WeakMap<Target, any> = new WeakMap<
+  Target,
+  any
+>()
+export const readonlyMap: WeakMap<Target, any> = new WeakMap<Target, any>()
+export const shallowReadonlyMap: WeakMap<Target, any> = new WeakMap<
+  Target,
+  any
+>()
 
-const TargetType = /** @type {TargetType} */ ({
-  INVALID: 0,
-  COMMON: 1,
-  COLLECTION: 2,
-});
+enum TargetType {
+  INVALID = 0,
+  COMMON = 1,
+  COLLECTION = 2,
+}
 
-/**
- *
- * @param {string} rawType
- * @returns {TargetType}
- */
-function targetTypeMap(rawType) {
+function targetTypeMap(rawType: string) {
   switch (rawType) {
     case 'Object':
     case 'Array':
-      return TargetType.COMMON;
+      return TargetType.COMMON
     case 'Map':
     case 'Set':
     case 'WeakMap':
     case 'WeakSet':
-      return TargetType.COLLECTION;
+      return TargetType.COLLECTION
     default:
-      return TargetType.INVALID;
+      return TargetType.INVALID
   }
 }
 
-/**
- *
- * @param {Target} value
- * @returns {number}
- */
-function getTargetType(value) {
+function getTargetType(value: Target) {
   return value[ReactiveFlags.SKIP] || !Object.isExtensible(value)
     ? TargetType.INVALID
-    : targetTypeMap(toRawType(value));
+    : targetTypeMap(toRawType(value))
 }
+
+// only unwrap nested ref
+export type UnwrapNestedRefs<T> = T extends Ref ? T : UnwrapRefSimple<T>
+
+declare const ReactiveMarkerSymbol: unique symbol
+
+export interface ReactiveMarker {
+  [ReactiveMarkerSymbol]?: void
+}
+
+export type Reactive<T> = UnwrapNestedRefs<T> &
+  (T extends readonly any[] ? ReactiveMarker : {})
 
 /**
  * Returns a reactive proxy of the object.
@@ -71,25 +86,27 @@ function getTargetType(value) {
  * const obj = reactive({ count: 0 })
  * ```
  *
- * @overload
- * @template {object} T
- * @param {T} target - The source object.
- * @returns {Reactive<T>}
+ * @param target - The source object.
  * @see {@link https://vuejs.org/api/reactivity-core.html#reactive}
  */
-
-/**
- *
- * @param {object} target
- * @returns {any}
- */
-export function reactive(target) {
+export function reactive<T extends object>(target: T): Reactive<T>
+export function reactive(target: object) {
   // if trying to observe a readonly proxy, return the readonly version.
   if (isReadonly(target)) {
-    return target;
+    return target
   }
-  return createReactiveObject(target, false, mutableHandlers, mutableCollectionHandlers, reactiveMap);
+  return createReactiveObject(
+    target,
+    false,
+    mutableHandlers,
+    mutableCollectionHandlers,
+    reactiveMap,
+  )
 }
+
+export declare const ShallowReactiveMarker: unique symbol
+
+export type ShallowReactive<T> = T & { [ShallowReactiveMarker]?: true }
 
 /**
  * Shallow version of {@link reactive()}.
@@ -118,14 +135,44 @@ export function reactive(target) {
  * state.nested.bar++
  * ```
  *
- * @template {object} T
- * @param {T} target - The source object.
- * @returns {ShallowReactive<T>}
+ * @param target - The source object.
  * @see {@link https://vuejs.org/api/reactivity-advanced.html#shallowreactive}
  */
-export function shallowReactive(target) {
-  return createReactiveObject(target, false, shallowReactiveHandlers, shallowCollectionHandlers, shallowReactiveMap);
+export function shallowReactive<T extends object>(
+  target: T,
+): ShallowReactive<T> {
+  return createReactiveObject(
+    target,
+    false,
+    shallowReactiveHandlers,
+    shallowCollectionHandlers,
+    shallowReactiveMap,
+  )
 }
+
+type Primitive = string | number | boolean | bigint | symbol | undefined | null
+export type Builtin = Primitive | Function | Date | Error | RegExp
+export type DeepReadonly<T> = T extends Builtin
+  ? T
+  : T extends Map<infer K, infer V>
+  ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+  : T extends ReadonlyMap<infer K, infer V>
+  ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+  : T extends WeakMap<infer K, infer V>
+  ? WeakMap<DeepReadonly<K>, DeepReadonly<V>>
+  : T extends Set<infer U>
+  ? ReadonlySet<DeepReadonly<U>>
+  : T extends ReadonlySet<infer U>
+  ? ReadonlySet<DeepReadonly<U>>
+  : T extends WeakSet<infer U>
+  ? WeakSet<DeepReadonly<U>>
+  : T extends Promise<infer U>
+  ? Promise<DeepReadonly<U>>
+  : T extends Ref<infer U>
+  ? Readonly<Ref<DeepReadonly<U>>>
+  : T extends {}
+  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+  : Readonly<T>
 
 /**
  * Takes an object (reactive or plain) or a ref and returns a readonly proxy to
@@ -153,13 +200,19 @@ export function shallowReactive(target) {
  * copy.count++ // warning!
  * ```
  *
- * @template {object} T
- * @param {T} target - The source object.
- * @returns {DeepReadonly<UnwrapNestedRefs<T>>}
+ * @param target - The source object.
  * @see {@link https://vuejs.org/api/reactivity-core.html#readonly}
  */
-export function readonly(target) {
-  return createReactiveObject(target, true, readonlyHandlers, readonlyCollectionHandlers, readonlyMap);
+export function readonly<T extends object>(
+  target: T,
+): DeepReadonly<UnwrapNestedRefs<T>> {
+  return createReactiveObject(
+    target,
+    true,
+    readonlyHandlers,
+    readonlyCollectionHandlers,
+    readonlyMap,
+  )
 }
 
 /**
@@ -188,55 +241,61 @@ export function readonly(target) {
  * // works
  * state.nested.bar++
  * ```
- * @template {object} T
- * @param {T} target - The source object.
- * @returns {Readonly<T>}
+ *
+ * @param target - The source object.
  * @see {@link https://vuejs.org/api/reactivity-advanced.html#shallowreadonly}
  */
-export function shallowReadonly(target) {
+export function shallowReadonly<T extends object>(target: T): Readonly<T> {
   return createReactiveObject(
     target,
     true,
     shallowReadonlyHandlers,
     shallowReadonlyCollectionHandlers,
     shallowReadonlyMap,
-  );
+  )
 }
 
-/**
- *
- * @param {Target} target
- * @param {boolean} isReadonly
- * @param {ProxyHandler<any>} baseHandlers
- * @param {ProxyHandler<any>} collectionHandlers
- * @param {WeakMap<Target, any>} proxyMap
- * @returns
- */
-function createReactiveObject(target, isReadonly, baseHandlers, collectionHandlers, proxyMap) {
+function createReactiveObject(
+  target: Target,
+  isReadonly: boolean,
+  baseHandlers: ProxyHandler<any>,
+  collectionHandlers: ProxyHandler<any>,
+  proxyMap: WeakMap<Target, any>,
+) {
   if (!isObject(target)) {
-    if (!!(process.env.NODE_ENV !== 'production')) {
-      warn(`value cannot be made ${isReadonly ? 'readonly' : 'reactive'}: ${String(target)}`);
+    if (__DEV__) {
+      warn(
+        `value cannot be made ${isReadonly ? 'readonly' : 'reactive'}: ${String(
+          target,
+        )}`,
+      )
     }
-    return target;
+    return target
   }
   // target is already a Proxy, return it.
   // exception: calling readonly() on a reactive object
-  if (target[ReactiveFlags.RAW] && !(isReadonly && target[ReactiveFlags.IS_REACTIVE])) {
-    return target;
+  if (
+    target[ReactiveFlags.RAW] &&
+    !(isReadonly && target[ReactiveFlags.IS_REACTIVE])
+  ) {
+    return target
   }
   // target already has corresponding Proxy
-  const existingProxy = proxyMap.get(target);
+  const existingProxy = proxyMap.get(target)
   if (existingProxy) {
-    return existingProxy;
+    return existingProxy
   }
   // only specific value types can be observed.
-  const targetType = getTargetType(target);
+  const targetType = getTargetType(target)
   if (targetType === TargetType.INVALID) {
-    return target;
+    return target
   }
-  const proxy = new Proxy(target, targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers);
-  proxyMap.set(target, proxy);
-  return proxy;
+  const proxy = new Proxy(
+    target,
+    targetType === TargetType.COLLECTION ? collectionHandlers : baseHandlers,
+  )
+  proxyMap.set(target, proxy)
+  return proxy
 }
 
 /**
@@ -254,15 +313,14 @@ function createReactiveObject(target, isReadonly, baseHandlers, collectionHandle
  * isReactive(shallowReactive({}))     // => true
  * ```
  *
- * @param {unknown} value - The value to check.
- * @returns {boolean}
+ * @param value - The value to check.
  * @see {@link https://vuejs.org/api/reactivity-utilities.html#isreactive}
  */
-export function isReactive(value) {
+export function isReactive(value: unknown): boolean {
   if (isReadonly(value)) {
-    return isReactive(value[ReactiveFlags.RAW]);
+    return isReactive((value as Target)[ReactiveFlags.RAW])
   }
-  return !!(value && value[ReactiveFlags.IS_REACTIVE]);
+  return !!(value && (value as Target)[ReactiveFlags.IS_REACTIVE])
 }
 
 /**
@@ -273,33 +331,26 @@ export function isReactive(value) {
  * The proxies created by {@link readonly()} and {@link shallowReadonly()} are
  * both considered readonly, as is a computed ref without a set function.
  *
- * @param {unknown} value - The value to check.
- * @returns {boolean}
+ * @param value - The value to check.
  * @see {@link https://vuejs.org/api/reactivity-utilities.html#isreadonly}
  */
-export function isReadonly(value) {
-  return !!(value && value[ReactiveFlags.IS_READONLY]);
+export function isReadonly(value: unknown): boolean {
+  return !!(value && (value as Target)[ReactiveFlags.IS_READONLY])
 }
 
-/**
- *
- * @param {unknown} value
- * @returns {boolean}
- */
-export function isShallow(value) {
-  return !!(value && value[ReactiveFlags.IS_SHALLOW]);
+export function isShallow(value: unknown): boolean {
+  return !!(value && (value as Target)[ReactiveFlags.IS_SHALLOW])
 }
 
 /**
  * Checks if an object is a proxy created by {@link reactive},
  * {@link readonly}, {@link shallowReactive} or {@link shallowReadonly()}.
  *
- * @param {any} value - The value to check.
- * @returns {boolean}
+ * @param value - The value to check.
  * @see {@link https://vuejs.org/api/reactivity-utilities.html#isproxy}
  */
-export function isProxy(value) {
-  return value ? !!value[ReactiveFlags.RAW] : false;
+export function isProxy(value: any): boolean {
+  return value ? !!value[ReactiveFlags.RAW] : false
 }
 
 /**
@@ -322,15 +373,15 @@ export function isProxy(value) {
  * console.log(toRaw(reactiveFoo) === foo) // true
  * ```
  *
- * @template T
- * @param {T} observed - The object for which the "raw" value is requested.
- * @returns T
+ * @param observed - The object for which the "raw" value is requested.
  * @see {@link https://vuejs.org/api/reactivity-advanced.html#toraw}
  */
-export function toRaw(observed) {
-  const raw = observed && observed[ReactiveFlags.RAW];
-  return raw ? toRaw(raw) : observed;
+export function toRaw<T>(observed: T): T {
+  const raw = observed && (observed as Target)[ReactiveFlags.RAW]
+  return raw ? toRaw(raw) : observed
 }
+
+export type Raw<T> = T & { [RawSymbol]?: true }
 
 /**
  * Marks an object so that it will never be converted to a proxy. Returns the
@@ -351,16 +402,14 @@ export function toRaw(observed) {
  * deep reactive/readonly conversion and embed raw, non-proxied objects in your
  * state graph.
  *
- * @template {object} T
- * @param {T} value - The object to be marked as "raw".
- * @returns {Raw<T>}
+ * @param value - The object to be marked as "raw".
  * @see {@link https://vuejs.org/api/reactivity-advanced.html#markraw}
  */
-export function markRaw(value) {
+export function markRaw<T extends object>(value: T): Raw<T> {
   if (!hasOwn(value, ReactiveFlags.SKIP) && Object.isExtensible(value)) {
-    def(value, ReactiveFlags.SKIP, true);
+    def(value, ReactiveFlags.SKIP, true)
   }
-  return value;
+  return value
 }
 
 /**
@@ -368,31 +417,23 @@ export function markRaw(value) {
  *
  * If the given value is not an object, the original value itself is returned.
  *
- * @template {unknown} T
- * @param {T} value - The value for which a reactive proxy shall be created.
- * @returns {T}
+ * @param value - The value for which a reactive proxy shall be created.
  */
-export const toReactive = (value) => (isObject(value) ? reactive(value) : value);
+export const toReactive = <T extends unknown>(value: T): T =>
+  isObject(value) ? reactive(value) : value
 
 /**
  * Returns a readonly proxy of the given value (if possible).
  *
  * If the given value is not an object, the original value itself is returned.
  *
- * @template {unknown} T
- * @param {T} value - The value for which a readonly proxy shall be created.
- * @returns {DeepReadonly<T>}
+ * @param value - The value for which a readonly proxy shall be created.
  */
-export const toReadonly = (value) => (isObject(value) ? readonly(value) : value);
+export const toReadonly = <T extends unknown>(value: T): DeepReadonly<T> =>
+  isObject(value) ? readonly(value) : (value as DeepReadonly<T>)
 
-/** @type {WeakMap<Target, Map<any, Listener[]>} */
-const listenerMap = new WeakMap();
+const listenerMap = new WeakMap<Target, Map<any, Listener[]>>();
 
-/**
- *
- * @param {Target} target
- * @param {*} key
- */
 export function subscribe(target, key) {
   if (!currentListener) return;
 
@@ -425,3 +466,4 @@ export function triggerListeners(target, key, value, oldValue) {
     listener.trigger?.(value, oldValue);
   }
 }
+

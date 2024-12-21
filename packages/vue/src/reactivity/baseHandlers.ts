@@ -1,4 +1,17 @@
-/** @import { Target } from './types.js' */
+import {
+  type Target,
+  isReadonly,
+  isShallow,
+  reactive,
+  reactiveMap,
+  readonly,
+  readonlyMap,
+  shallowReactiveMap,
+  shallowReadonlyMap,
+  toRaw,
+} from './reactive'
+import { arrayInstrumentations } from './arrayInstrumentations'
+import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants'
 import { ITERATE_KEY, track, trigger } from '@briddge/core'
 import {
   hasChanged,
@@ -9,21 +22,8 @@ import {
   isSymbol,
   makeMap,
 } from '@vue/shared'
-import { arrayInstrumentations } from './arrayInstrumentations.js'
-import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants.js'
-import {
-  isReadonly,
-  isShallow,
-  reactive,
-  reactiveMap,
-  readonly,
-  readonlyMap,
-  shallowReactiveMap,
-  shallowReadonlyMap,
-  toRaw,
-} from './reactive.js'
-import { isRef } from './ref.js'
-import { warn } from './warning.js'
+import { isRef } from './ref'
+import { warn } from './warning'
 
 const isNonTrackableKeys = /*@__PURE__*/ makeMap(`__proto__,__v_isRef,__isVue`)
 
@@ -34,68 +34,25 @@ const builtInSymbols = new Set(
     // but accessing them on Symbol leads to TypeError because Symbol is a strict mode
     // function
     .filter(key => key !== 'arguments' && key !== 'caller')
-    .map(key => Symbol[key])
+    .map(key => Symbol[key as keyof SymbolConstructor])
     .filter(isSymbol),
 )
 
-
-/**
- *
- * @param {unknown} key
- * @returns {*}
- */
-function hasOwnProperty(key) {
+function hasOwnProperty(this: object, key: unknown) {
   // #10455 hasOwnProperty may be called with non-string values
   if (!isSymbol(key)) key = String(key)
   const obj = toRaw(this)
   track(obj, TrackOpTypes.HAS, key)
-  return obj.hasOwnProperty(/** @type {string} */ key)
+  return obj.hasOwnProperty(key as string)
 }
 
-
-/**
- *
- * @class BaseReactiveHandler
- * @implements {ProxyHandler<Target>}
- */
-class BaseReactiveHandler {
-  /**
-   * @protected
-   * @type {boolean}
-   */
-  _isReadonly
-
-  /**
- * @protected
- * @type {boolean}
- */
-  _isShallow
-
-
-  /**
-   * Creates an instance of BaseReactiveHandler.
-   *
-   * @constructor
-   * @param {boolean} [_isReadonly=false]
-   * @param {boolean} [_isShallow=false]
-   */
+class BaseReactiveHandler implements ProxyHandler<Target> {
   constructor(
-    _isReadonly = false,
-    _isShallow = false,
-  ) {
-    this._isReadonly = _isReadonly;
-    this._isShallow = _isShallow;
-  }
+    protected readonly _isReadonly = false,
+    protected readonly _isShallow = false,
+  ) {}
 
-
-  /**
-   *
-   * @param {Target} target
-   * @param {(string | symbol)} key
-   * @param {object} receiver
-   * @returns {*}
-   */
-  get(target, key, receiver) {
+  get(target: Target, key: string | symbol, receiver: object): any {
     const isReadonly = this._isReadonly,
       isShallow = this._isShallow
     if (key === ReactiveFlags.IS_REACTIVE) {
@@ -107,14 +64,14 @@ class BaseReactiveHandler {
     } else if (key === ReactiveFlags.RAW) {
       if (
         receiver ===
-        (isReadonly
-          ? isShallow
-            ? shallowReadonlyMap
-            : readonlyMap
-          : isShallow
-            ? shallowReactiveMap
-            : reactiveMap
-        ).get(target) ||
+          (isReadonly
+            ? isShallow
+              ? shallowReadonlyMap
+              : readonlyMap
+            : isShallow
+              ? shallowReactiveMap
+              : reactiveMap
+          ).get(target) ||
         // receiver is not the reactive proxy, but has the same prototype
         // this means the receiver is a user proxy of the reactive proxy
         Object.getPrototypeOf(target) === Object.getPrototypeOf(receiver)
@@ -128,8 +85,7 @@ class BaseReactiveHandler {
     const targetIsArray = isArray(target)
 
     if (!isReadonly) {
-      /** @type {Function | undefined} */
-      let fn
+      let fn: Function | undefined
       if (targetIsArray && (fn = arrayInstrumentations[key])) {
         return fn
       }
@@ -180,21 +136,12 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     super(false, isShallow)
   }
 
-
-  /**
-   *
-   * @param {Record<string | symbol, unknown>} target
-   * @param {(string | symbol)} key
-   * @param {unknown} value
-   * @param {object} receiver
-   * @returns {boolean}
-   */
   set(
-    target,
-    key,
-    value,
-    receiver,
-  ) {
+    target: Record<string | symbol, unknown>,
+    key: string | symbol,
+    value: unknown,
+    receiver: object,
+  ): boolean {
     let oldValue = target[key]
     if (!this._isShallow) {
       const isOldValueReadonly = isReadonly(oldValue)
@@ -235,17 +182,10 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     return result
   }
 
-
-  /**
-   *
-   * @param {Record<string | symbol, unknown>} target
-   * @param {(string | symbol)} key
-   * @returns {boolean}
-   */
   deleteProperty(
-    target,
-    key,
-  ) {
+    target: Record<string | symbol, unknown>,
+    key: string | symbol,
+  ): boolean {
     const hadKey = hasOwn(target, key)
     const oldValue = target[key]
     const result = Reflect.deleteProperty(target, key)
@@ -255,14 +195,7 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     return result
   }
 
-
-  /**
-   *
-   * @param {Record<string | symbol, unknown>} target
-   * @param {(string | symbol)} key
-   * @returns {boolean}
-   */
-  has(target, key) {
+  has(target: Record<string | symbol, unknown>, key: string | symbol): boolean {
     const result = Reflect.has(target, key)
     if (!isSymbol(key) || !builtInSymbols.has(key)) {
       track(target, TrackOpTypes.HAS, key)
@@ -270,13 +203,7 @@ class MutableReactiveHandler extends BaseReactiveHandler {
     return result
   }
 
-
-  /**
-   *
-   * @param {Record<string | symbol, unknown>} target
-   * @returns {(string | symbol)[]}
-   */
-  ownKeys(target) {
+  ownKeys(target: Record<string | symbol, unknown>): (string | symbol)[] {
     track(
       target,
       TrackOpTypes.ITERATE,
@@ -291,15 +218,8 @@ class ReadonlyReactiveHandler extends BaseReactiveHandler {
     super(true, isShallow)
   }
 
-
-  /**
-   *
-   * @param {object} target
-   * @param {(string | symbol)} key
-   * @returns {boolean}
-   */
-  set(target, key) {
-    if (!!(process.env.NODE_ENV !== 'production')) {
+  set(target: object, key: string | symbol) {
+    if (__DEV__) {
       warn(
         `Set operation on key "${String(key)}" failed: target is readonly.`,
         target,
@@ -308,15 +228,8 @@ class ReadonlyReactiveHandler extends BaseReactiveHandler {
     return true
   }
 
-
-  /**
-   *
-   * @param {object} target
-   * @param {(string | symbol)} key
-   * @returns {boolean}
-   */
-  deleteProperty(target, key) {
-    if (!!(process.env.NODE_ENV !== 'production')) {
+  deleteProperty(target: object, key: string | symbol) {
+    if (__DEV__) {
       warn(
         `Delete operation on key "${String(key)}" failed: target is readonly.`,
         target,
@@ -326,22 +239,17 @@ class ReadonlyReactiveHandler extends BaseReactiveHandler {
   }
 }
 
-/** @type {ProxyHandler<object>} */
-export const mutableHandlers =
+export const mutableHandlers: ProxyHandler<object> =
   /*@__PURE__*/ new MutableReactiveHandler()
 
-/** @type {ProxyHandler<object>} */
-export const readonlyHandlers =
+export const readonlyHandlers: ProxyHandler<object> =
   /*@__PURE__*/ new ReadonlyReactiveHandler()
 
-/** @type {MutableReactiveHandler} */
-export const shallowReactiveHandlers =
+export const shallowReactiveHandlers: MutableReactiveHandler =
   /*@__PURE__*/ new MutableReactiveHandler(true)
 
 // Props handlers are special in the sense that it should not unwrap top-level
 // refs (in order to allow refs to be explicitly passed down), but should
 // retain the reactivity of the normal readonly object.
-
-/** @type {ReadonlyReactiveHandler} */
-export const shallowReadonlyHandlers =
+export const shallowReadonlyHandlers: ReadonlyReactiveHandler =
   /*@__PURE__*/ new ReadonlyReactiveHandler(true)

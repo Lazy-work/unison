@@ -1,45 +1,31 @@
-/** @import { CollectionTypes, IterableCollections, WeakCollections, MapTypes, SetTypes, Instrumentations, ValueOf } from './types.js' */
-/** @import { Target } from './reactive.js' */
 import {
+  type Target,
   isReadonly,
   isShallow,
   toRaw,
   toReactive,
   toReadonly,
-} from './reactive.js'
+} from './reactive'
 import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from '@briddge/core'
-import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants.js'
+import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants'
 import { capitalize, hasChanged, hasOwn, isMap, toRawType } from '@vue/shared'
-import { warn } from './warning.js'
+import { warn } from './warning'
 
-/**
- *
- * @template {unknown} T
- * @param {T} value
- * @returns {T}
- */
-const toShallow = (value) => value
+type CollectionTypes = IterableCollections | WeakCollections
 
-/**
- *
- * @template {CollectionTypes} T
- * @param {T} v
- * @returns {*}
- */
-const getProto = (v) =>
+type IterableCollections = (Map<any, any> | Set<any>) & Target
+type WeakCollections = (WeakMap<any, any> | WeakSet<any>) & Target
+type MapTypes = (Map<any, any> | WeakMap<any, any>) & Target
+type SetTypes = (Set<any> | WeakSet<any>) & Target
+
+const toShallow = <T extends unknown>(value: T): T => value
+
+const getProto = <T extends CollectionTypes>(v: T): any =>
   Reflect.getPrototypeOf(v)
 
-/**
- * 
- * @param {MapTypes} target
- * @param {*} key
- * @param {boolean} [isReadonly=false]
- * @param {boolean} [isShallow=false]
- * @returns {*}
- */
 function get(
-  target,
-  key,
+  target: MapTypes,
+  key: unknown,
   isReadonly = false,
   isShallow = false,
 ) {
@@ -67,15 +53,7 @@ function get(
   }
 }
 
-
-/**
- *
- * @param {CollectionTypes} this
- * @param {unknown} key
- * @param {boolean} [isReadonly=false]
- * @returns {boolean}
- */
-function has(key, isReadonly = false) {
+function has(this: CollectionTypes, key: unknown, isReadonly = false): boolean {
   const target = this[ReactiveFlags.RAW]
   const rawTarget = toRaw(target)
   const rawKey = toRaw(key)
@@ -90,28 +68,13 @@ function has(key, isReadonly = false) {
     : target.has(key) || target.has(rawKey)
 }
 
-
-/**
- *
- * @param {IterableCollections} target
- * @param {boolean} [isReadonly=false]
- * @returns {*}
- */
-function size(target, isReadonly = false) {
+function size(target: IterableCollections, isReadonly = false) {
   target = target[ReactiveFlags.RAW]
   !isReadonly && track(toRaw(target), TrackOpTypes.ITERATE, ITERATE_KEY)
   return Reflect.get(target, 'size', target)
 }
 
-
-/**
- *
- * @param {SetTypes} this
- * @param {unknown} value
- * @param {boolean} [_isShallow=false]
- * @returns {*}
- */
-function add(value, _isShallow = false) {
+function add(this: SetTypes, value: unknown, _isShallow = false) {
   if (!_isShallow && !isShallow(value) && !isReadonly(value)) {
     value = toRaw(value)
   }
@@ -125,16 +88,7 @@ function add(value, _isShallow = false) {
   return this
 }
 
-
-/**
- *
- * @param {MapTypes} this
- * @param {unknown} key
- * @param {unknown} value
- * @param {boolean} [_isShallow=false]
- * @returns {*}
- */
-function set(key, value, _isShallow = false) {
+function set(this: MapTypes, key: unknown, value: unknown, _isShallow = false) {
   if (!_isShallow && !isShallow(value) && !isReadonly(value)) {
     value = toRaw(value)
   }
@@ -145,7 +99,7 @@ function set(key, value, _isShallow = false) {
   if (!hadKey) {
     key = toRaw(key)
     hadKey = has.call(target, key)
-  } else if (!!(process.env.NODE_ENV !== 'production')) {
+  } else if (__DEV__) {
     checkIdentityKeys(target, has, key)
   }
 
@@ -159,21 +113,14 @@ function set(key, value, _isShallow = false) {
   return this
 }
 
-
-/**
- *
- * @param {CollectionTypes} this
- * @param {unknown} key
- * @returns {*}
- */
-function deleteEntry(key) {
+function deleteEntry(this: CollectionTypes, key: unknown) {
   const target = toRaw(this)
   const { has, get } = getProto(target)
   let hadKey = has.call(target, key)
   if (!hadKey) {
     key = toRaw(key)
     hadKey = has.call(target, key)
-  } else if (!!(process.env.NODE_ENV !== 'production')) {
+  } else if (__DEV__) {
     checkIdentityKeys(target, has, key)
   }
 
@@ -186,16 +133,10 @@ function deleteEntry(key) {
   return result
 }
 
-
-/**
- *
- * @param {IterableCollections} this
- * @returns {*}
- */
-function clear() {
+function clear(this: IterableCollections) {
   const target = toRaw(this)
   const hadItems = target.size !== 0
-  const oldTarget = !!(process.env.NODE_ENV !== 'production')
+  const oldTarget = __DEV__
     ? isMap(target)
       ? new Map(target)
       : new Set(target)
@@ -208,24 +149,18 @@ function clear() {
   return result
 }
 
-
-/**
- *
- * @param {boolean} isReadonly
- * @param {boolean} isShallow
- * @returns {(this: IterableCollections, callback: Function, thisArg?: unknown) => any}
- */
-function createForEach(isReadonly, isShallow) {
+function createForEach(isReadonly: boolean, isShallow: boolean) {
   return function forEach(
-    callback,
-    thisArg,
+    this: IterableCollections,
+    callback: Function,
+    thisArg?: unknown,
   ) {
     const observed = this
     const target = observed[ReactiveFlags.RAW]
     const rawTarget = toRaw(target)
     const wrap = isShallow ? toShallow : isReadonly ? toReadonly : toReactive
     !isReadonly && track(rawTarget, TrackOpTypes.ITERATE, ITERATE_KEY)
-    return target.forEach((value, key) => {
+    return target.forEach((value: unknown, key: unknown) => {
       // important: make sure the callback is
       // 1. invoked with the reactive map as `this` and 3rd arg
       // 2. the value received should be a corresponding reactive/readonly.
@@ -234,22 +169,15 @@ function createForEach(isReadonly, isShallow) {
   }
 }
 
-
-/**
- *
- * @param {(string | symbol)} method
- * @param {boolean} isReadonly
- * @param {boolean} isShallow
- * @returns {(this: IterableCollections, ...args: []) => Iterable<unknown> & Iterator<unknown>}
- */
 function createIterableMethod(
-  method,
-  isReadonly,
-  isShallow,
+  method: string | symbol,
+  isReadonly: boolean,
+  isShallow: boolean,
 ) {
   return function (
-    ...args
-  ) {
+    this: IterableCollections,
+    ...args: unknown[]
+  ): Iterable<unknown> & Iterator<unknown> {
     const target = this[ReactiveFlags.RAW]
     const rawTarget = toRaw(target)
     const targetIsMap = isMap(rawTarget)
@@ -285,14 +213,9 @@ function createIterableMethod(
   }
 }
 
-/**
- *
- * @param {ValueOf<typeof TriggerOpTypes>} type
- * @returns {Function}
- */
-function createReadonlyMethod(type) {
-  return function (...args) {
-    if (!!(process.env.NODE_ENV !== 'production')) {
+function createReadonlyMethod(type: TriggerOpTypes): Function {
+  return function (this: CollectionTypes, ...args: unknown[]) {
+    if (__DEV__) {
       const key = args[0] ? `on key "${args[0]}" ` : ``
       warn(
         `${capitalize(type)} operation ${key}failed: target is readonly.`,
@@ -307,19 +230,15 @@ function createReadonlyMethod(type) {
   }
 }
 
+type Instrumentations = Record<string | symbol, Function | number>
+
 function createInstrumentations() {
-  
-  /**
-   * Description placeholder
-   *
-   * @type {Instrumentations}
-   */
-  const mutableInstrumentations = {
-    get(key) {
+  const mutableInstrumentations: Instrumentations = {
+    get(this: MapTypes, key: unknown) {
       return get(this, key)
     },
     get size() {
-      return size(this)
+      return size(this as unknown as IterableCollections)
     },
     has,
     add,
@@ -329,24 +248,18 @@ function createInstrumentations() {
     forEach: createForEach(false, false),
   }
 
-  
-  /**
-   * Description placeholder
-   *
-   * @type {Instrumentations}
-   */
-  const shallowInstrumentations = {
-    get(key) {
+  const shallowInstrumentations: Instrumentations = {
+    get(this: MapTypes, key: unknown) {
       return get(this, key, false, true)
     },
     get size() {
-      return size(this)
+      return size(this as unknown as IterableCollections)
     },
     has,
-    add(value) {
+    add(this: SetTypes, value: unknown) {
       return add.call(this, value, true)
     },
-    set(key, value) {
+    set(this: MapTypes, key: unknown, value: unknown) {
       return set.call(this, key, value, true)
     },
     delete: deleteEntry,
@@ -354,20 +267,14 @@ function createInstrumentations() {
     forEach: createForEach(false, true),
   }
 
-  
-  /**
-   * Description placeholder
-   *
-   * @type {Instrumentations}
-   */
-  const readonlyInstrumentations = {
-    get(key) {
+  const readonlyInstrumentations: Instrumentations = {
+    get(this: MapTypes, key: unknown) {
       return get(this, key, true)
     },
     get size() {
-      return size(this, true)
+      return size(this as unknown as IterableCollections, true)
     },
-    has(key) {
+    has(this: MapTypes, key: unknown) {
       return has.call(this, key, true)
     },
     add: createReadonlyMethod(TriggerOpTypes.ADD),
@@ -377,20 +284,14 @@ function createInstrumentations() {
     forEach: createForEach(true, false),
   }
 
-  
-  /**
-   * Description placeholder
-   *
-   * @type {Instrumentations}
-   */
-  const shallowReadonlyInstrumentations = {
-    get(key) {
+  const shallowReadonlyInstrumentations: Instrumentations = {
+    get(this: MapTypes, key: unknown) {
       return get(this, key, true, true)
     },
     get size() {
-      return size(this, true)
+      return size(this as unknown as IterableCollections, true)
     },
-    has(key) {
+    has(this: MapTypes, key: unknown) {
       return has.call(this, key, true)
     },
     add: createReadonlyMethod(TriggerOpTypes.ADD),
@@ -400,12 +301,12 @@ function createInstrumentations() {
     forEach: createForEach(true, true),
   }
 
-  const iteratorMethods = /** @type {const} */ ([
+  const iteratorMethods = [
     'keys',
     'values',
     'entries',
     Symbol.iterator,
-  ])
+  ] as const
 
   iteratorMethods.forEach(method => {
     mutableInstrumentations[method] = createIterableMethod(method, false, false)
@@ -433,14 +334,7 @@ const [
   shallowReadonlyInstrumentations,
 ] = /* @__PURE__*/ createInstrumentations()
 
-
-/**
- *
- * @param {boolean} isReadonly
- * @param {boolean} shallow
- * @returns {(target: CollectionTypes, key: string | symbol, receiver: CollectionTypes) => any}
- */
-function createInstrumentationGetter(isReadonly, shallow) {
+function createInstrumentationGetter(isReadonly: boolean, shallow: boolean) {
   const instrumentations = shallow
     ? isReadonly
       ? shallowReadonlyInstrumentations
@@ -450,9 +344,9 @@ function createInstrumentationGetter(isReadonly, shallow) {
       : mutableInstrumentations
 
   return (
-    target,
-    key,
-    receiver,
+    target: CollectionTypes,
+    key: string | symbol,
+    receiver: CollectionTypes,
   ) => {
     if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly
@@ -472,55 +366,27 @@ function createInstrumentationGetter(isReadonly, shallow) {
   }
 }
 
-
-/**
- *
- * @type {ProxyHandler<CollectionTypes>}
- */
-export const mutableCollectionHandlers = {
+export const mutableCollectionHandlers: ProxyHandler<CollectionTypes> = {
   get: /*@__PURE__*/ createInstrumentationGetter(false, false),
 }
 
-
-/**
- *
- * @type {ProxyHandler<CollectionTypes>}
- */
-export const shallowCollectionHandlers = {
+export const shallowCollectionHandlers: ProxyHandler<CollectionTypes> = {
   get: /*@__PURE__*/ createInstrumentationGetter(false, true),
 }
 
-
-/**
- *
- * @type {ProxyHandler<CollectionTypes>}
- */
-export const readonlyCollectionHandlers = {
+export const readonlyCollectionHandlers: ProxyHandler<CollectionTypes> = {
   get: /*@__PURE__*/ createInstrumentationGetter(true, false),
 }
 
-
-/**
- *
- * @type {ProxyHandler<CollectionTypes>}
- */
-export const shallowReadonlyCollectionHandlers =
+export const shallowReadonlyCollectionHandlers: ProxyHandler<CollectionTypes> =
   {
     get: /*@__PURE__*/ createInstrumentationGetter(true, true),
   }
 
-  
-/**
- *
- * @param {CollectionTypes} target
- * @param {(key: unknown) => boolean} has
- * @param {unknown} key
- * @returns
- */
 function checkIdentityKeys(
-  target,
-  has,
-  key,
+  target: CollectionTypes,
+  has: (key: unknown) => boolean,
+  key: unknown,
 ) {
   const rawKey = toRaw(key)
   if (rawKey !== key && has.call(target, rawKey)) {

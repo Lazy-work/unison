@@ -1,18 +1,20 @@
-import { activeSub, shouldTrack, ReactiveEffect } from '#vue-internals/reactivity/effect.js'
 
-class HookCallableSignal {
-  #manager;
-  #effects = new Set();
-  #hookIndex;
-  #valueIndex;
+import type { HookManager } from './index';
+import { activeSub, shouldTrack, ReactiveEffect } from '#vue-internals/reactivity/effect'
 
-  constructor(manager, hookIndex, valueIndex) {
+class HookCallableSignal<Parameters extends any[], ReturnType> {
+  #manager: HookManager;
+  #effects: Set<ReactiveEffect> = new Set<ReactiveEffect>();
+  #hookIndex: number;
+  #valueIndex: number;
+
+  constructor(manager: HookManager, hookIndex: number, valueIndex: number) {
     this.#manager = manager;
     this.#hookIndex = hookIndex;
     this.#valueIndex = valueIndex;
   }
 
-  call(...args) {
+  call(...args: Parameters): ReturnType {
     const currentValue = this.#manager.getHookValueAt(this.#hookIndex, this.#valueIndex);
 
     this.track();
@@ -20,7 +22,7 @@ class HookCallableSignal {
     return currentValue(...args);
   }
 
-  track() {
+  track(): void {
     if (!(activeSub instanceof ReactiveEffect) || !shouldTrack) {
       return;
     }

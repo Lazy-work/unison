@@ -1,10 +1,10 @@
-export { $bridge, createReactHook, usePlugin } from './management.js';
-export { SetupComponent, EventTypes } from './types.d.ts';
-export { useBridge } from './use-bridge.js';
+export { $bridge, createReactHook, usePlugin, type SetupComponent } from './management';
+export { type EventType } from './context';
+export { useBridge } from './use-bridge';
 
-export * from './plugins/hook-manager/index.js';
+export * from './plugins/hook-manager/index';
 
-export type * from './plugins';
+export type * from './plugins/index';
 
 export type {
   DebuggerEvent,
@@ -32,14 +32,14 @@ export {
   onEffectCleanup,
   refreshComputed,
   EffectFlags,
-} from '#vue-internals/reactivity/effect.js';
+} from '#vue-internals/reactivity/effect';
 
 export {
   effectScope,
   EffectScope,
   getCurrentScope,
   onScopeDispose,
-} from '#vue-internals/reactivity/effectScope.js';
+} from '#vue-internals/reactivity/effectScope';
 
 export {
   Dep,
@@ -51,7 +51,7 @@ export {
   ARRAY_ITERATE_KEY,
   ITERATE_KEY,
   MAP_KEY_ITERATE_KEY,
-} from '#vue-internals/reactivity/dep.js';
+} from '#vue-internals/reactivity/dep';
 
 export {
   queueJob,
@@ -66,57 +66,53 @@ export {
   getJobAt,
   endFlush,
   SchedulerJobFlags,
-} from '#vue-internals/runtime-core/scheduler.js';
+} from '#vue-internals/runtime-core/scheduler';
 
-export type {
-  Listener
-} from './types'
 export {
   currentListener,
   createListener,
   getCurrentListener,
-  setCurrentListener
-} from './listener.js'
+  setCurrentListener,
+  type Listener
+} from './listener'
 
-export { nextTick } from '#vue-internals/runtime-core/scheduler.js';
+export { nextTick } from '#vue-internals/runtime-core/scheduler';
 
-export { withAsyncContext } from '#vue-internals/runtime-core/apiSetupHelpers.js';
-
+export { withAsyncContext } from '#vue-internals/runtime-core/apiSetupHelpers';
 
 export {
   validateComponentName,
-} from '#vue-internals/runtime-core/component.js'
-export { validateDirectiveName } from '#vue-internals/runtime-core/directives.js'
-export { ErrorCodes, callWithAsyncErrorHandling } from '#vue-internals/runtime-core/errorHandling.js'
+} from '#vue-internals/runtime-core/component'
+export { validateDirectiveName } from '#vue-internals/runtime-core/directives'
+export { ErrorCodes, callWithAsyncErrorHandling } from '#vue-internals/runtime-core/errorHandling'
 export type { ComponentOptions } from '#vue-internals/runtime-core/componentOptions'
 export type { Directive } from '#vue-internals/runtime-core/directives'
 export {
-    type Component,
-    type ComponentInternalInstance,
-    type ConcreteComponent,
-    type Data
-} from '#vue-internals/runtime-core/component.js'
+  type Component,
+  type ConcreteComponent,
+  type Data,
+  currentInstance
+} from '#vue-internals/runtime-core/component'
 export type {
-    MergedComponentOptions,
-    RuntimeCompilerOptions,
+  MergedComponentOptions,
+  RuntimeCompilerOptions,
 } from '#vue-internals/runtime-core/componentOptions'
 export type {
-    ComponentCustomProperties,
-    ComponentPublicInstance,
+  ComponentCustomProperties,
+  ComponentPublicInstance,
 } from '#vue-internals/runtime-core/componentPublicInstance'
 export type { ElementNamespace } from '#vue-internals/runtime-core/renderer'
 export type { InjectionKey } from '#vue-internals/runtime-core/apiInject'
-export { type VNode } from '#vue-internals/runtime-core/vnode.js'
+export { type VNode } from '#vue-internals/runtime-core/vnode'
 export type { NormalizedPropsOptions } from '#vue-internals/runtime-core/componentProps'
 export type { ObjectEmitsOptions } from '#vue-internals/runtime-core/componentEmits'
 export type { DefineComponent } from '#vue-internals/runtime-core/apiDefineComponent'
 
-
-import Context from './context.js';
+import Context from './context';
+import { getCurrentInstance as getCurrentInstanceImpl, setCurrentInstance as setCurrentInstanceImpl } from '#vue-internals/runtime-core/component';
 export type ComponentInternalInstance = Context;
-export const currentInstance: ComponentInternalInstance;
-export declare function getCurrentInstance(): ComponentInternalInstance | null;
-export declare function setCurrentInstance(instance: ComponentInternalInstance): () => void;
 
-export * from './lifecycle.js';
-export * from './conditional/index.js';
+export const getCurrentInstance: () => ComponentInternalInstance | null = getCurrentInstanceImpl as any
+export const setCurrentInstance: (instance: ComponentInternalInstance) => () => void = setCurrentInstanceImpl as any
+export * from './lifecycle';
+export * from './conditional/index';

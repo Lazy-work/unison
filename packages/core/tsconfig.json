@@ -1,20 +1,23 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "ES2020",
+    "target": "ES2022",
     "useDefineForClassFields": true,
+    "outDir": "types",
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "sourceMap": false,
+    "emitDeclarationOnly": true,
     "moduleResolution": "bundler",
     "allowJs": true,
+    "noCheck": true,
     "strict": true,
     "noUnusedLocals": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "esModuleInterop": true,
+    // "esModuleInterop": true,
     "removeComments": false,
     "jsx": "react-jsx",
     "rootDir": ".",
@@ -29,21 +32,5 @@
     "types": ["vitest/globals", "node"],
     "composite": true
   },
-  "include": [
-    "src",
-    "vue/packages/*/src",
-    "vue/packages/*/__tests__",
-    "vue/packages/global.d.ts",
-    "vue/packages/*/src",
-    "vue/packages/*/__tests__",
-    "vue/packages/vue/jsx-runtime",
-    "vue/packages/runtime-dom/types/jsx.d.ts",
-    "vue/packages/vue/react-helpers",
-    "vue/packages/vue/__benchmarks__/apiWatch.bench.ts",
-    "vue/packages/vue/__benchmarks__/computed.bench.ts",
-    "vue/packages/vue/__benchmarks__/reactiveArray.bench.ts",
-    "vue/packages/vue/__benchmarks__/reactiveMap.bench.ts",
-    "vue/packages/vue/__benchmarks__/reactiveObject.bench.ts",
-    "vue/packages/vue/__benchmarks__/ref.bench.ts"
-,  ]
+  "include": ["src", "vue/packages/*/src", "vue/packages/global.d.ts"]
 }

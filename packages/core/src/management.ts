@@ -1,19 +1,18 @@
-/** @import { BridgePluginClass } from './plugins.js' */
-/** @import { SetupComponent } from './types.js' */
 import React, { useEffect, useState } from 'react';
-import Context from './context.js';
-import { setCurrentInstance } from './index.js';
+import Context from './context';
+import { setCurrentInstance } from './index';
 
+import type { BridgePluginClass } from './plugins';
+import type { ShallowReactive } from '#vue-internals/reactivity/index';
 
-const pluginsList = new Set();
+const pluginsList = new Set<BridgePluginClass>();
 
 /**
- * @template {BridgePluginClass} T
- * @template {object} O
- * @param {T} pluginClass
- * @param {O} [options]
+ * 
+ * @param pluginClass 
+ * @param options
  */
-export function usePlugin(pluginClass, options) {
+export function usePlugin<T extends BridgePluginClass, O extends object>(pluginClass: T, options?: O) {
   pluginClass.options = options;
   pluginsList.add(pluginClass);
 }
@@ -21,41 +20,29 @@ export function usePlugin(pluginClass, options) {
 export function initInstance() {
   const instance = new Context();
   for (const Plugin of pluginsList) {
-    const plugin = new Plugin();
+    const plugin = new (Plugin as any)();
     instance.setPlugin(Plugin, plugin);
     plugin.onInstanceCreated(instance);
   }
   return instance;
 }
 
-/** @typedef {(...args: any[]) => any} AnyFunction */
-
-/**
- * @template {AnyFunction} T
- * @param {T} bridgeHook
- * @returns
- */
-export function createReactHook(bridgeHook) {
-/**
- * @template {Parameters<T>} P
- * @param {...P} params
- * @returns {ReturnType<T>}
- */
-  return (...args) => {
+type AnyFunction = (...args: any[]) => any;
+export function createReactHook<T extends AnyFunction>(bridgeHook: T) {
+  return <P extends Parameters<T>>(...args: P): ReturnType<T> => {
     const [result] = useState(() => bridgeHook(...args));
     return result;
   };
 }
 
+export type SetupComponent<T extends Record<string, any>> = (props: ShallowReactive<T>) => () => React.ReactNode;
 
 /**
- * @template {Record<string, any>} T
- * @param {SetupComponent<T>} fn - bridge component setup
- * @param {string} [name] - component name
+ * @param fn - bridge component setup
+ * @param name - component name
  */
-export function $bridge(fn, name) {
-  /** @type {React.ForwardRefExoticComponent<T>} */
-  const component = React.forwardRef((props, ref) => {
+export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
+  const component = React.forwardRef<T['ref'], T>((props, ref) => {
     const [instance] = useState(initInstance);
     const unset = setCurrentInstance(instance);
     instance.init();

@@ -4,10 +4,7 @@ import { initInstance } from './management.js';
 import { setCurrentInstance } from './index.js';
 
 class DisposeManager {
-  /**
-   * @type {Function[]}
-   */
-  #queue = [];
+  #queue: Function[] = [];
   #isFlushPending = false;
   #isFlushing = false;
 
@@ -26,11 +23,8 @@ class DisposeManager {
       this.#isFlushPending = true;
     }
   }
-  
-  /**
-   * @param {Function} dispose
-   */
-  queueJob(dispose) {
+
+  queueJob(dispose: Function) {
     this.#queue.push(dispose);
     this.queueFlush();
   }

@@ -1,10 +1,11 @@
+import { Events } from '../../context';
 import React, { useState } from 'react';
-import { Events } from '../../context.js';
-import { NOOP, isFunction, isObject } from '#vue-internals/shared/general.js';
-import { ReactiveEffect } from '#vue-internals/reactivity/effect.js';
-import { getCurrentInstance } from '../../index.js';
-import HookCallableSignal from './hook-callable-signal.js';
-import { mustBeBridgeComponent } from '../../utils.js';
+import { NOOP, isFunction, isObject } from '#vue-internals/shared/general';
+import { ReactiveEffect } from '#vue-internals/reactivity/effect';
+import { getCurrentInstance, type ComponentInternalInstance } from '../../index';
+import HookCallableSignal from './hook-callable-signal';
+import { mustBeBridgeComponent } from '../../utils';
+import { BridgePlugin } from '../index';
 
 const nativeHooks = [
   React.useReducer,
@@ -21,18 +22,28 @@ const nativeHooks = [
   React.useDeferredValue,
 ];
 
-export class HookManager {
-  #store = [];
+export abstract class BaseSignal<T> {
+  abstract trigger(): void;
+}
+
+type BaseSignalConstructor<T> = new (...args: any[]) => BaseSignal<T>;
+interface HookManagerOptions<T extends BaseSignalConstructor<any>> {
+  signalClass: T;
+  unsignal: (signal: any) => any;
+}
+
+export class HookManager implements BridgePlugin {
+  #store: any[] = [];
   #storeCursor = 0;
-  #hooks = [];
-  #hookKeys = [];
-  #hookValues = [];
-  #hookSignals = [];
+  #hooks: any[] = [];
+  #hookKeys: string[][] = [];
+  #hookValues: any[][] = [];
+  #hookSignals: (BaseSignal<any> | HookCallableSignal<any, any>)[][] = [];
   #hookEffect = new ReactiveEffect(NOOP);
-  #signalClass;
-  #unsignal;
+  #signalClass: BaseSignalConstructor<any>;
+  #unsignal: (signal: any) => any;
   #i = 0;
-  static options;
+  static options: HookManagerOptions<any>;
 
   constructor() {
     this.#signalClass = HookManager.options.signalClass;
@@ -47,7 +58,7 @@ export class HookManager {
     return this.#hookEffect;
   }
 
-  onInstanceCreated(instance) {
+  onInstanceCreated(instance: ComponentInternalInstance): void {
     this.#hookEffect.scheduler = () => instance.triggerRendering();
 
     instance.addEventListener(Events.BEFORE_FLUSHING_PRE_EFFECT, ({ job }) => {
@@ -75,13 +86,13 @@ export class HookManager {
       this.#i = 0;
     });
   }
-  onInstanceDisposed() {}
+  onInstanceDisposed(): void {}
 
-  getValueAt(index) {
+  getValueAt(index: number) {
     return this.#store[index];
   }
 
-  addToStore(value) {
+  addToStore(value: any) {
     this.#store[this.#storeCursor] = value;
     const index = this.#storeCursor;
 
@@ -90,7 +101,7 @@ export class HookManager {
     return index;
   }
 
-  setStoreValueAt(index, value) {
+  setStoreValueAt(index: number, value: any) {
     this.#store[index] = value;
   }
 
@@ -102,7 +113,7 @@ export class HookManager {
     return this.#storeCursor++;
   }
 
-  processHook(hook) {
+  processHook(hook: any) {
     if (!hook) return;
     const args = isFunction(hook.params) ? hook.params() : hook.params !== undefined ? hook.params : [];
     this.#hookEffect.fn = () => hook.hook(...args.map(this.#unsignal));
@@ -143,12 +154,12 @@ export class HookManager {
     }
   }
 
-  trackState(hookIndex, value) {
+  trackState<T>(hookIndex: number, value: T) {
     if (isFunction(value)) {
       const valueIndex = this.addToHookStore(hookIndex, value);
-      const signal = new HookCallableSignal(this, hookIndex, valueIndex);
+      const signal = new HookCallableSignal<any[], any>(this, hookIndex, valueIndex);
       this.#hookSignals[hookIndex].push(signal);
-      return (...args) => signal.call(...args);
+      return (...args: any[]) => signal.call(...args);
     }
     const Signal = this.#signalClass;
     const valueIndex = this.addToHookStore(hookIndex, value);
@@ -159,16 +170,16 @@ export class HookManager {
     return ref;
   }
 
-  trackStates(hookIndex, values) {
+  trackStates<T extends object>(hookIndex: number, values: T) {
     if (Array.isArray(values)) {
-      const result = [];
+      const result: any[] = [];
       for (const value of values) {
         result.push(this.trackState(hookIndex, value));
       }
       return result;
     }
 
-    const result = {};
+    const result: Record<string, any> = {};
 
     for (const [key, value] of Object.entries(values)) {
       result[key] = this.trackState(hookIndex, value);
@@ -177,11 +188,11 @@ export class HookManager {
     return result;
   }
 
-  createTargets(paths) {
+  createTargets(paths: any) {
     return [];
   }
 
-  addToHookStore(hookIndex, value) {
+  addToHookStore(hookIndex: number, value: any) {
     this.#hookValues[hookIndex].push(value);
     const index = this.#hookValues[hookIndex].length - 1;
 
@@ -196,24 +207,24 @@ export class HookManager {
     return this.#hookValues.length - 1;
   }
 
-  registerHook(params) {
+  registerHook(params: HookOptions) {
     this.#hooks[params.index] = params;
   }
 
-  getHookValueAt(hookIndex, valueIndex) {
+  getHookValueAt(hookIndex: number, valueIndex: number) {
     return this.#hookValues[hookIndex][valueIndex];
   }
 }
 
-export function toBridgeHook(hook = {}, options = {}) {
-  return (...params) => {
+export function toBridgeHook<T extends ReactHook>(hook: T, options: BridgeHookOptions = {}) {
+  return (...params: any[]) => {
     mustBeBridgeComponent();
 
     const instance = getCurrentInstance();
 
     const hookManager = instance?.getPlugin(HookManager);
     if (!hookManager) {
-      if (!!(process.env.NODE_ENV !== 'production')) {
+      if (__DEV__) {
         throw new Error('HookManager not found');
       } else {
         return;
@@ -223,9 +234,9 @@ export function toBridgeHook(hook = {}, options = {}) {
 
     const args = params !== undefined ? params : [];
     hookManager.hookEffect.fn = () => hook(...args.map(hookManager.unsignal));
-    const value = hookManager.hookEffect.run();
+    const value = hookManager.hookEffect.run() as ReturnType<typeof hook>;
 
-    if (isObject(value)) {
+    if (isObject(value) && !options.shallow) {
       const states = hookManager.trackStates(index, value);
       const paths = isFunction(options.paths) ? options.paths(args) : options.paths;
       const targets = hookManager.createTargets(paths);
@@ -235,8 +246,24 @@ export function toBridgeHook(hook = {}, options = {}) {
     }
     const state = hookManager.trackState(index, value);
 
-    hookManager.registerHook({ hook, index, params: args });
+    hookManager.registerHook({ hook, index, params: args, shallow: options.shallow });
 
     return state;
   };
+}
+
+export interface BridgeHookOptions {
+  paths?: any | ((...args: any[]) => any);
+  shallow?: boolean;
+}
+type ReactHook = (...args: any[]) => any;
+
+export interface HookOptions {
+  hook: ReactHook;
+  index: number;
+  params: any;
+  options?: any;
+  position?: number;
+  shallow?: boolean;
+  paths?: Function | any;
 }

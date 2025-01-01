@@ -3,28 +3,30 @@
   "version": "0.2.20",
   "packageManager": "pnpm@8.15.3",
   "type": "module",
-  "main": "./src/index.js",
-  "module": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "main": "./dist/index.cjs.js",
+  "module": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "test": "vitest --",
+    "build": "rimraf dist && tsc && sh replace_constants.sh",
     "release": "release-it"
   },
   "exports": {
     ".": {
       "import": {
-        "types": "./src/index.d.ts",
-        "default": "./src/index.js"
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/src/index.js"
       },
       "require": {
-        "types": "./src/index.d.ts",
-        "default": "./src/index.js"
+        "types": "./dist/src/index.d.ts",
+        "default": "./dist/index.cjs.js"
       }
     },
     "./package.json": "./package.json"
   },
   "sideEffects": false,
   "files": [
+    "dist",
     "src",
     "global.d.ts",
     "README.md"

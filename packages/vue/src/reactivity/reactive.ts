@@ -14,7 +14,7 @@ import {
 import type { RawSymbol, Ref, UnwrapRefSimple } from './ref'
 import { ReactiveFlags } from './constants'
 import { warn } from './warning'
-import { type Listener, currentListener } from '@briddge/core';
+import { type Listener, currentListener } from '@unisonjs/core';
 
 export interface Target {
   [ReactiveFlags.SKIP]?: boolean
@@ -466,4 +466,3 @@ export function triggerListeners(target, key, value, oldValue) {
     listener.trigger?.(value, oldValue);
   }
 }
-

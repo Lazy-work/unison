@@ -10,11 +10,11 @@ import {
   EffectFlags,
   type Subscriber,
   activeSub,
-  refreshComputed, 
-  Dep, 
-  type Link, 
+  refreshComputed,
+  Dep,
+  type Link,
   globalVersion
-} from '@briddge/core'
+} from '@unisonjs/core'
 import { ReactiveFlags, TrackOpTypes } from './constants'
 
 declare const ComputedRefSymbol: unique symbol

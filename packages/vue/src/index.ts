@@ -1,9 +1,9 @@
-import { usePlugin } from '@briddge/core';
-import { InjectionPlugin } from './apiInject.js';
+import { usePlugin } from '@unisonjs/core';
+import { InjectionPlugin } from './apiInject';
 export {
-  $bridge,
+  $unison,
   createReactHook,
-  useBridge,
+  useUnison,
   $if,
   $switch,
   v,
@@ -15,18 +15,30 @@ export {
   onUpdated,
   onBeforeUnmount,
   onUnmounted,
-} from '@briddge/core';
+} from '@unisonjs/core';
 /**
  * @internal
  */
-export { withAsyncContext } from '@briddge/core';
-export { AppProvider } from './app.js';
-export { createApp } from './apiCreateApp.js';
+export { withAsyncContext } from '@unisonjs/core';
+export { AppProvider } from './app';
+export { createApp } from './apiCreateApp';
+
+export type {
+  App,
+  AppConfig,
+  AppContext,
+  Plugin,
+  ObjectPlugin,
+  FunctionPlugin,
+  CreateAppFunction,
+  OptionMergeFunction
+} from './apiCreateApp'
+
 usePlugin(InjectionPlugin);
-export { inject, provide, hasInjectionContext } from './apiInject.js';
-export { FastRefreshStoragePlugin } from './apiDebug.js';
-export { toBridgeHook } from './hook-manager/index.js';
-export { rsx } from './jsx-runtime.js';
+export { inject, provide, hasInjectionContext } from './apiInject';
+export { FastRefreshStoragePlugin } from './apiDebug';
+export { toUnisonHook } from './hook-manager/index';
+export { rsx } from './jsx-runtime';
 export const isVue2 = false;
 export const isVue3 = true;
 export const version = '3.0.0';
@@ -98,6 +110,42 @@ export {
   EffectScope,
   getCurrentScope,
   onScopeDispose,
-} from './reactivity/index.js';
-export { watch, watchEffect, watchPostEffect, watchSyncEffect } from './apiWatch.js';
-export { TrackOpTypes, TriggerOpTypes } from './reactivity/index.js';
+} from './reactivity/index';
+export { watch, watchEffect, watchPostEffect, watchSyncEffect } from './apiWatch';
+export { TrackOpTypes, TriggerOpTypes } from './reactivity/index';
+
+export type {
+  MultiWatchSources,
+  WatchEffect,
+  WatchOptions,
+  WatchCallback,
+  WatchSource,
+  WatchHandle,
+  WatchStopHandle,
+  Ref,
+  MaybeRef,
+  MaybeRefOrGetter,
+  ToRef,
+  ToRefs,
+  UnwrapRef,
+  ShallowRef,
+  ShallowUnwrapRef,
+  CustomRefFactory,
+  ReactiveFlags,
+  DeepReadonly,
+  ShallowReactive,
+  UnwrapNestedRefs,
+  ComputedRef,
+  WritableComputedRef,
+  WritableComputedOptions,
+  ComputedGetter,
+  ComputedSetter,
+  ReactiveEffectRunner,
+  ReactiveEffectOptions,
+  EffectScheduler,
+  DebuggerOptions,
+  DebuggerEvent,
+  DebuggerEventExtraInfo,
+  Raw,
+  Reactive,
+} from './reactivity/index';

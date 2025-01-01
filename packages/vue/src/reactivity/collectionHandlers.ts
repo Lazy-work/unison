@@ -6,7 +6,7 @@ import {
   toReactive,
   toReadonly,
 } from './reactive'
-import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from '@briddge/core'
+import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from '@unisonjs/core'
 import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants'
 import { capitalize, hasChanged, hasOwn, isMap, toRawType } from '@vue/shared'
 import { warn } from './warning'

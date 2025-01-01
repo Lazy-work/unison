@@ -21,7 +21,7 @@ import {
   pauseTracking,
   resetTracking,
   getCurrentScope,
-} from '@briddge/core'
+} from '@unisonjs/core'
 import { isReactive, isShallow } from './reactive'
 import { type Ref, isRef } from './ref'
 

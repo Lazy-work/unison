@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "target": "ES2020",
+    "target": "ES2022",
+    "outDir": "dist",
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
@@ -10,15 +11,19 @@
     "allowJs": true,
     "strict": true,
     "noUnusedLocals": true,
+    "declarationMap": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
+    "stripInternal": true,
     "isolatedModules": true,
     "skipLibCheck": true,
+    "noCheck": true,
     "esModuleInterop": true,
     "removeComments": false,
     "jsx": "react-jsx",
     "rootDir": ".",
     "types": ["vitest/globals", "node"],
     "composite": true
-  }
+  },
+  "include": ["src"]
 }

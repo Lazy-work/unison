@@ -1,10 +1,6 @@
 /** @import {ComponentInternalInstance} from './index.js' */
 import { LifecycleHooks } from '#vue-internals/runtime-core/enums.js';
-import { getCurrentInstance } from './index.js';
-
-export function hasInjectionContext() {
-  return !!getCurrentInstance();
-}
+import { getCurrentInstance } from '#vue-internals/runtime-core/component.js';
 
 /**
  *

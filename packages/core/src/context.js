@@ -15,9 +15,8 @@ import {
 } from '#vue-internals/runtime-core/scheduler.js';
 import { EffectScope, shallowReactive, ReactiveEffect } from '#vue-internals/reactivity/index.js';
 import { warn } from '#vue-internals/runtime-core/warning.js';
-
 import { LifecycleHooks } from '#vue-internals/runtime-core/enums.js';
-import { getCurrentInstance } from './index.js';
+import { getCurrentInstance } from '#vue-internals/runtime-core/component.js';
 
 let id = 0;
 
@@ -221,7 +220,7 @@ class Context {
   /**
    * @private
    * @type {Map<BridgePluginClass, BridgePlugin> | null}
-   * Registry of plugins for the bridge.
+   * Registry of plugins for the briddge.
    */
   #plugins = null;
 

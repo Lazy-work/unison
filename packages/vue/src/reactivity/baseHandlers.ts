@@ -12,7 +12,7 @@ import {
 } from './reactive'
 import { arrayInstrumentations } from './arrayInstrumentations'
 import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants'
-import { ITERATE_KEY, track, trigger } from '@briddge/core'
+import { ITERATE_KEY, track, trigger } from '@unisonjs/core'
 import {
   hasChanged,
   hasOwn,

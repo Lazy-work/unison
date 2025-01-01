@@ -5,7 +5,7 @@ import {
   isFunction,
   isObject,
 } from '@vue/shared'
-import { Dep, Listener, currentListener, getDepFromReactive } from '@briddge/core';
+import { Dep, Listener, currentListener, getDepFromReactive } from '@unisonjs/core';
 import {
   type Builtin,
   type ShallowReactiveMarker,

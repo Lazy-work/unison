@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { createListener, setCurrentListener } from './listener.js';
 import { initInstance } from './management.js';
-import { setCurrentInstance } from './index.js';
+import { setCurrentInstance } from '#vue-internals/runtime-core/component.js';
 
 class DisposeManager {
   /**
@@ -26,7 +26,7 @@ class DisposeManager {
       this.#isFlushPending = true;
     }
   }
-  
+
   /**
    * @param {Function} dispose
    */

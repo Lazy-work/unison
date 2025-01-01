@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Events } from '../../context.js';
 import { NOOP, isFunction, isObject } from '#vue-internals/shared/general.js';
 import { ReactiveEffect } from '#vue-internals/reactivity/effect.js';
-import { getCurrentInstance } from '../../index.js';
+import { getCurrentInstance } from '#vue-internals/runtime-core/component.js';
 import HookCallableSignal from './hook-callable-signal.js';
 import { mustBeBridgeComponent } from '../../utils.js';
 

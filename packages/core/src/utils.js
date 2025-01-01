@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { getCurrentInstance } from './index.js';
+import { getCurrentInstance } from '#vue-internals/runtime-core/component.js';
 
 export function isReactComponent() {
   const fiber = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current;

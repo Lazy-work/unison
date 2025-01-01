@@ -1,8 +1,9 @@
 export { $bridge, createReactHook, usePlugin } from './management.js';
-export { useBridge } from './use-bridge.js';
+export { useBridge } from './use-briddge.js';
 
 export * from './plugins/hook-manager/index.js';
 
+export { ErrorCodes, callWithAsyncErrorHandling } from '#vue-internals/runtime-core/errorHandling.js'
 export {
   effect,
   ReactiveEffect,
@@ -71,7 +72,6 @@ export {
   validateComponentName,
 } from '#vue-internals/runtime-core/component.js'
 export { validateDirectiveName } from '#vue-internals/runtime-core/directives.js'
-export { ErrorCodes, callWithAsyncErrorHandling } from '#vue-internals/runtime-core/errorHandling.js'
 
 export * from './lifecycle.js';
 export * from './conditional/index.js';

@@ -2,7 +2,7 @@
 /** @import { SetupComponent } from './types.js' */
 import React, { useEffect, useState } from 'react';
 import Context from './context.js';
-import { setCurrentInstance } from './index.js';
+import { setCurrentInstance } from '#vue-internals/runtime-core/component.js';
 
 
 const pluginsList = new Set();
@@ -32,17 +32,17 @@ export function initInstance() {
 
 /**
  * @template {AnyFunction} T
- * @param {T} bridgeHook
+ * @param {T} briddgeHook
  * @returns
  */
-export function createReactHook(bridgeHook) {
+export function createReactHook(briddgeHook) {
 /**
  * @template {Parameters<T>} P
  * @param {...P} params
  * @returns {ReturnType<T>}
  */
   return (...args) => {
-    const [result] = useState(() => bridgeHook(...args));
+    const [result] = useState(() => briddgeHook(...args));
     return result;
   };
 }
@@ -50,10 +50,10 @@ export function createReactHook(bridgeHook) {
 
 /**
  * @template {Record<string, any>} T
- * @param {SetupComponent<T>} fn - bridge component setup
+ * @param {SetupComponent<T>} fn - briddge component setup
  * @param {string} [name] - component name
  */
-export function $bridge(fn, name) {
+export function $briddge(fn, name) {
   /** @type {React.ForwardRefExoticComponent<T>} */
   const component = React.forwardRef((props, ref) => {
     const [instance] = useState(initInstance);

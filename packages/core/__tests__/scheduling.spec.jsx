@@ -1,17 +1,10 @@
 /** @import {Action} from "./type" */
-import React from 'react'
+import React from 'react';
 import { render } from '@testing-library/react';
-import {
-  nextTick,
-  onBeforeMount,
-  onBeforeUpdate,
-  onMounted,
-  onUnmounted,
-  onUpdated,
-} from '../src';
+import { onBeforeMount, onBeforeUpdate, onMounted, onUnmounted, onUpdated } from '../src/lifecycle';
 import Ref from './mocks/ref/ref';
 import { $bridge } from '../src/management';
-import { getMode } from '@vue-internals/runtime-core/scheduler';
+import { getMode, nextTick } from '#vue-internals/runtime-core/scheduler.js';
 import { watchEffect, watchPostEffect } from './mocks/effect';
 
 describe('testing scheduling with react', () => {
@@ -44,8 +37,8 @@ describe('testing scheduling with react', () => {
     const root = document.createElement('div');
     render(<Counter />, { container: root });
 
-        /** @type {HTMLButtonElement} */
-    const counter = root.querySelector('#action');;
+    /** @type {HTMLButtonElement} */
+    const counter = root.querySelector('#action');
 
     counter.click();
     await nextTick();
@@ -81,8 +74,8 @@ describe('testing scheduling with react', () => {
     const root = document.createElement('div');
     render(<Counter />, { container: root });
 
-        /** @type {HTMLButtonElement} */
-    const counter = root.querySelector('#action');;
+    /** @type {HTMLButtonElement} */
+    const counter = root.querySelector('#action');
 
     counter.click();
     await nextTick();
@@ -340,7 +333,6 @@ describe('testing scheduling with react', () => {
 
     const root = document.createElement('div');
     render(<Counter />, { container: root });
-
 
     /** @type {HTMLButtonElement} */
     const counter = root.querySelector('#action');

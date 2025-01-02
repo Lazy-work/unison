@@ -1,47 +1,22 @@
 class LogicalEvaluation {
     #state = false;
-    #onTrue;
-    #alternative;
-    #default;
-
-    /**
-     * 
-     * @param {boolean} bool 
-     */
-    constructor(bool) {
+    #onTrue: any;
+    #alternative: any;
+    #default: any;
+    constructor(bool: boolean) {
         this.#state = bool;
     }
 
-    /**
-     * 
-     * @template T
-     * @param {T} exp 
-     * @returns 
-     */
-    then(exp) {
+    then<T>(exp: T) {
         this.#onTrue = exp;
         return this;
     }
-    
-    /**
-     * 
-     * @template T
-     * @param {boolean} bool 
-     * @param {T} exp 
-     * @returns 
-     */
-    elseif(bool, exp) {
+    elseif<T>(bool: boolean, exp: T) {
         if (bool && !this.#alternative) this.#alternative = exp;
         return this;
     }
 
-    /**
-     * 
-     * @template T
-     * @param {T} exp 
-     * @returns 
-     */
-    else(exp) {
+    else<T>(exp: T) {
         this.#default = exp;
         return this;
     }

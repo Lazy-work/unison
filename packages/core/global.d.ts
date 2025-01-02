@@ -26,6 +26,10 @@ declare global {
   var __FEATURE_PROD_DEVTOOLS__: boolean
   var __FEATURE_SUSPENSE__: boolean
   var __FEATURE_PROD_HYDRATION_MISMATCH_DETAILS__: boolean
+
+  interface window {
+    __BRIDGE_REFRESH__?: { root: any | null }
+  }
 }
 
 declare namespace React {

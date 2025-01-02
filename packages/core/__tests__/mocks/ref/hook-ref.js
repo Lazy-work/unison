@@ -1,6 +1,6 @@
 /** @import {HookManager} from "../../../src" */
 import { BaseSignal } from "../../../src";
-import { activeSub, shouldTrack, ReactiveEffect } from '@vue-internals/reactivity/effect';
+import { activeSub, shouldTrack, ReactiveEffect } from '#vue-internals/reactivity/effect';
 
 /** @template T */
 export default class HookRef extends BaseSignal {

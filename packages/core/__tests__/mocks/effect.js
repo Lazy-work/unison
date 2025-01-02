@@ -1,6 +1,6 @@
 /** @import {SchedulerJob} from "../../src" */
 import { ReactiveEffect, getCurrentInstance, queueJob } from '../../src';
-import { queuePostFlushCb } from '@vue-internals/runtime-core/scheduler';
+import { queuePostFlushCb } from '#vue-internals/runtime-core/scheduler.js';
 
 /**
  * Create a reactive effect and schedule it to run.

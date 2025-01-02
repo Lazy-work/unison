@@ -58,12 +58,12 @@ export default [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/briddge-core.esm-bundler.js',
+        file: 'dist/index.js',
         format: 'es',
         sourcemap: true,
       },
       {
-        file: 'dist/briddge-core.cjs.js',
+        file: 'dist/index.cjs.js',
         format: 'cjs',
         sourcemap: true,
       },

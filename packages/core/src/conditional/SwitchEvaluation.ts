@@ -1,28 +1,15 @@
-
-/**
- * @template T
- */
-class SwitchEvaluation{
-    /**
-     * @type {T}
-     */
-    #input;
-    #result;
-
-    /**
-     * 
-     * @param {T} input 
-     */
-    constructor(input) {
+type DeepPartial<T> = T extends object ? {
+    [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+type CaseParams<T> = T extends object ? [...(DeepPartial<T> | boolean)[], any] : [...(T | boolean)[], any];
+class SwitchEvaluation<T> {
+    #input: T;
+    #result: any;
+    constructor(input: T) {
         this.#input = input;
     }
-    
-    /**
-     * 
-     * @param  {CaseParams<T>[]} args 
-     * @returns 
-     */
-    case(...args) {
+
+    case(...args: CaseParams<T>) {
         const patterns = args.slice(0, -1);
         const expression = args.at(-1);
         if (this.#result !== undefined) return this;
@@ -49,7 +36,7 @@ class SwitchEvaluation{
         return this;
     }
 
-    #matchPattern(input, pattern) {
+    #matchPattern(input: any, pattern: any) {
         if (typeof input !== 'object' || input === null) return false;
         for (const [key, value] of Object.entries(pattern)) {
             const hasKey = key in input;
@@ -65,12 +52,7 @@ class SwitchEvaluation{
         return true;
     }
 
-    /**
-     * 
-     * @param {any} [expression] 
-     * @returns 
-     */
-    default(expression) {
+    default(expression?: any) {
         let result = this.#result === undefined ? expression : this.#result;
         if (typeof result === "function") return result(this.#input);
         return result;

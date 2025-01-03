@@ -35,7 +35,7 @@ export type {
 } from './apiCreateApp'
 
 usePlugin(InjectionPlugin);
-export { inject, provide, hasInjectionContext } from './apiInject';
+export { inject, provide, hasInjectionContext, type InjectionKey } from './apiInject';
 export { FastRefreshStoragePlugin } from './apiDebug';
 export { toUnisonHook } from './hook-manager/index';
 export { rsx } from './jsx-runtime';

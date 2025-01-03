@@ -1,5 +1,5 @@
 import { watchEffect as effect, isReactive, reactive, toRaw, nextTick } from '../../src';
-import { $bridge } from '@briddge/core';
+import { $unison } from '@unisonjs/core';
 import { act, render } from '@testing-library/react';
 
 describe('reactivity/collections', () => {
@@ -14,7 +14,7 @@ describe('reactivity/collections', () => {
     it('should observe mutations', async () => {
       let dummy;
       let set;
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = set.has('value')));
         return () => <div />;
@@ -34,7 +34,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let value;
       let set;
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         value = reactive({});
         set = reactive(new Set());
         effect(() => (dummy = set.has(value)));
@@ -57,7 +57,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set() as Set<number>);
         effect(() => {
           dummy = 0;
@@ -91,7 +91,7 @@ describe('reactivity/collections', () => {
     it('should observe forEach iteration', async () => {
       let dummy: any;
       let set;
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => {
           dummy = 0;
@@ -105,17 +105,17 @@ describe('reactivity/collections', () => {
       set.add(2);
       set.add(1);
       await nextTick();
-      
+
       expect(dummy).toBe(3);
 
       set.delete(2);
       await nextTick();
 
       expect(dummy).toBe(1);
-      
+
       set.clear();
       await nextTick();
-      
+
       expect(dummy).toBe(0);
     });
 
@@ -123,7 +123,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set() as Set<number>);
         effect(() => {
           dummy = 0;
@@ -158,7 +158,7 @@ describe('reactivity/collections', () => {
     it('should observe keys iteration', async () => {
       let dummy;
       let set;
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set() as Set<number>);
         effect(() => {
           dummy = 0;
@@ -194,7 +194,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set<number>());
         effect(() => {
           dummy = 0;
@@ -230,7 +230,7 @@ describe('reactivity/collections', () => {
     it('should be triggered by clearing', async () => {
       let dummy;
       let set;
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = set.has('key')));
         return () => <div />;
@@ -254,7 +254,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set: any;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = set.customProp));
         return () => <div />;
@@ -274,7 +274,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = set.size));
         return () => <div />;
@@ -306,7 +306,7 @@ describe('reactivity/collections', () => {
       let set;
       let setSpy;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         setSpy = vi.fn(() => (dummy = set.has('value')));
         effect(setSpy);
@@ -352,7 +352,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = toRaw(set).has('value')));
 
@@ -372,7 +372,7 @@ describe('reactivity/collections', () => {
       let dummy = 0;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set<number>());
         effect(() => {
           dummy = 0;
@@ -415,7 +415,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = set.has('value')));
         return () => <div />;
@@ -445,7 +445,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = toRaw(set).size));
         return () => <div />;
@@ -464,7 +464,7 @@ describe('reactivity/collections', () => {
       let dummy;
       let set;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set());
         effect(() => (dummy = set.size));
 
@@ -487,7 +487,7 @@ describe('reactivity/collections', () => {
       let set;
       let setSpy;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         key = {};
         set = reactive(new Set());
         setSpy = vi.fn(() => (dummy = set.has(key)));
@@ -526,7 +526,7 @@ describe('reactivity/collections', () => {
       let set;
       let dummy: any;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set([{ foo: 1 }]));
         effect(() => {
           dummy = 0;
@@ -553,7 +553,7 @@ describe('reactivity/collections', () => {
       let set;
       let dummy: any;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set([{ foo: 1 }]));
         effect(() => {
           dummy = 0;
@@ -580,7 +580,7 @@ describe('reactivity/collections', () => {
       let set;
       let dummy: any;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set([{ foo: 1 }]));
         effect(() => {
           dummy = 0;
@@ -608,7 +608,7 @@ describe('reactivity/collections', () => {
       let set;
       let dummy: any;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         set = reactive(new Set([{ foo: 1 }]));
         effect(() => {
           dummy = 0;
@@ -638,7 +638,7 @@ describe('reactivity/collections', () => {
 
       let dummy;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         raw = new Set();
         entry = reactive({});
         raw.add(entry);

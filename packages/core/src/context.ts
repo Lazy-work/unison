@@ -12,7 +12,7 @@ import { EffectScope, shallowReactive, ReactiveEffect } from '#vue-internals/rea
 import { warn } from '#vue-internals/runtime-core/warning';
 import { WatchEffectOptions } from '#vue-internals/runtime-core/apiWatch';
 import { LifecycleHooks } from '#vue-internals/runtime-core/enums';
-import { BridgePlugin, BridgePluginClass } from './plugins/index';
+import { UnisonPlugin, UnisonPluginClass } from './plugins/index';
 import { ComponentInternalInstance, getCurrentInstance } from './index';
 
 let id = 0;
@@ -123,7 +123,7 @@ class Context {
   #updated = false;
   #children: () => React.ReactNode = () => null;
   #template: React.ReactNode = null;
-  #plugins: Map<BridgePluginClass, BridgePlugin> | null = null;
+  #plugins: Map<UnisonPluginClass, UnisonPlugin> | null = null;
 
   constructor() {
     this.#parent = getCurrentInstance();
@@ -144,21 +144,21 @@ class Context {
     this.#nbExecution++;
     this.#isRunning = true;
     this.#scope.on();
-    if (this.isFastRefresh() && !window.__BRIDGE_REFRESH__.root) {
-      window.__BRIDGE_REFRESH__.root = this;
+    if (this.isFastRefresh() && !window.__UNISON_REFRESH__.root) {
+      window.__UNISON_REFRESH__.root = this;
     }
   }
   get isRunning() {
     return this.#isRunning;
   }
 
-  setPlugin(key: BridgePluginClass, plugin: BridgePlugin) {
-    const plugins = this.#plugins || new Map<BridgePluginClass, BridgePlugin>();
+  setPlugin(key: UnisonPluginClass, plugin: UnisonPlugin) {
+    const plugins = this.#plugins || new Map<UnisonPluginClass, UnisonPlugin>();
     plugins.set(key, plugin);
     this.#plugins = plugins;
   }
 
-  getPlugin<T extends BridgePluginClass>(key: T): InstanceType<T> | undefined {
+  getPlugin<T extends UnisonPluginClass>(key: T): InstanceType<T> | undefined {
     return this.#plugins?.get(key) as InstanceType<T>;
   }
 
@@ -336,8 +336,8 @@ class Context {
       this.#updated = false;
       this.#isRunning = false;
       this.#scope.off();
-      if (this.isFastRefresh() && window.__BRIDGE_REFRESH__.root === this) {
-        window.__BRIDGE_REFRESH__ = undefined;
+      if (this.isFastRefresh() && window.__UNISON_REFRESH__.root === this) {
+        window.__UNISON_REFRESH__ = undefined;
       }
       switchToAuto();
     });
@@ -365,7 +365,7 @@ class Context {
   }
 
   isFastRefresh() {
-    return !!(typeof window !== 'undefined' && window.__BRIDGE_REFRESH__);
+    return !!(typeof window !== 'undefined' && window.__UNISON_REFRESH__);
   }
 
   executed() {

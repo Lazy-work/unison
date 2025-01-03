@@ -17,7 +17,7 @@ import {
   toRefs,
   computed,
   nextTick,
-  $bridge,
+  $unison,
 } from '../src/index';
 import { act, render } from '@testing-library/react';
 
@@ -26,7 +26,7 @@ describe('reactivity/ref', () => {
     let a;
     let dummy;
     let fn;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = ref(1);
       fn = vi.fn(() => {
         dummy = a.value;
@@ -56,7 +56,7 @@ describe('reactivity/ref', () => {
     let a;
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = ref({
         count: 1,
       });
@@ -78,7 +78,7 @@ describe('reactivity/ref', () => {
   it('should work without initial value', async () => {
     let a = ref();
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = ref();
       watchEffect(() => {
         dummy = a.value;
@@ -102,7 +102,7 @@ describe('reactivity/ref', () => {
     let dummy1: number;
     let dummy2: number;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = ref(1);
       obj = reactive({
         a,
@@ -138,7 +138,7 @@ describe('reactivity/ref', () => {
   });
 
   it('should unwrap nested ref in types', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const a = ref(0);
       const b = ref(a);
 
@@ -150,7 +150,7 @@ describe('reactivity/ref', () => {
   });
 
   it('should unwrap nested values in types', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const a = {
         b: ref(0),
       };
@@ -165,7 +165,7 @@ describe('reactivity/ref', () => {
   });
 
   it('should NOT unwrap ref types nested inside arrays', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const arr = ref([1, ref(3)]).value;
       expect(isRef(arr[0])).toBe(false);
       expect(isRef(arr[1])).toBe(true);
@@ -177,7 +177,7 @@ describe('reactivity/ref', () => {
   });
 
   it('should unwrap ref types as props of arrays', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const arr = [ref(0)];
       const symbolKey = Symbol('');
       arr['' as any] = ref(1);
@@ -195,7 +195,7 @@ describe('reactivity/ref', () => {
   });
 
   it('should keep tuple types', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const tuple: [number, string, { a: number }, () => number, Ref<number>] = [0, '1', { a: 1 }, () => 0, ref(0)];
       const tupleRef = ref(tuple);
 
@@ -215,7 +215,7 @@ describe('reactivity/ref', () => {
   });
 
   it('should keep symbols', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const customSymbol = Symbol();
       const obj = {
         [Symbol.asyncIterator]: ref(1),
@@ -263,7 +263,7 @@ describe('reactivity/ref', () => {
   });
 
   test('unref', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       expect(unref(1)).toBe(1);
       expect(unref(ref(1))).toBe(1);
       return () => <div />;
@@ -276,7 +276,7 @@ describe('reactivity/ref', () => {
     let sref;
 
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       sref = shallowRef({ a: 1 });
       expect(isReactive(sref.value)).toBe(false);
 
@@ -301,7 +301,7 @@ describe('reactivity/ref', () => {
     let sref;
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       sref = shallowRef({ a: 1 });
 
       watchEffect(() => {
@@ -327,7 +327,7 @@ describe('reactivity/ref', () => {
   });
 
   test('isRef', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       expect(isRef(ref(1))).toBe(true);
       expect(isRef(computed(() => 1))).toBe(true);
 
@@ -347,7 +347,7 @@ describe('reactivity/ref', () => {
     let r;
     let dummyX;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = reactive({
         x: 1,
       });
@@ -385,7 +385,7 @@ describe('reactivity/ref', () => {
   });
 
   test('toRef on array', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const a = reactive(['a', 'b']);
       const r = toRef(a, 1);
       expect(r.value).toBe('b');
@@ -399,7 +399,7 @@ describe('reactivity/ref', () => {
   });
 
   test('toRef default value', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const a: { x: number | undefined } = { x: undefined };
       const x = toRef(a, 'x', 1);
       expect(x.value).toBe(1);
@@ -416,7 +416,7 @@ describe('reactivity/ref', () => {
   });
 
   test('toRef getter', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const x = toRef(() => 1);
       expect(x.value).toBe(1);
       expect(isRef(x)).toBe(true);
@@ -434,7 +434,7 @@ describe('reactivity/ref', () => {
   test('toRefs', async () => {
     let dummyX, dummyY;
     let a, x, y;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = reactive({
         x: 1,
         y: 2,
@@ -478,13 +478,13 @@ describe('reactivity/ref', () => {
     a.x = 4;
     a.y = 5;
     await nextTick();
-    
+
     expect(dummyX).toBe(4);
     expect(dummyY).toBe(5);
   });
 
   test('toRefs should warn on plain object', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       toRefs({});
       expect(`toRefs() expects a reactive object`).toHaveBeenWarned();
       return () => <div />;
@@ -494,7 +494,7 @@ describe('reactivity/ref', () => {
   });
 
   test('toRefs should warn on plain array', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       toRefs([]);
       expect(`toRefs() expects a reactive object`).toHaveBeenWarned();
       return () => <div />;
@@ -504,7 +504,7 @@ describe('reactivity/ref', () => {
   });
 
   test('toRefs reactive array', async () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const arr = reactive(['a', 'b', 'c']);
       const refs = toRefs(arr);
 
@@ -528,7 +528,7 @@ describe('reactivity/ref', () => {
     let custom;
 
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       value = 1;
 
       custom = customRef((track, trigger) => ({
@@ -573,7 +573,7 @@ describe('reactivity/ref', () => {
 
     let b;
     let spy2;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       obj = reactive({ count: 0 });
       a = ref(obj);
       spy1 = vi.fn(() => a.value);
@@ -605,7 +605,7 @@ describe('reactivity/ref', () => {
     let s;
     let rr;
     let a;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = {};
       r = reactive(original);
       s = shallowReactive(original);

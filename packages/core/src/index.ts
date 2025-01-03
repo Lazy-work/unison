@@ -1,6 +1,6 @@
-export { $bridge, createReactHook, usePlugin, type SetupComponent } from './management';
+export { $unison, createReactHook, usePlugin, type SetupComponent } from './management';
 export { type EventType } from './context';
-export { useBridge } from './use-bridge';
+export { useUnison } from './use-unison';
 
 export * from './plugins/hook-manager/index';
 

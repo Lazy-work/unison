@@ -1,5 +1,5 @@
 {
-  "name": "babel-plugin-bridge-fast-refresh",
+  "name": "babel-plugin-unisonjs-fast-refresh",
   "version": "0.1.0",
   "packageManager": "pnpm@8.15.3",
   "scripts": {
@@ -7,9 +7,9 @@
     "build": "rimraf dist && rollup -c --bundleConfigAsCjs",
     "release": "release-it"
   },
-  "main": "./dist/bridge-fast-refresh.js",
+  "main": "./dist/index.cjs.js",
   "exports": {
-    ".": "./dist/bridge-fast-refresh.cjs.js",
+    ".": "./dist/index.cjs.js",
     "./package.json": "./package.json"
   },
   "files": [

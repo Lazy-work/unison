@@ -6,7 +6,7 @@ import {
   isReactive,
   shallowReactive,
   watchEffect,
-  $bridge,
+  $unison,
 } from '../src';
 
 import { render } from '@testing-library/react';
@@ -16,7 +16,7 @@ describe('shallowReactive', () => {
   test('should not mutate refs', async () => {
     let original;
     let foo;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = ref(123);
       foo = shallowReactive<{ bar: Ref<number> | number }>({
         bar: original,
@@ -40,7 +40,7 @@ describe('shallowReactive', () => {
       let a;
       let size;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         shallowSet = shallowReactive(new Set());
         a = {};
 
@@ -81,7 +81,7 @@ describe('shallowReactive', () => {
       let shallowSet = shallowReactive(new Set());
       let a;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         onTrackFn = vi.fn();
         shallowSet = shallowReactive(new Set());
         let a;
@@ -109,7 +109,7 @@ describe('shallowReactive', () => {
       let a;
       let size;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         shallowArray = shallowReactive<unknown[]>([]);
         a = {};
 
@@ -138,7 +138,7 @@ describe('shallowReactive', () => {
       let shallowArray;
       let a;
 
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         onTrackFn = vi.fn();
         shallowArray = shallowReactive([]);
         a = {};

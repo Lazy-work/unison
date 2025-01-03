@@ -4,8 +4,8 @@ import { NOOP, isFunction, isObject } from '#vue-internals/shared/general';
 import { ReactiveEffect } from '#vue-internals/reactivity/effect';
 import { getCurrentInstance, type ComponentInternalInstance } from '../../index';
 import HookCallableSignal from './hook-callable-signal';
-import { mustBeBridgeComponent } from '../../utils';
-import { BridgePlugin } from '../index';
+import { mustBeUnisonComponent } from '../../utils';
+import { UnisonPlugin } from '../index';
 
 const nativeHooks = [
   React.useReducer,
@@ -32,7 +32,7 @@ interface HookManagerOptions<T extends BaseSignalConstructor<any>> {
   unsignal: (signal: any) => any;
 }
 
-export class HookManager implements BridgePlugin {
+export class HookManager implements UnisonPlugin {
   #store: any[] = [];
   #storeCursor = 0;
   #hooks: any[] = [];
@@ -216,9 +216,9 @@ export class HookManager implements BridgePlugin {
   }
 }
 
-export function toBridgeHook<T extends ReactHook>(hook: T, options: BridgeHookOptions = {}) {
+export function toUnisonHook<T extends ReactHook>(hook: T, options: UnisonHookOptions = {}) {
   return (...params: any[]) => {
-    mustBeBridgeComponent();
+    mustBeUnisonComponent();
 
     const instance = getCurrentInstance();
 
@@ -252,7 +252,7 @@ export function toBridgeHook<T extends ReactHook>(hook: T, options: BridgeHookOp
   };
 }
 
-export interface BridgeHookOptions {
+export interface UnisonHookOptions {
   paths?: any | ((...args: any[]) => any);
   shallow?: boolean;
 }

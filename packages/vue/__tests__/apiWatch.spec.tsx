@@ -18,13 +18,13 @@ import {
   type ShallowRef,
   type DebuggerEvent,
   effectScope,
-  $bridge,
+  $unison,
   TrackOpTypes,
   TriggerOpTypes,
   onWatcherCleanup,
 } from '../src/index.js';
 
-import { ITERATE_KEY, getMode } from '@briddge/core';
+import { ITERATE_KEY, getMode } from '@unisonjs/core';
 import { render } from '@testing-library/react';
 
 // reference: https://vue-composition-api-rfc.netlify.com/api.html#watch
@@ -504,7 +504,7 @@ describe('api: watch', () => {
       result2 = count === expectedState && count2Value === expectedState;
     });
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watchEffect(() => {
         assertion(count.value, count2.value);
       });
@@ -533,7 +533,7 @@ describe('api: watch', () => {
       result = root.innerHTML === `${count}`;
     });
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watchEffect(
         () => {
           assertion(count.value);
@@ -563,7 +563,7 @@ describe('api: watch', () => {
       result = root.innerHTML === `${count}`;
     });
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watchPostEffect(() => {
         assertion(count.value);
       });
@@ -606,7 +606,7 @@ describe('api: watch', () => {
       result2 = count2.value === expectedState;
     });
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watchEffect(
         () => {
           assertion(count.value);
@@ -654,7 +654,7 @@ describe('api: watch', () => {
       result2 = count2.value === expectedState;
     });
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watchSyncEffect(() => {
         assertion(count.value);
       });
@@ -680,12 +680,12 @@ describe('api: watch', () => {
     const toggle = ref(true);
     const cb = vi.fn();
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watch(toggle, cb, { flush: 'post' });
       return () => null;
     });
 
-    const App = $bridge(() => {
+    const App = $unison(() => {
       return () => (toggle.value ? <Comp /> : null);
     });
 
@@ -702,12 +702,12 @@ describe('api: watch', () => {
     const toggle = ref(true);
     const cb = vi.fn();
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watch(toggle, cb, { flush: 'pre' });
       return () => null;
     });
 
-    const App = $bridge(() => {
+    const App = $unison(() => {
       return () => (toggle.value ? <Comp /> : null);
     });
 
@@ -724,16 +724,16 @@ describe('api: watch', () => {
     const visible = ref(true);
     const cb = vi.fn();
 
-    const Parent = $bridge((props: { visible: boolean }) => {
+    const Parent = $unison((props: { visible: boolean }) => {
       return () => (visible.value ? <Comp /> : null);
     });
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watch(visible, cb, { flush: 'pre' });
       return () => null;
     });
 
-    const App = $bridge(() => {
+    const App = $unison(() => {
       return () => <Parent visible={visible.value} />;
     });
 
@@ -750,7 +750,7 @@ describe('api: watch', () => {
     const b = ref(0);
     const calls: string[] = [];
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       watch(
         () => b.value,
         (val) => {
@@ -765,7 +765,7 @@ describe('api: watch', () => {
       };
     });
 
-    const Parent = $bridge((props: { a: number }) => {
+    const Parent = $unison((props: { a: number }) => {
       watch(
         () => b.value,
         (val) => {
@@ -780,7 +780,7 @@ describe('api: watch', () => {
       };
     });
 
-    const App = $bridge(() => {
+    const App = $unison(() => {
       return () => <Parent a={b.value} />;
     });
 
@@ -807,7 +807,7 @@ describe('api: watch', () => {
     const c = ref(0);
     const calls: string[] = [];
 
-    const Comp = $bridge((props: { a: number; b: number }) => {
+    const Comp = $unison((props: { a: number; b: number }) => {
       watch(
         () => props.a + props.b,
         () => {
@@ -832,7 +832,7 @@ describe('api: watch', () => {
       };
     });
 
-    const App = $bridge(() => {
+    const App = $unison(() => {
       return () => <Comp a={a.value} b={b.value} />;
     });
 
@@ -855,7 +855,7 @@ describe('api: watch', () => {
     const count = ref(0);
     const calls: string[] = [];
 
-    const App = $bridge(() => {
+    const App = $unison(() => {
       watch(
         count,
         () => {
@@ -886,7 +886,7 @@ describe('api: watch', () => {
     const toggle = ref(false);
     let dom: HTMLElement | null = null;
 
-    const App = $bridge(() => {
+    const App = $unison(() => {
       const domRef = reactRef<HTMLElement | null>(null);
 
       watch(

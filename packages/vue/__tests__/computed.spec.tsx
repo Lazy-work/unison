@@ -1,5 +1,5 @@
 import React from 'react';
-import { computed, watchEffect, effect, reactive, $bridge, ref, nextTick } from '../src/index';
+import { computed, watchEffect, effect, reactive, $unison, ref, nextTick } from '../src/index';
 
 import { act, render } from '@testing-library/react';
 
@@ -8,7 +8,7 @@ describe('reactivity/computed', () => {
     let value;
     let cValue;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       value = reactive<{ foo?: number }>({});
       cValue = computed(() => value.foo);
       return () => <div />;
@@ -25,7 +25,7 @@ describe('reactivity/computed', () => {
     let cValue;
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       value = reactive<{ foo?: number }>({});
       cValue = computed(() => value.foo);
       watchEffect(() => {
@@ -51,7 +51,7 @@ describe('reactivity/computed', () => {
     let c2;
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       value = reactive({ foo: 0 });
       getter1 = vi.fn(() => value.foo);
       getter2 = vi.fn(() => {
@@ -87,7 +87,7 @@ describe('reactivity/computed', () => {
     let c2;
 
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       value = reactive({ foo: 0 });
       getter1 = vi.fn(() => value.foo);
       getter2 = vi.fn(() => {
@@ -120,7 +120,7 @@ describe('reactivity/computed', () => {
     let plusOne;
 
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       n = ref(1);
       plusOne = computed({
         get: () => n.value + 1,
@@ -168,7 +168,7 @@ describe('reactivity/computed', () => {
     let isLoaded;
     let msg;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       items = ref<number[]>();
       isLoaded = computed(() => {
         return !!items.value;
@@ -204,7 +204,7 @@ describe('reactivity/computed', () => {
     let isLoaded;
     let msg;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       items = ref<number[]>();
       isLoaded = computed(() => {
         return !!items.value;

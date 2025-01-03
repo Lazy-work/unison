@@ -14,7 +14,7 @@ export default [
     input: "src/index.js",
     output: [
       {
-        file: "dist/bridge-fast-refresh.cjs.js",
+        file: "dist/index.cjs.js",
         format: "cjs",
         sourcemap: true,
       }

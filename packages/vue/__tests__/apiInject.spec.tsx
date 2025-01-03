@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react';
-import { type Ref, hasInjectionContext, reactive, readonly, ref, $bridge, nextTick, createApp } from '../src/index.js';
+import { type Ref, hasInjectionContext, reactive, readonly, ref, $unison, nextTick, createApp } from '../src/index.js';
 import { inject, provide } from '../src/index.js';
 import { type InjectionKey } from '../src/index.js';
 import { nodeOps, serialize } from '@vue/runtime-test';
@@ -7,7 +7,7 @@ import { nodeOps, serialize } from '@vue/runtime-test';
 // reference: https://vue-composition-api-rfc.netlify.com/api.html#provide-inject
 describe('api: provide/inject', () => {
   it('string keys', () => {
-    const Provider = $bridge(() => {
+    const Provider = $unison(() => {
       provide('foo', 1);
       return () => <Middle />;
     });
@@ -16,7 +16,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const foo = inject('foo');
       return () => <div>{foo}</div>;
     });
@@ -29,7 +29,7 @@ describe('api: provide/inject', () => {
     // also verifies InjectionKey type sync
     const key: InjectionKey<number> = Symbol();
 
-    const Provider = $bridge(() => {
+    const Provider = $unison(() => {
       provide(key, 1);
       return () => <Middle />;
     });
@@ -38,7 +38,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const foo = inject(key) || 1;
       return () => <div>{foo + 1}</div>;
     });
@@ -48,7 +48,7 @@ describe('api: provide/inject', () => {
   });
 
   it('default values', () => {
-    const Provider = $bridge(() => {
+    const Provider = $unison(() => {
       provide('foo', 'foo');
       return () => <Middle />;
     });
@@ -57,7 +57,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       // default value should be ignored if value is provided
       const foo = inject('foo', 'fooDefault');
       // default value should be used if value is not provided
@@ -97,20 +97,20 @@ describe('api: provide/inject', () => {
   });
 
   it('nested providers', () => {
-    const ProviderOne = $bridge(() => {
+    const ProviderOne = $unison(() => {
       // override parent value
       provide('foo', 'foo');
       provide('bar', 'bar');
       return () => <ProviderTwo />;
     });
 
-    const ProviderTwo = $bridge(() => {
+    const ProviderTwo = $unison(() => {
       provide('foo', 'fooOverride');
       provide('baz', 'baz');
       return () => <Consumer />;
     });
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const foo = inject('foo');
       const bar = inject('bar');
       const baz = inject('baz');
@@ -124,7 +124,7 @@ describe('api: provide/inject', () => {
   it('reactivity with refs', async () => {
     const count = ref(1);
 
-    const Provider = $bridge(() => {
+    const Provider = $unison(() => {
       provide('count', count);
       return () => <Middle />;
     });
@@ -133,7 +133,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const count = inject<Ref<number>>('count')!;
       return () => <div>{count.value}</div>;
     });
@@ -152,7 +152,7 @@ describe('api: provide/inject', () => {
   it('reactivity with readonly refs', async () => {
     const count = ref(1);
 
-    const Provider = $bridge(() => {
+    const Provider = $unison(() => {
       provide('count', readonly(count));
       return () => <Middle />;
     });
@@ -161,7 +161,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const count = inject<Ref<number>>('count')!;
       // should not work
       count.value++;
@@ -183,7 +183,7 @@ describe('api: provide/inject', () => {
   it('reactivity with objects', async () => {
     const rootState = reactive({ count: 1 });
 
-    const Provider = $bridge(() => {
+    const Provider = $unison(() => {
       provide('state', rootState);
       return () => <Middle />;
     });
@@ -192,7 +192,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const state = inject<typeof rootState>('state')!;
       return () => <div>{state.count}</div>;
     });
@@ -209,7 +209,7 @@ describe('api: provide/inject', () => {
   it('reactivity with readonly objects', async () => {
     const rootState = reactive({ count: 1 });
 
-    const Provider = $bridge(() => {
+    const Provider = $unison(() => {
       provide('state', readonly(rootState));
       return () => <Middle />;
     });
@@ -218,7 +218,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const state = inject<typeof rootState>('state')!;
       // should not work
       state.count++;
@@ -245,7 +245,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const foo = inject('foo');
       expect(foo).toBeUndefined();
       return () => foo;
@@ -267,7 +267,7 @@ describe('api: provide/inject', () => {
       return <Consumer />;
     }
 
-    const Consumer = $bridge(() => {
+    const Consumer = $unison(() => {
       const foo = inject('foo', undefined);
       return () => foo;
     });
@@ -278,7 +278,7 @@ describe('api: provide/inject', () => {
 
   // #2400
   it('should not self-inject', () => {
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       provide('foo', 'foo');
       const injection = inject('foo', null);
       return () => injection;
@@ -296,7 +296,7 @@ describe('api: provide/inject', () => {
 
     it('should be true within setup', () => {
       expect.assertions(1);
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         expect(hasInjectionContext()).toBe(true);
         return () => null;
       });

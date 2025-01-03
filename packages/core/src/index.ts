@@ -63,6 +63,7 @@ export {
   switchToAuto,
   switchToManual,
   toggleMode,
+  getMode,
   getJobAt,
   endFlush,
   SchedulerJobFlags,

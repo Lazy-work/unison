@@ -6,7 +6,7 @@ export function isReactComponent() {
   return !!fiber;
 }
 
-export function mustBeBridgeComponent() {
+export function mustBeUnisonComponent() {
   if (!!(process.env.NODE_ENV !== 'production') && isReactComponent() && !getCurrentInstance()) {
     throw new Error('Cannot use inside a none reactive component');
   }

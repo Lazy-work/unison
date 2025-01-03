@@ -28,7 +28,7 @@ declare global {
   var __FEATURE_PROD_HYDRATION_MISMATCH_DETAILS__: boolean
 
   interface window {
-    __BRIDGE_REFRESH__?: { root: any | null }
+    __UNISON_REFRESH__?: { root: any | null }
   }
 }
 

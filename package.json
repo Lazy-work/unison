@@ -8,14 +8,14 @@
     "packages/compiler"
   ],
   "scripts": {
-    "build-all": "pnpm -r build",
+    "build-all": "pnpm --filter \"*unison*\" build",
     "release": "npm run release --workspaces && release-it",
     "preinstall": "npx only-allow pnpm"
   },
   "peerDependencies": {
     "react": "^18.0.0"
   },
-  "namespace": "@briddge",
+  "namespace": "@unisonjs",
   "devDependencies": {
     "@eslint/js": "^9.17.0",
     "@release-it/bumper": "^6.0.1",

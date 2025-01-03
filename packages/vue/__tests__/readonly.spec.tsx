@@ -3,7 +3,7 @@ import {
   watchEffect,
   isReactive,
   reactive,
-  $bridge,
+  $unison,
   readonly,
   getCurrentInstance,
   nextTick
@@ -14,7 +14,7 @@ describe('reactivity/readonly', () => {
     it('should not trigger effects', async () => {
       let wrapped: any;
       let dummy;
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         wrapped = readonly({ a: 1 });
         dummy;
         watchEffect(() => {
@@ -39,7 +39,7 @@ describe('reactivity/readonly', () => {
     it('should not trigger effects', async () => {
       let wrapped: any;
       let dummy;
-      const Comp = $bridge(() => {
+      const Comp = $unison(() => {
         wrapped = readonly([{ a: 1 }]);
         watchEffect(() => {
           dummy = wrapped[0].a;
@@ -73,7 +73,7 @@ describe('reactivity/readonly', () => {
         let key;
         let dummy;
 
-        const Comp = $bridge(() => {
+        const Comp = $unison(() => {
           map = readonly(new Collection());
           key = {};
           watchEffect(() => {
@@ -101,7 +101,7 @@ describe('reactivity/readonly', () => {
         let set;
         let key;
         let dummy;
-        const Comp = $bridge(() => {
+        const Comp = $unison(() => {
           set = readonly(new Collection());
           key = {};
           watchEffect(() => {
@@ -127,7 +127,7 @@ describe('reactivity/readonly', () => {
     let b;
 
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = reactive({ n: 1 });
       b = readonly(a);
 
@@ -156,7 +156,7 @@ describe('reactivity/readonly', () => {
     let roMap;
 
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       map = new Map();
       map.set('foo', 1);
 
@@ -189,7 +189,7 @@ describe('reactivity/readonly', () => {
     let roArr;
     let context;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       arr = [1];
       roArr = readonly(arr);
       context = getCurrentInstance();
@@ -210,7 +210,7 @@ describe('reactivity/readonly', () => {
 
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       a = reactive(new Map());
       b = readonly(a);
       a.set('foo', 1);

@@ -1,5 +1,5 @@
 import { nextTick, isReactive, reactive, toRaw, isRef, ref, watchEffect as effect } from '../src/index';
-import { $bridge } from '@briddge/core';
+import { $unison } from '@unisonjs/core';
 import { act, render } from '@testing-library/react';
 import React from 'react';
 
@@ -9,7 +9,7 @@ describe('reactivity/reactive/Array', () => {
     let arr;
 
     let index: number;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       obj = {};
       arr = reactive([obj, {}]);
       index = -1;
@@ -30,7 +30,7 @@ describe('reactivity/reactive/Array', () => {
   test('delete on Array should not trigger length dependency', async () => {
     let arr = reactive([1, 2, 3]);
     let fn;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       arr = reactive([1, 2, 3]);
       fn = vi.fn();
       effect(() => {
@@ -53,7 +53,7 @@ describe('reactivity/reactive/Array', () => {
 
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = [1, 2, 3];
       observed = reactive(original);
       effect(() => {
@@ -74,7 +74,7 @@ describe('reactivity/reactive/Array', () => {
   test('shift on Array should trigger dependency once', async () => {
     let arr;
     let fn;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       arr = reactive([1, 2, 3]);
       fn = vi.fn();
       effect(() => {
@@ -99,7 +99,7 @@ describe('reactivity/reactive/Array', () => {
     let arr;
     let fn1;
     let fn2;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       arr = ref([1]);
       fn1 = vi.fn();
       fn2 = vi.fn();
@@ -127,7 +127,7 @@ describe('reactivity/reactive/Array', () => {
     let array;
     let observed;
     let fn;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       array = new Array(3);
       observed = reactive(array);
       fn = vi.fn();
@@ -150,7 +150,7 @@ describe('reactivity/reactive/Array', () => {
     let observed;
     let fn;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       array = new Array(3);
       observed = reactive(array);
       fn = vi.fn();
@@ -181,7 +181,7 @@ describe('reactivity/reactive/Array', () => {
     let array;
     let length;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       array = reactive([1]);
       length = '';
       effect(() => {

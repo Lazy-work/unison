@@ -15,14 +15,14 @@ import {
 } from '../src';
 import { watchEffect as effect } from '../src';
 import { act, render } from '@testing-library/react';
-import { $bridge } from '../src/index';
+import { $unison } from '../src/index';
 
 describe('reactivity/reactive', () => {
   test('Object', async () => {
     let original = { foo: 1 };
     let observed = reactive(original);
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       observed = reactive(original);
       return () => <div />;
@@ -44,7 +44,7 @@ describe('reactivity/reactive', () => {
     let obj = {};
     let reactiveObj = reactive(obj);
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       obj = {};
       reactiveObj = reactive(obj);
 
@@ -65,7 +65,7 @@ describe('reactivity/reactive', () => {
     let original;
     let observed;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = {
         nested: {
           foo: 1,
@@ -90,7 +90,7 @@ describe('reactivity/reactive', () => {
     class CustomSet extends Set {}
 
     let cmap, cset, dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       cmap = reactive(new CustomMap());
 
       cset = reactive(new CustomSet());
@@ -129,7 +129,7 @@ describe('reactivity/reactive', () => {
     class CustomSet extends WeakSet {}
     let cmap, cset, dummy;
     const key = {};
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       cmap = reactive(new CustomMap());
 
       cset = reactive(new CustomSet());
@@ -165,7 +165,7 @@ describe('reactivity/reactive', () => {
     let original: any;
     let observed;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       observed = reactive(original);
 
@@ -191,7 +191,7 @@ describe('reactivity/reactive', () => {
     let original: any;
     let observed;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       observed = reactive(original);
 
@@ -217,7 +217,7 @@ describe('reactivity/reactive', () => {
     let observed;
     let raw;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       observed = reactive<{ foo?: object }>({});
       raw = {};
       return () => <div />;
@@ -237,7 +237,7 @@ describe('reactivity/reactive', () => {
     let observed;
     let observed2;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       observed = reactive(original);
       observed2 = reactive(observed);
@@ -254,7 +254,7 @@ describe('reactivity/reactive', () => {
     let observed;
     let observed2;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       observed = reactive(original);
       observed2 = reactive(original);
@@ -271,7 +271,7 @@ describe('reactivity/reactive', () => {
     let observed;
     let observed2;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       original2 = { bar: 2 };
       observed = reactive(original);
@@ -293,7 +293,7 @@ describe('reactivity/reactive', () => {
     let original;
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       observed = reactive({ foo: 1 });
       original = Object.create(observed);
       effect(() => (dummy = original.foo));
@@ -320,7 +320,7 @@ describe('reactivity/reactive', () => {
     let original;
     let observed;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       observed = reactive(original);
       return () => <div />;
@@ -337,7 +337,7 @@ describe('reactivity/reactive', () => {
     let observed;
     let inherted;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = { foo: 1 };
       observed = reactive(original);
       inherted = Object.create(observed);
@@ -355,7 +355,7 @@ describe('reactivity/reactive', () => {
     let obj;
     let raw;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       original = {};
       re = reactive(original);
       obj = new Proxy(re, {});
@@ -370,7 +370,7 @@ describe('reactivity/reactive', () => {
   test('should not unwrap Ref<T>', async () => {
     let observedNumberRef;
     let observedObjectRef;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       observedNumberRef = reactive(ref(1));
       observedObjectRef = reactive(ref({ foo: 1 }));
       return () => <div />;
@@ -387,7 +387,7 @@ describe('reactivity/reactive', () => {
     // writable
     let b;
     let obj;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       // readonly
       a = computed(() => 1);
       // writable
@@ -415,7 +415,7 @@ describe('reactivity/reactive', () => {
     let bar;
     let observed;
     let dummy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       foo = ref(0);
       bar = ref(1);
       observed = reactive({ a: foo });
@@ -473,7 +473,7 @@ describe('reactivity/reactive', () => {
   test('markRaw', async () => {
     let obj;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       obj = reactive({
         foo: { a: 1 },
         bar: markRaw({ b: 2 }),
@@ -517,7 +517,7 @@ describe('reactivity/reactive', () => {
     let obj;
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       key = Symbol();
       obj = reactive({ [key]: 1 }) as { [key]?: 1 };
       dummy;
@@ -541,7 +541,7 @@ describe('reactivity/reactive', () => {
     let obj;
     let dummy;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       key = {};
       obj = reactive({ '[object Object]': 1 }) as { '[object Object]'?: 1 };
       dummy;

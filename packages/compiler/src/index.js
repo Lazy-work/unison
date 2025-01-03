@@ -27,8 +27,8 @@ export default function (babel, opts = {}) {
   if (!opts.module) throw new Error('The module name should be specified');
   const moduleName = opts.module;
 
-  const BRIDGE_NAME = '$bridge';
-  let currentBridgeName = BRIDGE_NAME;
+  const UNISON_NAME = '$unison';
+  let currentUnisonName = UNISON_NAME;
   let program;
 
   const optimizeFnProp = {
@@ -221,7 +221,7 @@ export default function (babel, opts = {}) {
     },
   };
 
-  const handleBridgeComponent = {
+  const handleUnisonComponent = {
     ReturnStatement(path) {
       const t = this.types;
       const argument = path.get('argument');
@@ -244,14 +244,14 @@ export default function (babel, opts = {}) {
     },
   };
 
-  const isBridgeComponent = {
+  const isUnisonComponent = {
     CallExpression(path) {
       if (
-        path.node.callee.name === currentBridgeName &&
+        path.node.callee.name === currentUnisonName &&
         t.isIdentifier(path.node.arguments[0]) &&
         path.node.arguments[0].name === this.idName
       ) {
-        this.isBridge();
+        this.isUnison();
       }
     },
   };
@@ -261,7 +261,7 @@ export default function (babel, opts = {}) {
     try {
       const returnIndex = componentBody.node.body.findIndex((item) => t.isReturnStatement(item));
       const componentReturn = componentBody.get(`body.${returnIndex}`);
-      componentBody.traverse(handleBridgeComponent, { types: t, componentReturn });
+      componentBody.traverse(handleUnisonComponent, { types: t, componentReturn });
     } catch (e) {
       console.log(JSON.stringify(parent));
       console.log(
@@ -272,23 +272,23 @@ export default function (babel, opts = {}) {
     }
   }
 
-  function useBridge(directives) {
+  function useUnison(directives) {
     for (const directive of directives) {
-      if (directive.value.value === 'use bridge') return true;
+      if (directive.value.value === 'use unison') return true;
     }
     return false;
   }
-  function noBridge(directives) {
+  function noUnison(directives) {
     if (!Array.isArray(directives)) return false;
     for (const directive of directives) {
-      if (directive.value.value === 'no bridge') return true;
+      if (directive.value.value === 'no unison') return true;
     }
     return false;
   }
 
   const mode = opts.mode ?? 'manual';
   return {
-    name: 'bridge-compiler',
+    name: 'unison-compiler',
     visitor: {
       Program: {
         enter(path) {
@@ -300,27 +300,27 @@ export default function (babel, opts = {}) {
         },
       },
       ImportSpecifier(path) {
-        if (path.node.imported.name === BRIDGE_NAME) currentBridgeName = path.node.local.name;
+        if (path.node.imported.name === UNISON_NAME) currentUnisonName = path.node.local.name;
       },
       FunctionDeclaration(path) {
         // Looking for :
-        // function Component() {}; $bridge(Component);
+        // function Component() {}; $unison(Component);
         if (isComponentishName(path.node.id.name)) {
-          let isBridge = false;
-          program.traverse(isBridgeComponent, {
-            isBridge: () => void (isBridge = true),
+          let isUnison = false;
+          program.traverse(isUnisonComponent, {
+            isUnison: () => void (isUnison = true),
             idName: path.node.id.name,
           });
 
-          if (noBridge(path.node.body.directives)) return;
-          if (!isBridge && mode === 'full') {
+          if (noUnison(path.node.body.directives)) return;
+          if (!isUnison && mode === 'full') {
             if (t.isExportDefaultDeclaration(path.parent)) {
-              // Convert to : const Component = $bridge(function Component() {});
+              // Convert to : const Component = $unison(function Component() {});
               const varDec = path.parentPath.replaceWith(
                 t.variableDeclaration('const', [
                   t.variableDeclarator(
                     path.node.id,
-                    t.callExpression(t.identifier(currentBridgeName), [
+                    t.callExpression(t.identifier(currentUnisonName), [
                       t.functionExpression(path.node.id, [], path.node.body),
                     ]),
                   ),
@@ -335,7 +335,7 @@ export default function (babel, opts = {}) {
                 t.variableDeclaration(path.node.kind, [
                   t.variableDeclarator(
                     path.node.id,
-                    t.callExpression(t.identifier(currentBridgeName), [
+                    t.callExpression(t.identifier(currentUnisonName), [
                       t.functionExpression(path.node.id, [], path.node.body),
                     ]),
                   ),
@@ -344,11 +344,11 @@ export default function (babel, opts = {}) {
             }
           }
 
-          if (!isBridge && mode === 'directive' && useBridge(declaration.node.init.body.directives)) {
-            path.replaceWith(t.callExpression(t.identifier(currentBridgeName), path.node));
+          if (!isUnison && mode === 'directive' && useUnison(declaration.node.init.body.directives)) {
+            path.replaceWith(t.callExpression(t.identifier(currentUnisonName), path.node));
           }
 
-          if (isBridge) {
+          if (isUnison) {
             const componentBody = path.get('body');
             optimizeComponent(componentBody);
           }
@@ -361,23 +361,23 @@ export default function (babel, opts = {}) {
 
           if (isComponentishName(declaration.node.id.name)) {
             if (t.isArrowFunctionExpression(declaration.node.init) || t.isFunctionExpression(declaration.node.init)) {
-              if (noBridge(declaration.node.init.body.directives)) return;
+              if (noUnison(declaration.node.init.body.directives)) return;
               if (mode === 'full') {
                 declaration
                   .get('init')
-                  .replaceWith(t.callExpression(t.identifier(currentBridgeName), [declaration.node.init]));
+                  .replaceWith(t.callExpression(t.identifier(currentUnisonName), [declaration.node.init]));
               }
-              if (mode === 'directive' && useBridge(declaration.node.init.body.directives)) {
+              if (mode === 'directive' && useUnison(declaration.node.init.body.directives)) {
                 declaration
                   .get('init')
-                  .replaceWith(t.callExpression(t.identifier(currentBridgeName), [declaration.node.init]));
+                  .replaceWith(t.callExpression(t.identifier(currentUnisonName), [declaration.node.init]));
               }
             }
 
-            // It's not a bridge component
+            // It's not a unison component
             if (
               !t.isCallExpression(declaration.node.init) ||
-              declaration.node.init.callee.name !== currentBridgeName
+              declaration.node.init.callee.name !== currentUnisonName
             ) {
               return;
             }

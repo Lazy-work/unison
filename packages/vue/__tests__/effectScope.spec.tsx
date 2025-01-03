@@ -1,5 +1,5 @@
 import { act, render } from '@testing-library/react';
-import { $bridge, watch, watchEffect } from '../src/index';
+import { $unison, watch, watchEffect } from '../src/index';
 import {
   type ComputedRef,
   computed,
@@ -16,7 +16,7 @@ import { EffectScope } from '../src/index';
 describe('reactivity/effect/scope', () => {
   it('should run', async () => {
     let fnSpy;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       fnSpy = vi.fn(() => {});
       effectScope().run(fnSpy);
       return () => <div />;
@@ -28,7 +28,7 @@ describe('reactivity/effect/scope', () => {
 
   it('should accept zero argument', async () => {
     let scope;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       scope = effectScope();
       return () => <div />;
     });
@@ -40,7 +40,7 @@ describe('reactivity/effect/scope', () => {
   it('should return run value', async () => {
     let result;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       result = effectScope().run(() => 1);
       return () => <div />;
     });
@@ -52,7 +52,7 @@ describe('reactivity/effect/scope', () => {
   it('should work w/ active property', async () => {
     let scope;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       scope = effectScope();
       scope.run(() => 1);
       return () => <div />;
@@ -68,7 +68,7 @@ describe('reactivity/effect/scope', () => {
     let scope;
     let dummy;
     let counter;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       scope = effectScope();
       scope.run(() => {
         counter = reactive({ num: 0 });
@@ -92,7 +92,7 @@ describe('reactivity/effect/scope', () => {
     let counter;
     let scope;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       counter = reactive({ num: 0 });
       scope = effectScope();
       scope.run(() => {
@@ -127,7 +127,7 @@ describe('reactivity/effect/scope', () => {
     let counter;
     let scope;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       counter = reactive({ num: 0 });
       scope = effectScope();
       scope.run(() => {
@@ -168,7 +168,7 @@ describe('reactivity/effect/scope', () => {
     let counter;
     let scope;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       counter = reactive({ num: 0 });
       scope = effectScope();
 
@@ -207,7 +207,7 @@ describe('reactivity/effect/scope', () => {
   it('able to run the scope', async () => {
     let dummy, doubled, counter, scope;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       counter = reactive({ num: 0 });
       scope = effectScope();
 
@@ -241,7 +241,7 @@ describe('reactivity/effect/scope', () => {
     let counter;
     let scope;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       counter = reactive({ num: 0 });
       scope = effectScope();
       scope.run(() => {
@@ -275,7 +275,7 @@ describe('reactivity/effect/scope', () => {
     let dummy = 0;
 
     let scope;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       scope = effectScope();
       scope.run(() => {
         onScopeDispose(() => (dummy += 1));
@@ -301,7 +301,7 @@ describe('reactivity/effect/scope', () => {
     let spy;
     let scope;
     let dispose;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       spy = vi.fn();
       scope = effectScope();
       scope.run(() => {
@@ -329,7 +329,7 @@ describe('reactivity/effect/scope', () => {
     let parent;
     let child;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       parent = effectScope();
       child = parent.run(() => effectScope())!;
       return () => <div />;
@@ -352,7 +352,7 @@ describe('reactivity/effect/scope', () => {
 
     let c: ComputedRef;
     let scope;
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       r = ref(1);
 
       computedSpy = vi.fn();
@@ -408,7 +408,7 @@ describe('reactivity/effect/scope', () => {
   it('getCurrentScope() stays valid when running a detached nested EffectScope', async () => {
     let parentScope = effectScope();
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       parentScope = effectScope();
 
       parentScope.run(() => {
@@ -429,7 +429,7 @@ describe('reactivity/effect/scope', () => {
   it('calling .off() of a detached scope inside an active scope should not break currentScope', async () => {
     let parentScope = effectScope();
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       parentScope = effectScope();
 
       parentScope.run(() => {

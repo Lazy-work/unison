@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { onBeforeMount, onBeforeUpdate, onMounted, onUnmounted, onUpdated } from '../src/lifecycle';
 import Ref from './mocks/ref/ref';
-import { $bridge } from '../src/management';
+import { $unison } from '../src/management';
 import { getMode, nextTick } from '#vue-internals/runtime-core/scheduler.js';
 import { watchEffect, watchPostEffect } from './mocks/effect';
 
@@ -12,7 +12,7 @@ describe('testing scheduling with react', () => {
     /** @type {Action[]} */
     const events = [];
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       const count = new Ref(0);
       events.push('body');
 
@@ -49,7 +49,7 @@ describe('testing scheduling with react', () => {
     /** @type {Action[]} */
     const events = [];
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       const count = new Ref(0);
       events.push('body');
 
@@ -86,7 +86,7 @@ describe('testing scheduling with react', () => {
     /** @type {Action[]} */
     const events = [];
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       const count = new Ref(0);
       events.push('body');
 
@@ -125,7 +125,7 @@ describe('testing scheduling with react', () => {
     /** @type {Action[]} */
     const events = [];
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       const count = new Ref(0);
       const toggle = new Ref(false);
       events.push('body');
@@ -192,7 +192,7 @@ describe('testing scheduling with react', () => {
     /** @type {Action[]} */
     const events = [];
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       const count = new Ref(0);
       const toggle = new Ref(false);
       events.push('body');
@@ -275,7 +275,7 @@ describe('testing scheduling with react', () => {
   it('should handle flush tracking with rendering only', async () => {
     const state = new Ref(1);
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       return () => state.value;
     });
 
@@ -295,7 +295,7 @@ describe('testing scheduling with react', () => {
     /** @type {string | undefined} */
     let innerHTML;
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       onMounted(() => {
         innerHTML = tmp?.innerHTML;
       });
@@ -313,7 +313,7 @@ describe('testing scheduling with react', () => {
     /** @type {string | undefined} */
     let innerHTML;
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       const count = new Ref(0);
 
       onBeforeUpdate(() => {
@@ -354,7 +354,7 @@ describe('testing scheduling with react', () => {
     /** @type {string | undefined} */
     let innerHTML;
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       const count = new Ref(0);
 
       onUpdated(() => {
@@ -391,7 +391,7 @@ describe('testing scheduling with react', () => {
   it('should run onUnmounted hook after unmount', async () => {
     let tmp = 'mounted';
 
-    const Counter = $bridge(() => {
+    const Counter = $unison(() => {
       onUnmounted(() => {
         tmp = 'unmounted';
       });

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",    
+    "baseUrl": ".",
     "target": "ES2020",
     "useDefineForClassFields": true,
     "module": "ESNext",
@@ -38,7 +38,7 @@
       "@vue/vue-compat": ["vue/packages/vue-compat/src"],
       "@vue/*": ["vue/packages/*/src"],
       "vue": ["vue/packages/vue/src"],
-      "@bridge/core": ["packages/core/src"]
+      "@unisonjs/core": ["packages/core/src"]
     },
     "types": ["vitest/globals", "node"],
     "composite": true

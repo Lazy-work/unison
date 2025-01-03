@@ -1,8 +1,8 @@
 /** @import {Action} from "./type" */
 /** @import {HookManagerOptions} from "../src/plugins/hook-manager" */
-import { $bridge, usePlugin } from '../src/management';
+import { $unison, usePlugin } from '../src/management';
 import { render } from '@testing-library/react';
-import { HookManager, HookManagerOptions, toBridgeHook } from '../src/plugins/hook-manager';
+import { HookManager, HookManagerOptions, toUnisonHook } from '../src/plugins/hook-manager';
 import React, { useCallback, useEffect, useState } from 'react';
 import HookRef from './mocks/ref/hook-ref';
 import { watchEffect } from './mocks/effect';
@@ -28,12 +28,12 @@ describe('', () => {
       return { value: state, mutate };
     }
 
-    const booleanValue = toBridgeHook(useBooleanValue);
+    const booleanValue = toUnisonHook(useBooleanValue);
 
     let dummy;
     /** @type {Action[]} */
     const events = [];
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const { value, mutate } = booleanValue();
 
       watchEffect(() => {
@@ -74,11 +74,11 @@ describe('', () => {
       return {};
     }
 
-    const booleanValue = toBridgeHook(useBooleanValue, { shallow: true });
+    const booleanValue = toUnisonHook(useBooleanValue, { shallow: true });
 
     /** @type {Action[]} */
     const events = [];
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       booleanValue();
       const counter = new Ref(0);
 
@@ -114,12 +114,12 @@ describe('', () => {
       return state;
     }
 
-    const value = toBridgeHook(useValue);
+    const value = toUnisonHook(useValue);
 
     let dummy;
     /** @type {Action[]} */
     const events = [];
-    const VueComponent = $bridge(() => {
+    const VueComponent = $unison(() => {
       const result = value();
 
       watchEffect(() => {
@@ -155,9 +155,9 @@ describe('', () => {
       return { value: state, mutate };
     }
 
-    const booleanValue = toBridgeHook(useBooleanValue);
+    const booleanValue = toUnisonHook(useBooleanValue);
 
-    const Comp = $bridge(() => {
+    const Comp = $unison(() => {
       const count = new Ref(0);
       const { value, mutate } = booleanValue(count);
 

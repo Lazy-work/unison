@@ -33,7 +33,7 @@ class DisposeManager {
 const listenerDisposer = new DisposeManager();
 const instanceDisposer = new DisposeManager();
 
-export function useBridge() {
+export function useUnison() {
   const [listener] = useState(createListener);
   const unsetListener = setCurrentListener(listener);
   listenerDisposer.queueJob(unsetListener);

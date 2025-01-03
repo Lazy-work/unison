@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import Context from './context';
 import { setCurrentInstance } from './index';
 
-import type { BridgePluginClass } from './plugins';
+import type { UnisonPluginClass } from './plugins';
 import type { ShallowReactive } from '#vue-internals/reactivity/index';
 
-const pluginsList = new Set<BridgePluginClass>();
+const pluginsList = new Set<UnisonPluginClass>();
 
 /**
- * 
- * @param pluginClass 
+ *
+ * @param pluginClass
  * @param options
  */
-export function usePlugin<T extends BridgePluginClass, O extends object>(pluginClass: T, options?: O) {
+export function usePlugin<T extends UnisonPluginClass, O extends object>(pluginClass: T, options?: O) {
   pluginClass.options = options;
   pluginsList.add(pluginClass);
 }
@@ -28,9 +28,9 @@ export function initInstance() {
 }
 
 type AnyFunction = (...args: any[]) => any;
-export function createReactHook<T extends AnyFunction>(bridgeHook: T) {
+export function createReactHook<T extends AnyFunction>(unisonHook: T) {
   return <P extends Parameters<T>>(...args: P): ReturnType<T> => {
-    const [result] = useState(() => bridgeHook(...args));
+    const [result] = useState(() => unisonHook(...args));
     return result;
   };
 }
@@ -38,10 +38,10 @@ export function createReactHook<T extends AnyFunction>(bridgeHook: T) {
 export type SetupComponent<T extends Record<string, any>> = (props: ShallowReactive<T>) => () => React.ReactNode;
 
 /**
- * @param fn - bridge component setup
+ * @param fn - unison component setup
  * @param name - component name
  */
-export function $bridge<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
+export function $unison<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
   const component = React.forwardRef<T['ref'], T>((props, ref) => {
     const [instance] = useState(initInstance);
     const unset = setCurrentInstance(instance);

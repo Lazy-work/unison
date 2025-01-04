@@ -5,6 +5,7 @@
   "scripts": {
     "test": "vitest --",
     "build": "rimraf dist && rollup -c --bundleConfigAsCjs",
+    "prepublishOnly": "npm run build",
     "release": "release-it"
   },
   "main": "./dist/index.cjs.js",

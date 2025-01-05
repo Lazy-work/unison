@@ -2,7 +2,7 @@ import type { Options } from "./types";
 
 import unplugin from ".";
 
-export const unisonVue = (options: Options = {}): any => ({
+export const unisonVue = (options: Options | undefined = {}): any => ({
   name: "unplugin-unison-vue",
   hooks: {
     "astro:config:setup": async (astro: any) => {
@@ -24,7 +24,7 @@ export const unisonVue = (options: Options = {}): any => ({
   },
 });
 
-export default (options: Options): any => ({
+export default (options: Options | undefined): any => ({
   name: "unplugin-unison",
   hooks: {
     "astro:config:setup": async (astro: any) => {

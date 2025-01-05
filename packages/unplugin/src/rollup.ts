@@ -2,7 +2,7 @@ import { createRollupPlugin } from 'unplugin'
 import { unpluginFactory } from '.'
 import { Options } from './types';
 
-export const unisonVue = createRollupPlugin((options: Options = {}, meta) =>
+export const unisonVue = createRollupPlugin((options: Options | undefined = {}, meta) =>
   unpluginFactory(
     {
       ...options,

@@ -2,7 +2,7 @@ import { createFarmPlugin } from 'unplugin'
 import { unpluginFactory } from '.'
 import { Options } from './types';
 
-export const unisonVue = createFarmPlugin((options: Options = {}, meta) =>
+export const unisonVue = createFarmPlugin((options: Options | undefined = {}, meta) =>
   unpluginFactory(
     {
       ...options,

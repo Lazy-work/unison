@@ -2,7 +2,7 @@ import { createWebpackPlugin } from 'unplugin'
 import { unpluginFactory } from '.'
 import { Options } from './types';
 
-export const unisonVue = createWebpackPlugin((options: Options = {}, meta) =>
+export const unisonVue = createWebpackPlugin((options: Options | undefined = {}, meta) =>
   unpluginFactory(
     {
       ...options,

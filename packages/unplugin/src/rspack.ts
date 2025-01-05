@@ -2,7 +2,7 @@ import { createRspackPlugin } from 'unplugin'
 import { unpluginFactory } from '.'
 import { Options } from './types';
 
-export const unisonVue = createRspackPlugin((options: Options = {}, meta) =>
+export const unisonVue = createRspackPlugin((options: Options | undefined = {}, meta) =>
   unpluginFactory(
     {
       ...options,

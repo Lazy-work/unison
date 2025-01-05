@@ -2,7 +2,7 @@ import { createVitePlugin } from "unplugin";
 import { unpluginFactory } from ".";
 import { Options } from "./types";
 
-export const unisonVue = createVitePlugin((options: Options = {}, meta) =>
+export const unisonVue = createVitePlugin((options: Options | undefined = {}, meta) =>
   unpluginFactory(
     {
       ...options,

@@ -1,5 +1,3 @@
-import generate from '@babel/generator';
-
 function isComponentishName(name) {
   return typeof name === 'string' && name[0] >= 'A' && name[0] <= 'Z';
 }
@@ -257,19 +255,12 @@ export default function (babel, opts = {}) {
   };
 
   function optimizeComponent(componentBody) {
-    const parent = componentBody.findParent((path) => path.isFunctionDeclaration() || path.isVariableDeclaration()).node;
-    try {
-      const returnIndex = componentBody.node.body.findIndex((item) => t.isReturnStatement(item));
-      const componentReturn = componentBody.get(`body.${returnIndex}`);
-      componentBody.traverse(handleUnisonComponent, { types: t, componentReturn });
-    } catch (e) {
-      console.log(JSON.stringify(parent));
-      console.log(
-        generate(parent)
-          .code,
-      );
-      throw e;
-    }
+    const parent = componentBody.findParent(
+      (path) => path.isFunctionDeclaration() || path.isVariableDeclaration(),
+    ).node;
+    const returnIndex = componentBody.node.body.findIndex((item) => t.isReturnStatement(item));
+    const componentReturn = componentBody.get(`body.${returnIndex}`);
+    componentBody.traverse(handleUnisonComponent, { types: t, componentReturn });
   }
 
   function useUnison(directives) {
@@ -332,7 +323,7 @@ export default function (babel, opts = {}) {
             } else {
               // export default Component;
               path.replaceWith(
-                t.variableDeclaration(path.node.kind, [
+                t.variableDeclaration(path.node.kind || 'const', [
                   t.variableDeclarator(
                     path.node.id,
                     t.callExpression(t.identifier(currentUnisonName), [
@@ -375,10 +366,7 @@ export default function (babel, opts = {}) {
             }
 
             // It's not a unison component
-            if (
-              !t.isCallExpression(declaration.node.init) ||
-              declaration.node.init.callee.name !== currentUnisonName
-            ) {
+            if (!t.isCallExpression(declaration.node.init) || declaration.node.init.callee.name !== currentUnisonName) {
               return;
             }
             const root = declaration.get('init');

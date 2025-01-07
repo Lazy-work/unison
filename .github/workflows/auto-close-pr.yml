@@ -1,0 +1,65 @@
+name: Auto Close PRs
+
+permissions:
+  pull-requests: write
+
+on:
+  pull_request:
+    types: [opened]
+
+jobs:
+  close-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Organization Membership and Handle PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
+          ORGANIZATION: "Lazy-work"
+        run: |
+          echo "Checking if $GITHUB_ACTOR is a member of $ORGANIZATION..."
+
+          # Make the API request and save the response body and HTTP status code
+          response_body=$(mktemp)
+          
+          http_status=$(curl -s -o "$response_body" -w "%{http_code}" \
+            -H "Authorization: Bearer $PAT_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/orgs/$ORGANIZATION/members/$GITHUB_ACTOR")
+          echo "HTTP Status: $http_status"
+          echo "Response Body:"
+          cat "$response_body"
+
+          if [[ "$http_status" == "204" ]]; then
+            echo "PR author $GITHUB_ACTOR is a member of $ORGANIZATION. No action needed."
+            exit 0
+          else
+            echo "PR author $GITHUB_ACTOR is not a member of $ORGANIZATION. Closing PR."
+
+            # Log the response from the comment creation
+            comment_response_body=$(mktemp)
+            comment_http_status=$(curl -s -o "$comment_response_body" -w "%{http_code}" \
+              -X POST -H "Authorization: Bearer $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+              -d '{"body":"Hi @${{ github.actor }}, thank you for your interest in this project. However, contributions are currently limited to members of the organization: '$ORGANIZATION'. Feel free to fill an issue to request a change."}')
+
+            echo "Comment HTTP Status: $comment_http_status"
+            echo "Comment Response Body:"
+            cat "$comment_response_body"
+
+            # Log the response from the PR closing
+            close_response_body=$(mktemp)
+            close_http_status=$(curl -s -o "$close_response_body" -w "%{http_code}" \
+              -X PATCH -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.v3+json" \
+              https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }} \
+              -d '{"state":"closed"}')
+
+            echo "Close PR HTTP Status: $close_http_status"
+            echo "Close PR Response Body:"
+            cat "$close_response_body"
+          fi

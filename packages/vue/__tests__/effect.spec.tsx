@@ -5,7 +5,7 @@ import {
   type ReactiveEffectRunner,
   TrackOpTypes,
   TriggerOpTypes,
-  watchEffect as effect,
+  effect,
   markRaw,
   reactive,
   readonly,
@@ -16,7 +16,7 @@ import {
   nextTick,
   ref,
   $unison,
-} from '../src/index.js';
+} from '../src/index';
 import { ITERATE_KEY } from '@unisonjs/core';
 
 describe('reactivity/effect', () => {

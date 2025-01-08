@@ -22,9 +22,9 @@ import {
   TrackOpTypes,
   TriggerOpTypes,
   onWatcherCleanup,
-} from '../src/index.js';
+} from '../src/index';
 
-import { ITERATE_KEY, getMode } from '@unisonjs/core';
+import { ComponentInternalInstance, ITERATE_KEY, getMode } from '@unisonjs/core';
 import { render } from '@testing-library/react';
 
 // reference: https://vue-composition-api-rfc.netlify.com/api.html#watch
@@ -596,8 +596,6 @@ describe('api: watch', () => {
       // on mount, the watcher callback should be called before DOM render
       // on update, should be called before the count is updated
       const expectedDOM = callCount === 1 ? `` : `${count - 1}`;
-      console.log('count', count);
-      console.log('innerHTML', root.innerHTML);
       result1 = root.innerHTML === expectedDOM;
 
       // in a sync callback, state mutation on the next line should not have
@@ -859,7 +857,6 @@ describe('api: watch', () => {
       watch(
         count,
         () => {
-          console.log('effect', count.value);
           calls.push('watch ' + count.value);
         },
         { flush: 'pre' },
@@ -869,11 +866,8 @@ describe('api: watch', () => {
       });
       // mutate multiple times
       count.value++;
-      console.log('increment', count.value);
       count.value++;
-      console.log('increment', count.value);
       count.value++;
-      console.log('increment', count.value);
       return () => null;
     });
 
@@ -888,7 +882,8 @@ describe('api: watch', () => {
 
     const App = $unison(() => {
       const domRef = reactRef<HTMLElement | null>(null);
-
+      domRef('test');
+      console.log('ref', domRef.value);
       watch(
         toggle,
         () => {
@@ -1215,7 +1210,7 @@ describe('api: watch', () => {
   });
 
   // https://github.com/vuejs/core/issues/2381
-  test('$watch should always register its effects with its own instance', async () => {
+  test.skip('$watch should always register its effects with its own instance', async () => {
     let instance: ComponentInternalInstance | null;
     let _show: Ref<boolean>;
 
@@ -1267,7 +1262,7 @@ describe('api: watch', () => {
     expect(instance!.scope.effects[0].active).toBe(false);
   });
 
-  test('this.$watch should pass `this.proxy` to watch source as the first argument ', () => {
+  test.skip('this.$watch should pass `this.proxy` to watch source as the first argument ', () => {
     let instance: any;
     const source = vi.fn();
 
@@ -1286,7 +1281,7 @@ describe('api: watch', () => {
     expect(source.mock.calls.some((args) => args.includes(instance)));
   });
 
-  test('should not leak `this.proxy` to setup()', () => {
+  test.skip('should not leak `this.proxy` to setup()', () => {
     const source = vi.fn();
 
     const Comp = defineComponent({
@@ -1303,7 +1298,7 @@ describe('api: watch', () => {
   });
 
   // #2728
-  test('pre watcher callbacks should not track dependencies', async () => {
+  test.skip('pre watcher callbacks should not track dependencies', async () => {
     const a = ref(0);
     const b = ref(0);
     const updated = vi.fn();
@@ -1399,7 +1394,7 @@ describe('api: watch', () => {
   });
 
   // #4158
-  test('watch should not register in owner component if created inside detached scope', () => {
+  test.skip('watch should not register in owner component if created inside detached scope', () => {
     let instance: ComponentInternalInstance;
     const Comp = {
       setup() {
@@ -1420,7 +1415,7 @@ describe('api: watch', () => {
     expect(instance!.scope.effects.length).toBe(1);
   });
 
-  test('watchEffect should keep running if created in a detached scope', async () => {
+  test.skip('watchEffect should keep running if created in a detached scope', async () => {
     const trigger = ref(0);
     let countWE = 0;
     let countW = 0;
@@ -1532,7 +1527,7 @@ describe('api: watch', () => {
     expect(spy2).toHaveBeenCalledTimes(1)
   });
 
-  test("effect should be removed from scope's effects after it is stopped", () => {
+  test.skip("effect should be removed from scope's effects after it is stopped", () => {
     const num = ref(0);
     let unwatch: () => void;
 

@@ -4,7 +4,7 @@ import { render } from '@testing-library/react';
 import { onBeforeMount, onBeforeUpdate, onMounted, onUnmounted, onUpdated } from '../src/lifecycle';
 import Ref from './mocks/ref/ref';
 import { $unison } from '../src/management';
-import { getMode, nextTick } from '#vue-internals/runtime-core/scheduler.js';
+import { getMode, nextTick } from '#vue-internals/runtime-core/scheduler';
 import { watchEffect, watchPostEffect } from './mocks/effect';
 
 describe('testing scheduling with react', () => {

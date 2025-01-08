@@ -1,4 +1,4 @@
-import { activeSub, shouldTrack, ReactiveEffect } from '#vue-internals/reactivity/effect.js'
+import { activeSub, shouldTrack, ReactiveEffect } from '#vue-internals/reactivity/effect'
 
 /** @template T */
 export default class Ref {

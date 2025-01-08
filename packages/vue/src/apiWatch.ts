@@ -16,6 +16,7 @@ import {
   type ComponentInternalInstance,
   currentInstance,
   setCurrentInstance,
+  queuePostFlushCb,
   // type ObjectWatchOptionItem,
   // isInSSRComponentSetup,
 } from '@unisonjs/core'
@@ -223,7 +224,7 @@ function doWatch(
     case 'insertion':
       baseWatchOptions.scheduler = (job) => {
         const jobs = queuePostFlushCb(job);
-        const instance = job.i;
+        const instance = job.i as ComponentInternalInstance | undefined;
         if (instance) {
           for (let i = jobs.offset; i < jobs.offset + jobs.length; i++) {
             instance.queueEffect(flush, i);
@@ -240,7 +241,7 @@ function doWatch(
         if (isFirstRun) {
           job();
         } else {
-          const instance = job.i;
+          const instance = job.i as ComponentInternalInstance | undefined;
           const jobIndex = queueJob(job);
           if (instance) instance.queueEffect('pre', jobIndex);
         }

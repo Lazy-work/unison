@@ -14,6 +14,7 @@ import { warn } from './warning'
 import type { ComputedRef } from './computed'
 import { ReactiveFlags } from './constants'
 import {
+  type SchedulerJob,
   type DebuggerOptions,
   EffectFlags,
   type EffectScheduler,
@@ -77,7 +78,7 @@ export interface WatchHandle extends WatchStopHandle {
 // initial value for watchers to trigger on undefined initial values
 const INITIAL_WATCHER_VALUE = {}
 
-export type WatchScheduler = (job: () => void, isFirstRun: boolean) => void
+export type WatchScheduler = (job: SchedulerJob, isFirstRun: boolean) => void
 
 const cleanupMap: WeakMap<ReactiveEffect, (() => void)[]> = new WeakMap()
 let activeWatcher: ReactiveEffect | undefined = undefined

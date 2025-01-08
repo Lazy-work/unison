@@ -1,4 +1,4 @@
-import { UnisonPlugin, ComponentInternalInstance, currentInstance, getCurrentInstance, type Data } from '@unisonjs/core'
+import { UnisonPlugin, ComponentInternalInstance, getCurrentInstance, type Data } from '@unisonjs/core'
 import { isFunction } from '@vue/shared'
 import { createAppContext, currentApp, currentAppContext, type AppContext } from './apiCreateApp'
 import { warn } from './reactivity/warning'
@@ -51,15 +51,13 @@ export function provide<T, K = InjectionKey<T> | string | number>(
     // own provides object using parent provides object as prototype.
     // this way in `inject` we can simply look up injections from direct
     // parent and let the prototype chain do the work.
-    const parentProvides = currentInstance.parent?.getPlugin(InjectionPlugin)?.provides;
+    const parentProvides = currentInstance!.parent?.getPlugin(InjectionPlugin)?.provides;
 
     if (parentProvides === provides) {
       provides = injectionPlugin.provides = Object.create(parentProvides)
     }
     // TS doesn't allow symbol as index type
     provides[key as string] = value
-
-    console.log(currentAppContext)
   }
 }
 

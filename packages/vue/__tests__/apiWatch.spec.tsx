@@ -882,8 +882,7 @@ describe('api: watch', () => {
 
     const App = $unison(() => {
       const domRef = reactRef<HTMLElement | null>(null);
-      domRef('test');
-      console.log('ref', domRef.value);
+      
       watch(
         toggle,
         () => {

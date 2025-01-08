@@ -11,9 +11,9 @@ const entries = {
   '#vue-internals/reactivity': path.resolve(__dirname, 'vue/packages/reactivity/src/'),
   '#vue-internals/runtime-core': path.resolve(__dirname, 'vue/packages/runtime-core/src/'),
   '#vue-internals/shared': path.resolve(__dirname, 'vue/packages/shared/src/'),
-  '#vue/reactivity': path.resolve(__dirname, 'vue/packages/reactivity/src/index.ts'),
-  '#vue/runtime-core': path.resolve(__dirname, 'vue/packages/runtime-core/src/index.ts'),
-  '#vue/shared': path.resolve(__dirname, 'vue/packages/shared/src/index.ts'),
+  '@vue/reactivity': path.resolve(__dirname, 'vue/packages/reactivity/src/index.ts'),
+  '@vue/runtime-core': path.resolve(__dirname, 'vue/packages/runtime-core/src/index.ts'),
+  '@vue/shared': path.resolve(__dirname, 'vue/packages/shared/src/index.ts'),
 };
 const plugins = [
   alias({

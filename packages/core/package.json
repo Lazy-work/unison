@@ -4,10 +4,9 @@
   "packageManager": "pnpm@8.15.3",
   "type": "module",
   "scripts": {
-    "test": "vitest --",
     "build": "pnpm build-vue && pnpm build-js && pnpm build-types",
     "build-js": "rimraf dist && rollup -c rollup.config.js",
-    "build-types": "tsc --noCheck",
+    "build-types": "tsc --noCheck && pnpm dlx tsc-alias",
     "build-vue": "pnpm build-vue-js && pnpm build-rm-vue-aliases",
     "build-vue-js": "(rimraf vue/temp && cd vue && pnpm tsc --noCheck) || exit 0;",
     "build-rm-vue-aliases": "(pnpm dlx tsc-alias -p vue/tsconfig.json) || exit 0;",
@@ -16,13 +15,14 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs.js"
+      "require": "./dist/index.cjs.js",
+      "types": "./dist/types/src/index.d.ts"
     },
-    "./*": "./*"
+    "./package.json": "./package.json"
   },
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
-  "types": "types/index.d.ts",
+  "types": "dist/types/src/index.d.ts",
   "imports": {
     "#vue-internals/reactivity/*.js": "./vue/temp/packages/reactivity/src/*.js",
     "#vue-internals/runtime-core/*.js": "./vue/temp/packages/runtime-core/src/*.js",
@@ -33,8 +33,7 @@
   },
   "sideEffects": false,
   "files": [
-    "dist",
-    "types"
+    "dist"
   ],
   "peerDependencies": {
     "react": ">=18.0.0"

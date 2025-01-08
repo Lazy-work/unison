@@ -22,7 +22,7 @@ let id = 0;
 // sync
 // layout
 // insertion
-type FlushType = WatchEffectOptions['flush'];
+type FlushType = 'pre' | 'post' | 'sync' | 'layout' | 'insertion';
 
 export const Events = {
   BEFORE_FLUSHING_PRE_EFFECT: 'bfpre',

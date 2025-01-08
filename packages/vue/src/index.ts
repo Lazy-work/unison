@@ -67,11 +67,11 @@ export function del(target, key) {
   }
   delete target[key];
 }
-export function reactRef(initialValue) {
-  function ref(newValue) {
-    this.value = newValue;
+export function reactRef<T>(initialValue: T) {
+  const ref = (newValue: T) => {
+    ref.value = newValue;
   }
-  ref.value = initialValue;
+  ref.value = initialValue
   return ref;
 }
 export {
@@ -111,11 +111,10 @@ export {
   getCurrentScope,
   onScopeDispose,
 } from './reactivity/index';
-export { watch, watchEffect, watchPostEffect, watchSyncEffect } from './apiWatch';
+export { watch, watchEffect, watchPostEffect, watchSyncEffect, type MultiWatchSources } from './apiWatch';
 export { TrackOpTypes, TriggerOpTypes } from './reactivity/index';
 
 export type {
-  MultiWatchSources,
   WatchEffect,
   WatchOptions,
   WatchCallback,

@@ -21,6 +21,9 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      '#vue-internals/reactivity': path.resolve(__dirname, './vue/packages/reactivity/src/'),
+      '#vue-internals/runtime-core': path.resolve(__dirname, './vue/packages/runtime-core/src/'),
+      '#vue-internals/shared': path.resolve(__dirname, './vue/packages/shared/src/'),
       "@vue-internals/shared": path.resolve(__dirname, "./vue/packages/shared/src"),
       "@vue-internals/reactivity": path.resolve(__dirname, "./vue/packages/reactivity/src"),
       "@vue-internals/runtime-core": path.resolve(__dirname, "./vue/packages/runtime-core/src"),
@@ -29,7 +32,12 @@ export default defineConfig({
   },
   test: {
     globals: true,
+    pool: 'threads',
     setupFiles: 'scripts/setup-vitest.ts',
-    environment: 'jsdom'
+    environment: 'jsdom',
+    include: [
+			'packages/core/__tests__/*.spec.{js,jsx,ts,tsx}',
+			'packages/vue/__tests__/*.spec.{js,jsx,ts,tsx}',
+		],
   },
 })

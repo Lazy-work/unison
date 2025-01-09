@@ -8,6 +8,7 @@
     "packages/compiler"
   ],
   "scripts": {
+    "test": "vitest --",
     "build-all": "pnpm --filter \"*unison*\" build",
     "release": "npm run release --workspaces && release-it",
     "preinstall": "npx only-allow pnpm"

@@ -64,20 +64,20 @@ export {
   type DebuggerOptions,
   type DebuggerEvent,
   type DebuggerEventExtraInfo,
-} from '@unisonjs/core'
+} from './effect'
 export {
   trigger,
   track,
   ITERATE_KEY,
   ARRAY_ITERATE_KEY,
   MAP_KEY_ITERATE_KEY,
-} from '@unisonjs/core'
+} from './dep'
 export {
   effectScope,
   EffectScope,
   getCurrentScope,
   onScopeDispose,
-} from '@unisonjs/core'
+} from './effectScope'
 export { reactiveReadArray, shallowReadArray } from './arrayInstrumentations'
 export { TrackOpTypes, TriggerOpTypes, ReactiveFlags } from './constants'
 export {

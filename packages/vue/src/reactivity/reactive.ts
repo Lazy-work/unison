@@ -14,7 +14,6 @@ import {
 import type { RawSymbol, Ref, UnwrapRefSimple } from './ref'
 import { ReactiveFlags } from './constants'
 import { warn } from './warning'
-import { type Listener, currentListener } from '@unisonjs/core';
 
 export interface Target {
   [ReactiveFlags.SKIP]?: boolean
@@ -155,24 +154,24 @@ export type Builtin = Primitive | Function | Date | Error | RegExp
 export type DeepReadonly<T> = T extends Builtin
   ? T
   : T extends Map<infer K, infer V>
-  ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
-  : T extends ReadonlyMap<infer K, infer V>
-  ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
-  : T extends WeakMap<infer K, infer V>
-  ? WeakMap<DeepReadonly<K>, DeepReadonly<V>>
-  : T extends Set<infer U>
-  ? ReadonlySet<DeepReadonly<U>>
-  : T extends ReadonlySet<infer U>
-  ? ReadonlySet<DeepReadonly<U>>
-  : T extends WeakSet<infer U>
-  ? WeakSet<DeepReadonly<U>>
-  : T extends Promise<infer U>
-  ? Promise<DeepReadonly<U>>
-  : T extends Ref<infer U>
-  ? Readonly<Ref<DeepReadonly<U>>>
-  : T extends {}
-  ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
-  : Readonly<T>
+    ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+    : T extends ReadonlyMap<infer K, infer V>
+      ? ReadonlyMap<DeepReadonly<K>, DeepReadonly<V>>
+      : T extends WeakMap<infer K, infer V>
+        ? WeakMap<DeepReadonly<K>, DeepReadonly<V>>
+        : T extends Set<infer U>
+          ? ReadonlySet<DeepReadonly<U>>
+          : T extends ReadonlySet<infer U>
+            ? ReadonlySet<DeepReadonly<U>>
+            : T extends WeakSet<infer U>
+              ? WeakSet<DeepReadonly<U>>
+              : T extends Promise<infer U>
+                ? Promise<DeepReadonly<U>>
+                : T extends Ref<infer U, unknown>
+                  ? Readonly<Ref<DeepReadonly<U>>>
+                  : T extends {}
+                    ? { readonly [K in keyof T]: DeepReadonly<T[K]> }
+                    : Readonly<T>
 
 /**
  * Takes an object (reactive or plain) or a ref and returns a readonly proxy to
@@ -431,38 +430,3 @@ export const toReactive = <T extends unknown>(value: T): T =>
  */
 export const toReadonly = <T extends unknown>(value: T): DeepReadonly<T> =>
   isObject(value) ? readonly(value) : (value as DeepReadonly<T>)
-
-const listenerMap = new WeakMap<Target, Map<any, Listener[]>>();
-
-export function subscribe(target, key) {
-  if (!currentListener) return;
-
-  let map = listenerMap.get(target);
-  if (!map) {
-    listenerMap.set(target, (map = new Map()));
-  }
-  let listeners = map.get(key);
-  if (!listeners) {
-    map.set(key, (listeners = []));
-  }
-  listeners.push(currentListener);
-  map.set(key, listeners);
-  if (!currentListener.cleanups) currentListener.cleanups = [];
-  currentListener.cleanups.push(() => {
-    listeners.filter((l) => l !== currentListener);
-  });
-}
-
-export function triggerListeners(target, key, value, oldValue) {
-  const map = listenerMap.get(target);
-  if (!map) {
-    return;
-  }
-  const listeners = map.get(key);
-  if (!listeners) {
-    return;
-  }
-  for (const listener of listeners) {
-    listener.trigger?.(value, oldValue);
-  }
-}

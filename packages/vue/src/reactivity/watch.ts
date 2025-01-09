@@ -14,17 +14,16 @@ import { warn } from './warning'
 import type { ComputedRef } from './computed'
 import { ReactiveFlags } from './constants'
 import {
-  type SchedulerJob,
   type DebuggerOptions,
   EffectFlags,
   type EffectScheduler,
   ReactiveEffect,
   pauseTracking,
   resetTracking,
-  getCurrentScope,
-} from '@unisonjs/core'
+} from './effect'
 import { isReactive, isShallow } from './reactive'
 import { type Ref, isRef } from './ref'
+import { getCurrentScope } from './effectScope'
 
 // These errors were transferred from `packages/runtime-core/src/errorHandling.ts`
 // to @vue/reactivity to allow co-location with the moved base watch logic, hence
@@ -78,7 +77,7 @@ export interface WatchHandle extends WatchStopHandle {
 // initial value for watchers to trigger on undefined initial values
 const INITIAL_WATCHER_VALUE = {}
 
-export type WatchScheduler = (job: SchedulerJob, isFirstRun: boolean) => void
+export type WatchScheduler = (job: () => void, isFirstRun: boolean) => void
 
 const cleanupMap: WeakMap<ReactiveEffect, (() => void)[]> = new WeakMap()
 let activeWatcher: ReactiveEffect | undefined = undefined
@@ -214,24 +213,16 @@ export function watch(
   const scope = getCurrentScope()
   const watchHandle: WatchHandle = () => {
     effect.stop()
-    if (scope) {
+    if (scope && scope.active) {
       remove(scope.effects, effect)
     }
   }
 
-  if (once) {
-    if (cb) {
-      const _cb = cb
-      cb = (...args) => {
-        _cb(...args)
-        watchHandle()
-      }
-    } else {
-      const _getter = getter
-      getter = () => {
-        _getter()
-        watchHandle()
-      }
+  if (once && cb) {
+    const _cb = cb
+    cb = (...args) => {
+      _cb(...args)
+      watchHandle()
     }
   }
 

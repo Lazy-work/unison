@@ -12,7 +12,7 @@ import {
 } from './reactive'
 import { arrayInstrumentations } from './arrayInstrumentations'
 import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants'
-import { ITERATE_KEY, track, trigger } from '@unisonjs/core'
+import { ITERATE_KEY, track, trigger } from './dep'
 import {
   hasChanged,
   hasOwn,
@@ -53,6 +53,8 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
   ) {}
 
   get(target: Target, key: string | symbol, receiver: object): any {
+    if (key === ReactiveFlags.SKIP) return target[ReactiveFlags.SKIP]
+
     const isReadonly = this._isReadonly,
       isShallow = this._isShallow
     if (key === ReactiveFlags.IS_REACTIVE) {

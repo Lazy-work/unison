@@ -1,20 +1,16 @@
 import { isFunction } from '@vue/shared'
 import {
-
-} from './effect'
-import type { Ref } from './ref'
-import { warn } from './warning'
-import {
   type DebuggerEvent,
   type DebuggerOptions,
   EffectFlags,
   type Subscriber,
   activeSub,
+  batch,
   refreshComputed,
-  Dep,
-  type Link,
-  globalVersion
-} from '@unisonjs/core'
+} from './effect'
+import type { Ref } from './ref'
+import { warn } from './warning'
+import { Dep, type Link, globalVersion } from './dep'
 import { ReactiveFlags, TrackOpTypes } from './constants'
 
 declare const ComputedRefSymbol: unique symbol
@@ -88,9 +84,13 @@ export class ComputedRefImpl<T = any> implements Subscriber {
    * @internal
    */
   isSSR: boolean
+  /**
+   * @internal
+   */
+  next?: Subscriber = undefined
+
   // for backwards compat
   effect: this = this
-
   // dev only
   onTrack?: (event: DebuggerEvent) => void
   // dev only
@@ -114,11 +114,15 @@ export class ComputedRefImpl<T = any> implements Subscriber {
   /**
    * @internal
    */
-  notify(): void {
+  notify(): true | void {
     this.flags |= EffectFlags.DIRTY
-    // avoid infinite self recursion
-    if (activeSub !== this) {
-      this.dep.notify()
+    if (
+      !(this.flags & EffectFlags.NOTIFIED) &&
+      // avoid infinite self recursion
+      activeSub !== this
+    ) {
+      batch(this, true)
+      return true
     } else if (__DEV__) {
       // TODO warn
     }
@@ -127,10 +131,10 @@ export class ComputedRefImpl<T = any> implements Subscriber {
   get value(): T {
     const link = __DEV__
       ? this.dep.track({
-        target: this,
-        type: TrackOpTypes.GET,
-        key: 'value',
-      })
+          target: this,
+          type: TrackOpTypes.GET,
+          key: 'value',
+        })
       : this.dep.track()
     refreshComputed(this)
     // sync version after evaluation

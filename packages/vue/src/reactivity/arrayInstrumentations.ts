@@ -1,7 +1,7 @@
 import { TrackOpTypes } from './constants'
-import { endBatch, pauseTracking, resetTracking, startBatch } from './effect'
+import { endBatch, pauseTracking, resetTracking, startBatch } from '@unisonjs/core'
 import { isProxy, isShallow, toRaw, toReactive } from './reactive'
-import { ARRAY_ITERATE_KEY, track } from './dep'
+import { ARRAY_ITERATE_KEY, track } from '@unisonjs/core'
 import { isArray } from '@vue/shared'
 
 /**

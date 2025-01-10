@@ -20,10 +20,10 @@ import {
   ReactiveEffect,
   pauseTracking,
   resetTracking,
-} from './effect'
+} from '@unisonjs/core'
 import { isReactive, isShallow } from './reactive'
 import { type Ref, isRef } from './ref'
-import { getCurrentScope } from './effectScope'
+import { getCurrentScope } from '@unisonjs/core'
 
 // These errors were transferred from `packages/runtime-core/src/errorHandling.ts`
 // to @vue/reactivity to allow co-location with the moved base watch logic, hence

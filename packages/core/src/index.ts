@@ -28,6 +28,7 @@ export {
   shouldTrack,
   startBatch,
   endBatch,
+  batch,
   stop,
   onEffectCleanup,
   refreshComputed,

@@ -5,7 +5,7 @@ import {
   isFunction,
   isObject,
 } from '@vue/shared'
-import { Dep, getDepFromReactive } from './dep'
+import { Dep, getDepFromReactive } from '@unisonjs/core'
 import {
   type Builtin,
   type ShallowReactiveMarker,

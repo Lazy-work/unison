@@ -7,10 +7,10 @@ import {
   activeSub,
   batch,
   refreshComputed,
-} from './effect'
+} from  '@unisonjs/core'
 import type { Ref } from './ref'
 import { warn } from './warning'
-import { Dep, type Link, globalVersion } from './dep'
+import { Dep, type Link, globalVersion } from  '@unisonjs/core'
 import { ReactiveFlags, TrackOpTypes } from './constants'
 
 declare const ComputedRefSymbol: unique symbol

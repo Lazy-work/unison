@@ -77,14 +77,14 @@ describe('shallowReactive', () => {
 
     // #1210
     test('onTrack on called on objectSpread', async () => {
-      let onTrackFn = vi.fn();
-      let shallowSet = shallowReactive(new Set());
+      let onTrackFn;
+      let shallowSet;
       let a;
 
       const Comp = $unison(() => {
         onTrackFn = vi.fn();
         shallowSet = shallowReactive(new Set());
-        let a;
+
         watchEffect(
           () => {
             a = Array.from(shallowSet);

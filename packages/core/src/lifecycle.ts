@@ -32,7 +32,8 @@ export function onMounted(callback: () => void) {
 }
 
 export function onBeforeUnmount(callback: () => void) {
-  throw new Error('Not implemented yet');
+  const instance = getCurrentInstance();
+  injectHook(instance, LifecycleHooks.BEFORE_UNMOUNT, callback);
 }
 
 export function onUnmounted(callback: () => void) {

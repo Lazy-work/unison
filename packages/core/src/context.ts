@@ -1,10 +1,11 @@
-import React, { useEffect, useInsertionEffect, useLayoutEffect, useState } from 'react';
-import { isArray, NOOP } from '#vue-internals/shared/index';
+import React, { createElement, useEffect, useInsertionEffect, useLayoutEffect, useState } from 'react';
+import { extend, isArray, NOOP } from '#vue-internals/shared/index';
 import {
   SchedulerJob,
   flushJobsUntil,
   flushPostJobsUntil,
   getJobAt,
+  queueJob,
   switchToAuto,
   switchToManual,
 } from '#vue-internals/runtime-core/scheduler';
@@ -57,6 +58,17 @@ export type Event = {
 };
 
 type OnFlushCallback = (event: Partial<Event>) => void;
+
+class OnBeforeMount extends React.Component {
+  componentWillUnmount(): void {
+    for (const hook of this.props.hooks) {
+      hook();
+    }
+  }
+  render(): React.ReactNode {
+    return null
+  }
+}
 class Context {
   #id = id++;
   #parent: ComponentInternalInstance | null;
@@ -125,14 +137,20 @@ class Context {
   #template: React.ReactNode = null;
   #plugins: Map<UnisonPluginClass, UnisonPlugin> | null = null;
 
+  #renderJob = -1;
   constructor() {
     this.#parent = getCurrentInstance();
     this.#renderEffect = new ReactiveEffect(() => {
       this.#updated = true;
+      if (this.#renderJob > -1) {
+        flushJobsUntil(this.#renderJob);
+        this.#renderJob = -1;
+      }
       return this.#children();
     });
     this.#renderEffect.scheduler = () => {
       this.triggerRendering();
+      this.#renderJob = queueJob(() => {});
       this.#shouldGenerateTemplate = true;
     };
   }
@@ -188,7 +206,16 @@ class Context {
 
   render() {
     if (this.#shouldGenerateTemplate) {
-      this.#template = this.#renderEffect.run();
+      if (this[LifecycleHooks.BEFORE_UNMOUNT]) {
+        this.#template = React.createElement(
+          React.Fragment,
+          {},
+          React.createElement(OnBeforeMount, { hooks: this[LifecycleHooks.BEFORE_UNMOUNT] }),
+          this.#renderEffect.run(),
+        );
+      } else {
+        this.#template = this.#renderEffect.run();
+      }
     }
     const result = this.#template;
     this.#shouldGenerateTemplate = false;
@@ -309,7 +336,6 @@ class Context {
       useEffect(() => {
         if (!this.#executed) {
           this.computeHooks(LifecycleHooks.MOUNTED);
-          this[LifecycleHooks.MOUNTED] = null;
         }
       }, []);
     }

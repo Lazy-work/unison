@@ -43,5 +43,5 @@ Copyright (c) 2024, William (Abdullah) NGBAMA
 ## Credits
 
 The Unison.js project is powered by:
-[React](https://react.dev/), created by [Facebook](https://github.com/facebook3)
-[Vue](https://vuejs.org/), created by [Evan You](https://github.com/yyx990803)
+[React](https://react.dev/) created by [Facebook](https://github.com/facebook3) and
+[Vue](https://vuejs.org/) created by [Evan You](https://github.com/yyx990803)

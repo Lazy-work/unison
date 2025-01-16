@@ -8,11 +8,13 @@ import {
   readonlyMap,
   shallowReactiveMap,
   shallowReadonlyMap,
+  subscribe,
   toRaw,
+  triggerListeners,
 } from './reactive'
 import { arrayInstrumentations } from './arrayInstrumentations'
 import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants'
-import { ITERATE_KEY, track, trigger } from '@unisonjs/core'
+import { ITERATE_KEY, track as originalTrack, trigger as originalTrigger, shouldTrack } from '@unisonjs/core'
 import {
   hasChanged,
   hasOwn,
@@ -24,6 +26,23 @@ import {
 } from '@vue/shared'
 import { isRef } from './ref'
 import { warn } from './warning'
+
+function track(target: object, type: TrackOpTypes, key: unknown) {
+  if (shouldTrack) subscribe(target, key)
+  originalTrack(target, type, key)
+}
+
+function trigger(
+  target: object,
+  type: TriggerOpTypes,
+  key?: unknown,
+  newValue?: unknown,
+  oldValue?: unknown,
+  oldTarget?: Map<unknown, unknown> | Set<unknown>
+) {
+  triggerListeners(target, key, newValue, oldValue)
+  originalTrigger(target, type, key, newValue, oldValue, oldTarget)
+}
 
 const isNonTrackableKeys = /*@__PURE__*/ makeMap(`__proto__,__v_isRef,__isVue`)
 
@@ -50,7 +69,7 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
   constructor(
     protected readonly _isReadonly = false,
     protected readonly _isShallow = false,
-  ) {}
+  ) { }
 
   get(target: Target, key: string | symbol, receiver: object): any {
     if (key === ReactiveFlags.SKIP) return target[ReactiveFlags.SKIP]
@@ -66,14 +85,14 @@ class BaseReactiveHandler implements ProxyHandler<Target> {
     } else if (key === ReactiveFlags.RAW) {
       if (
         receiver ===
-          (isReadonly
-            ? isShallow
-              ? shallowReadonlyMap
-              : readonlyMap
-            : isShallow
-              ? shallowReactiveMap
-              : reactiveMap
-          ).get(target) ||
+        (isReadonly
+          ? isShallow
+            ? shallowReadonlyMap
+            : readonlyMap
+          : isShallow
+            ? shallowReactiveMap
+            : reactiveMap
+        ).get(target) ||
         // receiver is not the reactive proxy, but has the same prototype
         // this means the receiver is a user proxy of the reactive proxy
         Object.getPrototypeOf(target) === Object.getPrototypeOf(receiver)

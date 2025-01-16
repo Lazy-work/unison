@@ -2,11 +2,13 @@ import {
   type Target,
   isReadonly,
   isShallow,
+  subscribe,
   toRaw,
   toReactive,
   toReadonly,
+  triggerListeners,
 } from './reactive'
-import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, track, trigger } from '@unisonjs/core'
+import { ITERATE_KEY, MAP_KEY_ITERATE_KEY, shouldTrack, track as originalTrack, trigger as originalTrigger } from '@unisonjs/core'
 import { ReactiveFlags, TrackOpTypes, TriggerOpTypes } from './constants'
 import {
   capitalize,
@@ -29,6 +31,24 @@ const toShallow = <T extends unknown>(value: T): T => value
 
 const getProto = <T extends CollectionTypes>(v: T): any =>
   Reflect.getPrototypeOf(v)
+
+function track(target: object, type: TrackOpTypes, key: unknown) {
+  if (shouldTrack) subscribe(target, key)
+  originalTrack(target, type, key)
+}
+
+function trigger(
+  target: object,
+  type: TriggerOpTypes,
+  key?: unknown,
+  newValue?: unknown,
+  oldValue?: unknown,
+  oldTarget?: Map<unknown, unknown> | Set<unknown>
+) {
+  triggerListeners(target, key, newValue, oldValue)
+  originalTrigger(target, type, key, newValue, oldValue, oldTarget)
+}
+
 
 function createIterableMethod(
   method: string | symbol,
@@ -62,9 +82,9 @@ function createIterableMethod(
         return done
           ? { value, done }
           : {
-              value: isPair ? [wrap(value[0]), wrap(value[1])] : wrap(value),
-              done,
-            }
+            value: isPair ? [wrap(value[0]), wrap(value[1])] : wrap(value),
+            done,
+          }
       },
       // iterable protocol
       [Symbol.iterator]() {
@@ -160,90 +180,90 @@ function createInstrumentations(
     instrumentations,
     readonly
       ? {
-          add: createReadonlyMethod(TriggerOpTypes.ADD),
-          set: createReadonlyMethod(TriggerOpTypes.SET),
-          delete: createReadonlyMethod(TriggerOpTypes.DELETE),
-          clear: createReadonlyMethod(TriggerOpTypes.CLEAR),
-        }
+        add: createReadonlyMethod(TriggerOpTypes.ADD),
+        set: createReadonlyMethod(TriggerOpTypes.SET),
+        delete: createReadonlyMethod(TriggerOpTypes.DELETE),
+        clear: createReadonlyMethod(TriggerOpTypes.CLEAR),
+      }
       : {
-          add(this: SetTypes, value: unknown) {
-            if (!shallow && !isShallow(value) && !isReadonly(value)) {
-              value = toRaw(value)
-            }
-            const target = toRaw(this)
-            const proto = getProto(target)
-            const hadKey = proto.has.call(target, value)
-            if (!hadKey) {
-              target.add(value)
-              trigger(target, TriggerOpTypes.ADD, value, value)
-            }
-            return this
-          },
-          set(this: MapTypes, key: unknown, value: unknown) {
-            if (!shallow && !isShallow(value) && !isReadonly(value)) {
-              value = toRaw(value)
-            }
-            const target = toRaw(this)
-            const { has, get } = getProto(target)
-
-            let hadKey = has.call(target, key)
-            if (!hadKey) {
-              key = toRaw(key)
-              hadKey = has.call(target, key)
-            } else if (__DEV__) {
-              checkIdentityKeys(target, has, key)
-            }
-
-            const oldValue = get.call(target, key)
-            target.set(key, value)
-            if (!hadKey) {
-              trigger(target, TriggerOpTypes.ADD, key, value)
-            } else if (hasChanged(value, oldValue)) {
-              trigger(target, TriggerOpTypes.SET, key, value, oldValue)
-            }
-            return this
-          },
-          delete(this: CollectionTypes, key: unknown) {
-            const target = toRaw(this)
-            const { has, get } = getProto(target)
-            let hadKey = has.call(target, key)
-            if (!hadKey) {
-              key = toRaw(key)
-              hadKey = has.call(target, key)
-            } else if (__DEV__) {
-              checkIdentityKeys(target, has, key)
-            }
-
-            const oldValue = get ? get.call(target, key) : undefined
-            // forward the operation before queueing reactions
-            const result = target.delete(key)
-            if (hadKey) {
-              trigger(target, TriggerOpTypes.DELETE, key, undefined, oldValue)
-            }
-            return result
-          },
-          clear(this: IterableCollections) {
-            const target = toRaw(this)
-            const hadItems = target.size !== 0
-            const oldTarget = __DEV__
-              ? isMap(target)
-                ? new Map(target)
-                : new Set(target)
-              : undefined
-            // forward the operation before queueing reactions
-            const result = target.clear()
-            if (hadItems) {
-              trigger(
-                target,
-                TriggerOpTypes.CLEAR,
-                undefined,
-                undefined,
-                oldTarget,
-              )
-            }
-            return result
-          },
+        add(this: SetTypes, value: unknown) {
+          if (!shallow && !isShallow(value) && !isReadonly(value)) {
+            value = toRaw(value)
+          }
+          const target = toRaw(this)
+          const proto = getProto(target)
+          const hadKey = proto.has.call(target, value)
+          if (!hadKey) {
+            target.add(value)
+            trigger(target, TriggerOpTypes.ADD, value, value)
+          }
+          return this
         },
+        set(this: MapTypes, key: unknown, value: unknown) {
+          if (!shallow && !isShallow(value) && !isReadonly(value)) {
+            value = toRaw(value)
+          }
+          const target = toRaw(this)
+          const { has, get } = getProto(target)
+
+          let hadKey = has.call(target, key)
+          if (!hadKey) {
+            key = toRaw(key)
+            hadKey = has.call(target, key)
+          } else if (__DEV__) {
+            checkIdentityKeys(target, has, key)
+          }
+
+          const oldValue = get.call(target, key)
+          target.set(key, value)
+          if (!hadKey) {
+            trigger(target, TriggerOpTypes.ADD, key, value)
+          } else if (hasChanged(value, oldValue)) {
+            trigger(target, TriggerOpTypes.SET, key, value, oldValue)
+          }
+          return this
+        },
+        delete(this: CollectionTypes, key: unknown) {
+          const target = toRaw(this)
+          const { has, get } = getProto(target)
+          let hadKey = has.call(target, key)
+          if (!hadKey) {
+            key = toRaw(key)
+            hadKey = has.call(target, key)
+          } else if (__DEV__) {
+            checkIdentityKeys(target, has, key)
+          }
+
+          const oldValue = get ? get.call(target, key) : undefined
+          // forward the operation before queueing reactions
+          const result = target.delete(key)
+          if (hadKey) {
+            trigger(target, TriggerOpTypes.DELETE, key, undefined, oldValue)
+          }
+          return result
+        },
+        clear(this: IterableCollections) {
+          const target = toRaw(this)
+          const hadItems = target.size !== 0
+          const oldTarget = __DEV__
+            ? isMap(target)
+              ? new Map(target)
+              : new Set(target)
+            : undefined
+          // forward the operation before queueing reactions
+          const result = target.clear()
+          if (hadItems) {
+            trigger(
+              target,
+              TriggerOpTypes.CLEAR,
+              undefined,
+              undefined,
+              oldTarget,
+            )
+          }
+          return result
+        },
+      },
   )
 
   const iteratorMethods = [
@@ -299,9 +319,9 @@ export const readonlyCollectionHandlers: ProxyHandler<CollectionTypes> = {
 }
 
 export const shallowReadonlyCollectionHandlers: ProxyHandler<CollectionTypes> =
-  {
-    get: /*@__PURE__*/ createInstrumentationGetter(true, true),
-  }
+{
+  get: /*@__PURE__*/ createInstrumentationGetter(true, true),
+}
 
 function checkIdentityKeys(
   target: CollectionTypes,
@@ -313,10 +333,10 @@ function checkIdentityKeys(
     const type = toRawType(target)
     warn(
       `Reactive ${type} contains both the raw and reactive ` +
-        `versions of the same object${type === `Map` ? ` as keys` : ``}, ` +
-        `which can lead to inconsistencies. ` +
-        `Avoid differentiating between the raw and reactive versions ` +
-        `of an object and only use the reactive version if possible.`,
+      `versions of the same object${type === `Map` ? ` as keys` : ``}, ` +
+      `which can lead to inconsistencies. ` +
+      `Avoid differentiating between the raw and reactive versions ` +
+      `of an object and only use the reactive version if possible.`,
     )
   }
 }

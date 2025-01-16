@@ -1,8 +1,13 @@
 import { TrackOpTypes } from './constants'
-import { endBatch, pauseTracking, resetTracking, startBatch } from '@unisonjs/core'
-import { isProxy, isShallow, toRaw, toReactive } from './reactive'
-import { ARRAY_ITERATE_KEY, track } from '@unisonjs/core'
+import { endBatch, pauseTracking, resetTracking, shouldTrack, startBatch } from '@unisonjs/core'
+import { isProxy, isShallow, subscribe, toRaw, toReactive } from './reactive'
+import { ARRAY_ITERATE_KEY, track as originalTrack } from '@unisonjs/core'
 import { isArray } from '@vue/shared'
+
+function track(target: object, type: TrackOpTypes, key: unknown) {
+  if (shouldTrack) subscribe(target, key)
+  originalTrack(target, type, key)
+}
 
 /**
  * Track array iteration and return:

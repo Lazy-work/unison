@@ -1,3 +1,4 @@
+import { type Listener, currentListener } from '@unisonjs/core'
 import { def, hasOwn, isObject, toRawType } from '@vue/shared'
 import {
   mutableHandlers,
@@ -430,3 +431,38 @@ export const toReactive = <T extends unknown>(value: T): T =>
  */
 export const toReadonly = <T extends unknown>(value: T): DeepReadonly<T> =>
   isObject(value) ? readonly(value) : (value as DeepReadonly<T>)
+
+const listenerMap = new WeakMap<Target, Map<any, Listener[]>>();
+
+export function subscribe(target: object, key: unknown) {
+  if (!currentListener) return;
+
+  let map = listenerMap.get(target);
+  if (!map) {
+    listenerMap.set(target, (map = new Map()));
+  }
+  let listeners = map.get(key);
+  if (!listeners) {
+    map.set(key, (listeners = []));
+  }
+  listeners.push(currentListener);
+  map.set(key, listeners);
+  if (!currentListener.cleanups) currentListener.cleanups = [];
+  currentListener.cleanups.push(() => {
+    listeners.filter((l) => l !== currentListener);
+  });
+}
+
+export function triggerListeners(target: object, key: unknown, value: unknown, oldValue: unknown) {
+  const map = listenerMap.get(target);
+  if (!map) {
+    return;
+  }
+  const listeners = map.get(key);
+  if (!listeners) {
+    return;
+  }
+  for (const listener of listeners) {
+    listener.trigger?.(value, oldValue);
+  }
+}

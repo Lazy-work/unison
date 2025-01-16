@@ -5,7 +5,7 @@ import {
   isFunction,
   isObject,
 } from '@vue/shared'
-import { Dep, getDepFromReactive } from '@unisonjs/core'
+import { Dep, Listener, currentListener, getDepFromReactive } from '@unisonjs/core'
 import {
   type Builtin,
   type ShallowReactiveMarker,
@@ -110,6 +110,7 @@ class RefImpl<T = any> {
   private _rawValue: T
 
   dep: Dep = new Dep()
+  listeners: Listener[] | null = null
 
   public readonly [ReactiveFlags.IS_REF] = true
   public readonly [ReactiveFlags.IS_SHALLOW]: boolean = false
@@ -121,6 +122,13 @@ class RefImpl<T = any> {
   }
 
   get value() {
+    // append react listener
+    if (currentListener) {
+      const listeners = this.listeners ?? [];
+      listeners.push(currentListener);
+      this.listeners = listeners;
+    }
+
     if (__DEV__) {
       this.dep.track({
         target: this,
@@ -143,6 +151,12 @@ class RefImpl<T = any> {
     if (hasChanged(newValue, oldValue)) {
       this._rawValue = newValue
       this._value = useDirectValue ? newValue : toReactive(newValue)
+
+      // trigger react listeners
+      if (this.listeners) {
+        for (const listener of this.listeners) listener.trigger?.(newValue, oldValue);
+        this.listeners.length = 0;
+      }
       if (__DEV__) {
         this.dep.trigger({
           target: this,
@@ -184,6 +198,12 @@ class RefImpl<T = any> {
  * @see {@link https://vuejs.org/api/reactivity-advanced.html#triggerref}
  */
 export function triggerRef(ref: Ref): void {
+  const r = (ref as unknown as RefImpl);
+  if (r.listeners) {
+    for (const listener of r.listeners) listener.trigger?.();
+    r.listeners.length = 0;
+  }
+
   // ref may be an instance of ObjectRefImpl
   if ((ref as unknown as RefImpl).dep) {
     if (__DEV__) {
@@ -275,7 +295,7 @@ export function proxyRefs<T extends object>(
   objectWithRefs: T,
 ): ShallowUnwrapRef<T> {
   return isReactive(objectWithRefs)
-    ? objectWithRefs
+    ? objectWithRefs as any
     : new Proxy(objectWithRefs, shallowUnwrapHandlers)
 }
 
@@ -289,6 +309,7 @@ export type CustomRefFactory<T> = (
 
 class CustomRefImpl<T> {
   public dep: Dep
+  public listeners: Listener[]
 
   private readonly _get: ReturnType<CustomRefFactory<T>>['get']
   private readonly _set: ReturnType<CustomRefFactory<T>>['set']
@@ -299,7 +320,22 @@ class CustomRefImpl<T> {
 
   constructor(factory: CustomRefFactory<T>) {
     const dep = (this.dep = new Dep())
-    const { get, set } = factory(dep.track.bind(dep), dep.trigger.bind(dep))
+    const listeners = (this.listeners = [] as Listener[])
+    const { get, set } = factory(
+      () => {
+        if (currentListener) {
+          listeners.push(currentListener);
+        }
+        dep.track();
+      },
+      () => {
+        if (listeners) {
+          for (const listener of listeners) listener.trigger?.();
+          listeners.length = 0;
+        }
+        dep.trigger()
+      }
+    )
     this._get = get
     this._set = set
   }

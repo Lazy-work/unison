@@ -108,7 +108,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
     },
     resolveId(source, importer, options) {
       if (source === "vue" || source === "vue-demi") {
-        return path.resolve('node_modules/@unisonjs/vue/dist/src/index.js');
+        return path.resolve('node_modules/@unisonjs/vue/dist/esm/src/index.js');
       }
       return null;
     },

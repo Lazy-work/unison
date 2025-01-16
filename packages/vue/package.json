@@ -1,6 +1,6 @@
 {
   "name": "@unisonjs/vue",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "packageManager": "pnpm@8.15.3",
   "type": "module",
   "main": "./dist/cjs/src/index.js",

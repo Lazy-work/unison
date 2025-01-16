@@ -1,11 +1,13 @@
 {
-  "version": "0.0.0",
   "type": "module",
+  "version": "0.1.6",
   "packageManager": "pnpm@9.10.0",
   "workspaces": [
+    "packages/compiler",
     "packages/core",
-    "packages/jsx-runtime",
-    "packages/compiler"
+    "packages/fast-refresh",
+    "packages/unplugin",
+    "packages/vue"
   ],
   "scripts": {
     "test": "vitest --",

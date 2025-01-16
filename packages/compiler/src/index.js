@@ -18,7 +18,6 @@ export default function (babel, opts = {}) {
 
   const { types: t } = babel;
 
-  let rsxIdentifier;
   const alreadyOptimized = new Set();
   const toOptimize = new Set();
 
@@ -162,17 +161,10 @@ export default function (babel, opts = {}) {
     },
   };
 
+  let rsxIdentifier;
   const breakDownReturn = {
     JSXElement: {
       exit(path) {
-        if (!rsxIdentifier) {
-          const program = path.findParent((path) => path.isProgram());
-          rsxIdentifier = program.scope.generateUidIdentifier('rsx');
-          program.unshiftContainer('body', [
-            t.importDeclaration([t.importSpecifier(rsxIdentifier, t.identifier('rsx'))], t.stringLiteral(moduleName)),
-          ]);
-        }
-
         const container = path.findParent((path) => path.isJSXExpressionContainer());
         if (container) {
           const isInFunctionCall = path
@@ -181,7 +173,11 @@ export default function (babel, opts = {}) {
           if (isInFunctionCall) return;
         }
         const props = path.get('openingElement');
-        props.traverse(optimizeFnProp, { types: t, seen: this.seen, componentReturn: this.componentReturn });
+        props.traverse(optimizeFnProp, {
+          types: t,
+          seen: this.seen,
+          componentReturn: this.componentReturn,
+        });
 
         const cbJsx = t.arrowFunctionExpression([], path.node);
 
@@ -236,8 +232,14 @@ export default function (babel, opts = {}) {
         jsxList = [argument];
       }
       for (const jsx of jsxList) {
-        jsx.traverse(optimizeStatic, { dirtiness: new WeakMap(), parents: [], componentReturn: this.componentReturn });
-        jsx.traverse(breakDownReturn, { componentReturn: this.componentReturn });
+        jsx.traverse(optimizeStatic, {
+          dirtiness: new WeakMap(),
+          parents: [],
+          componentReturn: this.componentReturn,
+        });
+        jsx.traverse(breakDownReturn, {
+          componentReturn: this.componentReturn,
+        });
       }
     },
   };
@@ -255,15 +257,17 @@ export default function (babel, opts = {}) {
   };
 
   function optimizeComponent(componentBody) {
-    const parent = componentBody.findParent(
-      (path) => path.isFunctionDeclaration() || path.isVariableDeclaration(),
-    ).node;
+    componentBody.findParent((path) => path.isFunctionDeclaration() || path.isVariableDeclaration()).node;
     const returnIndex = componentBody.node.body.findIndex((item) => t.isReturnStatement(item));
     const componentReturn = componentBody.get(`body.${returnIndex}`);
-    componentBody.traverse(handleUnisonComponent, { types: t, componentReturn });
+    componentBody.traverse(handleUnisonComponent, {
+      types: t,
+      componentReturn,
+    });
   }
 
   function useUnison(directives) {
+    if (!Array.isArray(directives)) return false;
     for (const directive of directives) {
       if (directive.value.value === 'use unison') return true;
     }
@@ -277,17 +281,18 @@ export default function (babel, opts = {}) {
     return false;
   }
 
-  const mode = opts.mode ?? 'manual';
+  const mode = opts.mode || 'manual';
   return {
     name: 'unison-compiler',
     visitor: {
       Program: {
         enter(path) {
           program = path;
-        },
-        exit() {
-          rsxIdentifier = undefined;
-          program = undefined;
+          if (rsxIdentifier) return;
+          rsxIdentifier = program.scope.generateUidIdentifier('rsx');
+          program.unshiftContainer('body', [
+            t.importDeclaration([t.importSpecifier(rsxIdentifier, t.identifier('rsx'))], t.stringLiteral(moduleName)),
+          ]);
         },
       },
       ImportSpecifier(path) {
@@ -296,7 +301,7 @@ export default function (babel, opts = {}) {
       FunctionDeclaration(path) {
         // Looking for :
         // function Component() {}; $unison(Component);
-        if (isComponentishName(path.node.id.name)) {
+        if (path.node.id && isComponentishName(path.node.id.name)) {
           let isUnison = false;
           program.traverse(isUnisonComponent, {
             isUnison: () => void (isUnison = true),
@@ -304,7 +309,7 @@ export default function (babel, opts = {}) {
           });
 
           if (noUnison(path.node.body.directives)) return;
-          if (!isUnison && mode === 'full') {
+          if (!isUnison && (mode === 'full' || (mode === 'directive' && useUnison(path.node.body.directives)))) {
             if (t.isExportDefaultDeclaration(path.parent)) {
               // Convert to : const Component = $unison(function Component() {});
               const varDec = path.parentPath.replaceWith(
@@ -335,10 +340,6 @@ export default function (babel, opts = {}) {
             }
           }
 
-          if (!isUnison && mode === 'directive' && useUnison(declaration.node.init.body.directives)) {
-            path.replaceWith(t.callExpression(t.identifier(currentUnisonName), path.node));
-          }
-
           if (isUnison) {
             const componentBody = path.get('body');
             optimizeComponent(componentBody);
@@ -350,15 +351,10 @@ export default function (babel, opts = {}) {
           const declaration = path.get(`declarations.${i}`);
           const id = declaration.node.id;
 
-          if (isComponentishName(declaration.node.id.name)) {
+          if (id && isComponentishName(declaration.node.id.name)) {
             if (t.isArrowFunctionExpression(declaration.node.init) || t.isFunctionExpression(declaration.node.init)) {
               if (noUnison(declaration.node.init.body.directives)) return;
-              if (mode === 'full') {
-                declaration
-                  .get('init')
-                  .replaceWith(t.callExpression(t.identifier(currentUnisonName), [declaration.node.init]));
-              }
-              if (mode === 'directive' && useUnison(declaration.node.init.body.directives)) {
+              if (mode === 'full' || (mode === 'directive' && useUnison(declaration.node.init.body.directives))) {
                 declaration
                   .get('init')
                   .replaceWith(t.callExpression(t.identifier(currentUnisonName), [declaration.node.init]));
@@ -366,7 +362,12 @@ export default function (babel, opts = {}) {
             }
 
             // It's not a unison component
-            if (!t.isCallExpression(declaration.node.init) || declaration.node.init.callee.name !== currentUnisonName) {
+            //
+            if (
+              !t.isCallExpression(declaration.node.init) ||
+              !declaration.node.init.callee ||
+              declaration.node.init.callee.name !== currentUnisonName
+            ) {
               return;
             }
             const root = declaration.get('init');

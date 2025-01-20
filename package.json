@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "test": "vitest --",
-    "build-all": "pnpm --filter \"*unison*\" build",
+    "build": "pnpm --filter \"*unison*\" build",
     "version": "changeset version",
     "release": "changeset publish",
     "preinstall": "npx only-allow pnpm"

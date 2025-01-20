@@ -312,7 +312,7 @@ export default function (babel, opts = {}) {
                   t.variableDeclarator(
                     path.node.id,
                     t.callExpression(t.identifier(currentUnisonName), [
-                      t.functionExpression(path.node.id, [], path.node.body),
+                      t.functionExpression(path.node.id, path.node.params, path.node.body),
                     ]),
                   ),
                 ]),
@@ -327,7 +327,7 @@ export default function (babel, opts = {}) {
                   t.variableDeclarator(
                     path.node.id,
                     t.callExpression(t.identifier(currentUnisonName), [
-                      t.functionExpression(path.node.id, [], path.node.body),
+                      t.functionExpression(path.node.id, path.node.params, path.node.body),
                     ]),
                   ),
                 ]),

@@ -1,0 +1,45 @@
+name: Release
+  
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    # prevents this action from running on forks
+    if: github.repository == 'Lazy-work/unison'
+    name: Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # to create release (changesets/action)
+      id-token: write # OpenID Connect token needed for provenance
+      pull-requests: write # to create pull request (changesets/action)
+    steps:
+      - name: checkout code repository
+        uses: actions/checkout@v4
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+        
+      - name: Build Packages
+        run: pnpm run build
+        
+      - name: create and publish versions
+        id: changesets
+        uses: changesets/action@v1
+        with:
+          version: pnpm version
+          publish: pnpm publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -132,11 +132,5 @@
     "vite": "^6.0.7",
     "vitest": "^2.0.5",
     "webpack": "^5.94.0"
-  },
-  "release-it": {
-    "git": false,
-    "plugins": {
-      "release-it-pnpm": {}
-    }
   }
 }

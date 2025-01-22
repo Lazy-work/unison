@@ -18,15 +18,11 @@ export default function (babel, opts = {}) {
 
   const { types: t } = babel;
 
-<<<<<<< HEAD
-=======
   function isJSX(node) {
     if (t.isJSXElement(node) || t.isJSXFragment(node)) return true;
     return false;
   }
 
-  let rsxIdentifier;
->>>>>>> dev
   const alreadyOptimized = new Set();
   const toOptimize = new Set();
 
@@ -294,25 +290,14 @@ export default function (babel, opts = {}) {
     return false;
   }
 
-<<<<<<< HEAD
-  const mode = opts.mode || 'manual';
-=======
-  let mode = opts.mode ?? 'manual';
+  let mode = opts.mode || 'manual';
 
->>>>>>> dev
   return {
     name: 'unison-compiler',
     visitor: {
       Program: {
         enter(path) {
           program = path;
-<<<<<<< HEAD
-          if (rsxIdentifier) return;
-          rsxIdentifier = program.scope.generateUidIdentifier('rsx');
-          program.unshiftContainer('body', [
-            t.importDeclaration([t.importSpecifier(rsxIdentifier, t.identifier('rsx'))], t.stringLiteral(moduleName)),
-          ]);
-=======
           
           if (noUnison(path.node.directives)) path.stop();
           
@@ -320,11 +305,11 @@ export default function (babel, opts = {}) {
             mode = 'full';
             path.get('directives.0').replaceWith(t.directive(t.directiveLiteral('use client')))
           }
-        },
-        exit() {
-          rsxIdentifier = undefined;
-          program = undefined;
->>>>>>> dev
+          if (rsxIdentifier) return;
+          rsxIdentifier = program.scope.generateUidIdentifier('rsx');
+          program.unshiftContainer('body', [
+            t.importDeclaration([t.importSpecifier(rsxIdentifier, t.identifier('rsx'))], t.stringLiteral(moduleName)),
+          ]);
         },
       },
       ImportSpecifier(path) {
@@ -370,6 +355,10 @@ export default function (babel, opts = {}) {
                 ]),
               );
             }
+          }
+
+          if (!isUnison && mode === 'directive' && useUnison(declaration.node.init.body.directives)) {
+            path.replaceWith(t.callExpression(t.identifier(currentUnisonName), path.node));
           }
 
           if (isUnison) {

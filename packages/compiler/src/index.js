@@ -295,6 +295,8 @@ export default function (babel, opts = {}) {
         enter(path) {
           program = path;
           
+          if (noUnison(path.node.directives)) path.stop();
+          
           if (mode === 'directive' && useUnison(path.node.directives)) {
             mode = 'full';
             path.get('directives.0').replaceWith(t.directive(t.directiveLiteral('use client')))

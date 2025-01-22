@@ -277,6 +277,7 @@ export default function (babel, opts = {}) {
     }
     return false;
   }
+
   function noUnison(directives) {
     if (!Array.isArray(directives)) return false;
     for (const directive of directives) {
@@ -285,13 +286,21 @@ export default function (babel, opts = {}) {
     return false;
   }
 
-  const mode = opts.mode ?? 'manual';
+  let mode = opts.mode ?? 'manual';
+
   return {
     name: 'unison-compiler',
     visitor: {
       Program: {
         enter(path) {
           program = path;
+          
+          if (noUnison(path.node.directives)) path.stop();
+          
+          if (mode === 'directive' && useUnison(path.node.directives)) {
+            mode = 'full';
+            path.get('directives.0').replaceWith(t.directive(t.directiveLiteral('use client')))
+          }
         },
         exit() {
           rsxIdentifier = undefined;

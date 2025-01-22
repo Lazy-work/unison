@@ -18,6 +18,15 @@ export default function (babel, opts = {}) {
 
   const { types: t } = babel;
 
+<<<<<<< HEAD
+=======
+  function isJSX(node) {
+    if (t.isJSXElement(node) || t.isJSXFragment(node)) return true;
+    return false;
+  }
+
+  let rsxIdentifier;
+>>>>>>> dev
   const alreadyOptimized = new Set();
   const toOptimize = new Set();
 
@@ -88,9 +97,12 @@ export default function (babel, opts = {}) {
         toInspect.push(child);
       }
     }
-    for (const child of path.node.openingElement.attributes) {
-      if (t.isJSXExpressionContainer(child.value)) {
-        toInspect.push(child.value);
+
+    if (path.isJSXElement()) {
+      for (const child of path.node.openingElement.attributes) {
+        if (t.isJSXExpressionContainer(child.value)) {
+          toInspect.push(child.value);
+        }
       }
     }
     let dirty = false;
@@ -105,7 +117,7 @@ export default function (babel, opts = {}) {
 
     for (let i = 0; i < children.length; i++) {
       let child = children[i];
-      if (!t.isJSXElement(child) && !t.isJSXFragment(child)) continue;
+      if (!isJSX(child)) continue;
       if (dirtiness.get(child)) continue;
       if (t.isJSXExpressionContainer(child)) child = child.expression;
       const jsxId = parent.scope.generateUidIdentifier('jsx');
@@ -131,7 +143,7 @@ export default function (babel, opts = {}) {
         }
       },
     },
-    JSXElement: {
+    'JSXElement|JSXFragment': {
       enter(path) {
         if (this.ignore) return;
         if (!this.dirtiness.has(path.node)) this.dirtiness.set(path.node, false);
@@ -185,7 +197,7 @@ export default function (babel, opts = {}) {
         const cbVar = t.variableDeclaration('const', [t.variableDeclarator(cbId, cbJsx)]);
 
         this.componentReturn.insertBefore(cbVar);
-        if (path.parentPath.isJSXElement() || path.parentPath.isJSXFragment()) {
+        if (isJSX(path.parentPath.node)) {
           path.replaceWith(t.JSXExpressionContainer(t.callExpression(rsxIdentifier, [cbId])));
         } else {
           path.replaceWith(t.callExpression(rsxIdentifier, [cbId]));
@@ -219,7 +231,7 @@ export default function (babel, opts = {}) {
     ReturnStatement(path) {
       const t = this.types;
       const argument = path.get('argument');
-      if (this.componentReturn.node === path.node && argument.isJSXElement()) {
+      if (this.componentReturn.node === path.node && isJSX(argument.node)) {
         argument.replaceWith(t.arrowFunctionExpression([], argument.node));
       }
       const body = argument.get('body');
@@ -273,6 +285,7 @@ export default function (babel, opts = {}) {
     }
     return false;
   }
+
   function noUnison(directives) {
     if (!Array.isArray(directives)) return false;
     for (const directive of directives) {
@@ -281,18 +294,37 @@ export default function (babel, opts = {}) {
     return false;
   }
 
+<<<<<<< HEAD
   const mode = opts.mode || 'manual';
+=======
+  let mode = opts.mode ?? 'manual';
+
+>>>>>>> dev
   return {
     name: 'unison-compiler',
     visitor: {
       Program: {
         enter(path) {
           program = path;
+<<<<<<< HEAD
           if (rsxIdentifier) return;
           rsxIdentifier = program.scope.generateUidIdentifier('rsx');
           program.unshiftContainer('body', [
             t.importDeclaration([t.importSpecifier(rsxIdentifier, t.identifier('rsx'))], t.stringLiteral(moduleName)),
           ]);
+=======
+          
+          if (noUnison(path.node.directives)) path.stop();
+          
+          if (mode === 'directive' && useUnison(path.node.directives)) {
+            mode = 'full';
+            path.get('directives.0').replaceWith(t.directive(t.directiveLiteral('use client')))
+          }
+        },
+        exit() {
+          rsxIdentifier = undefined;
+          program = undefined;
+>>>>>>> dev
         },
       },
       ImportSpecifier(path) {
@@ -317,7 +349,7 @@ export default function (babel, opts = {}) {
                   t.variableDeclarator(
                     path.node.id,
                     t.callExpression(t.identifier(currentUnisonName), [
-                      t.functionExpression(path.node.id, [], path.node.body),
+                      t.functionExpression(path.node.id, path.node.params, path.node.body),
                     ]),
                   ),
                 ]),
@@ -332,7 +364,7 @@ export default function (babel, opts = {}) {
                   t.variableDeclarator(
                     path.node.id,
                     t.callExpression(t.identifier(currentUnisonName), [
-                      t.functionExpression(path.node.id, [], path.node.body),
+                      t.functionExpression(path.node.id, path.node.params, path.node.body),
                     ]),
                   ),
                 ]),

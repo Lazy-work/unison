@@ -10,8 +10,7 @@
     "build-vue": "pnpm build-vue-js && pnpm build-rm-vue-aliases",
     "build-vue-js": "(rimraf vue/temp && cd vue && pnpm tsc --noCheck) || exit 0;",
     "build-rm-vue-aliases": "(pnpm dlx tsc-alias -p vue/tsconfig.json) || exit 0;",
-    "prepublishOnly": "npm run build",
-    "release": "release-it"
+    "prepublishOnly": "npm run build"
   },
   "exports": {
     ".": {
@@ -60,11 +59,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "release-it": {
-    "git": false,
-    "plugins": {
-      "release-it-pnpm": {}
-    }
   }
 }

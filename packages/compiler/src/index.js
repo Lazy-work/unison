@@ -18,6 +18,11 @@ export default function (babel, opts = {}) {
 
   const { types: t } = babel;
 
+  function isJSX(node) {
+    if (t.isJSXElement(node) || t.isJSXFragment(node)) return true;
+    return false;
+  }
+
   let rsxIdentifier;
   const alreadyOptimized = new Set();
   const toOptimize = new Set();
@@ -89,9 +94,12 @@ export default function (babel, opts = {}) {
         toInspect.push(child);
       }
     }
-    for (const child of path.node.openingElement.attributes) {
-      if (t.isJSXExpressionContainer(child.value)) {
-        toInspect.push(child.value);
+
+    if (path.isJSXElement()) {
+      for (const child of path.node.openingElement.attributes) {
+        if (t.isJSXExpressionContainer(child.value)) {
+          toInspect.push(child.value);
+        }
       }
     }
     let dirty = false;
@@ -106,7 +114,7 @@ export default function (babel, opts = {}) {
 
     for (let i = 0; i < children.length; i++) {
       let child = children[i];
-      if (!t.isJSXElement(child) && !t.isJSXFragment(child)) continue;
+      if (!isJSX(child)) continue;
       if (dirtiness.get(child)) continue;
       if (t.isJSXExpressionContainer(child)) child = child.expression;
       const jsxId = parent.scope.generateUidIdentifier('jsx');
@@ -132,7 +140,7 @@ export default function (babel, opts = {}) {
         }
       },
     },
-    JSXElement: {
+    'JSXElement|JSXFragment': {
       enter(path) {
         if (this.ignore) return;
         if (!this.dirtiness.has(path.node)) this.dirtiness.set(path.node, false);
@@ -189,7 +197,7 @@ export default function (babel, opts = {}) {
         const cbVar = t.variableDeclaration('const', [t.variableDeclarator(cbId, cbJsx)]);
 
         this.componentReturn.insertBefore(cbVar);
-        if (path.parentPath.isJSXElement() || path.parentPath.isJSXFragment()) {
+        if (isJSX(path.parentPath.node)) {
           path.replaceWith(t.JSXExpressionContainer(t.callExpression(rsxIdentifier, [cbId])));
         } else {
           path.replaceWith(t.callExpression(rsxIdentifier, [cbId]));
@@ -223,7 +231,7 @@ export default function (babel, opts = {}) {
     ReturnStatement(path) {
       const t = this.types;
       const argument = path.get('argument');
-      if (this.componentReturn.node === path.node && argument.isJSXElement()) {
+      if (this.componentReturn.node === path.node && isJSX(argument.node)) {
         argument.replaceWith(t.arrowFunctionExpression([], argument.node));
       }
       const body = argument.get('body');
@@ -312,7 +320,7 @@ export default function (babel, opts = {}) {
                   t.variableDeclarator(
                     path.node.id,
                     t.callExpression(t.identifier(currentUnisonName), [
-                      t.functionExpression(path.node.id, [], path.node.body),
+                      t.functionExpression(path.node.id, path.node.params, path.node.body),
                     ]),
                   ),
                 ]),
@@ -327,7 +335,7 @@ export default function (babel, opts = {}) {
                   t.variableDeclarator(
                     path.node.id,
                     t.callExpression(t.identifier(currentUnisonName), [
-                      t.functionExpression(path.node.id, [], path.node.body),
+                      t.functionExpression(path.node.id, path.node.params, path.node.body),
                     ]),
                   ),
                 ]),

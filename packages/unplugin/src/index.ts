@@ -113,7 +113,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
       return null;
     },
     async transform(code, id) {
-      if (id.includes("/node_modules/")) return;
+      if (id.includes("/node_modules/") || !id.includes(process.cwd())) return;
 
       const [filepath] = id.split("?");
       if (!filter(filepath)) return;
@@ -137,6 +137,7 @@ export const unpluginFactory: UnpluginFactory<Options | undefined> = (
             skipEnvCheck: true,
             signals: opts?.signals,
             module: opts?.module,
+            mode: opts?.compiler?.mode || 'full'
           },
         ]);
       }

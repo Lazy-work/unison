@@ -291,6 +291,22 @@ export default function (babel, opts = {}) {
     return false;
   }
 
+  const hasUnisonVisitor = {
+    ImportDeclaration(path) {
+      const declaration = path.node;
+      if (declaration.source.value === moduleName) {
+        for (const specifier of declaration.specifiers) {
+          if (specifier.local.name === UNISON_NAME) {
+            currentUnisonName = specifier.imported.name
+            this.hasUnison();
+            path.stop();
+            break;
+          }
+        }
+      }
+    },
+};
+
   let mode = opts.mode || 'manual';
 
   return {
@@ -299,22 +315,34 @@ export default function (babel, opts = {}) {
       Program: {
         enter(path) {
           program = path;
+
+          let unisonImported = false
+          path.traverse(hasUnisonVisitor, { hasUnison: () => unisonImported = true });
           
+          if (!unisonImported) {
+            const id = t.identifier(UNISON_NAME)
+            // add: import { $unison } from 'module_name';
+            program.unshiftContainer('body', [
+              t.importDeclaration(
+                [t.importSpecifier(id, id)],
+                t.stringLiteral(moduleName),
+              ),
+            ]);
+          }
+
           if (noUnison(path.node.directives)) path.stop();
           
           if (mode === 'directive' && useUnison(path.node.directives)) {
             mode = 'full';
             path.get('directives.0').replaceWith(t.directive(t.directiveLiteral('use client')))
           }
+
           if (rsxIdentifier) return;
           rsxIdentifier = program.scope.generateUidIdentifier('rsx');
           program.unshiftContainer('body', [
             t.importDeclaration([t.importSpecifier(rsxIdentifier, t.identifier('rsx'))], t.stringLiteral(moduleName)),
           ]);
         },
-      },
-      ImportSpecifier(path) {
-        if (path.node.imported.name === UNISON_NAME) currentUnisonName = path.node.local.name;
       },
       FunctionDeclaration(path) {
         // Looking for :

@@ -35,6 +35,7 @@ export default function (babel, opts = {}) {
 
   const optimizeFnProp = {
     JSXAttribute(path) {
+      if (!path.node.value) return;
       const expression = path.get('value.expression');
       if (expression.isArrowFunctionExpression() || expression.isFunctionExpression()) {
         const cbId = path.scope.generateUidIdentifier('cb');
@@ -355,10 +356,6 @@ export default function (babel, opts = {}) {
                 ]),
               );
             }
-          }
-
-          if (!isUnison && mode === 'directive' && useUnison(declaration.node.init.body.directives)) {
-            path.replaceWith(t.callExpression(t.identifier(currentUnisonName), path.node));
           }
 
           if (isUnison) {

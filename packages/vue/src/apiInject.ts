@@ -1,4 +1,4 @@
-import { UnisonPlugin, ComponentInternalInstance, getCurrentInstance, type Data } from '@unisonjs/core'
+import { type UnisonPlugin, type ComponentInternalInstance, getCurrentInstance, usePlugin, type Data } from '@unisonjs/core'
 import { isFunction } from '@vue/shared'
 import { createAppContext, currentApp, currentAppContext, type AppContext } from './apiCreateApp'
 import { warn } from './reactivity/warning'
@@ -32,6 +32,7 @@ export class InjectionPlugin implements UnisonPlugin {
   onInstanceDisposed(instance: ComponentInternalInstance) { }
 }
 
+usePlugin(InjectionPlugin);
 
 export function provide<T, K = InjectionKey<T> | string | number>(
   key: K,

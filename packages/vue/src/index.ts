@@ -1,5 +1,3 @@
-import { usePlugin } from '@unisonjs/core';
-import { InjectionPlugin } from './apiInject';
 export {
   $unison,
   createReactHook,
@@ -34,7 +32,6 @@ export type {
   OptionMergeFunction
 } from './apiCreateApp'
 
-usePlugin(InjectionPlugin);
 export { inject, provide, hasInjectionContext, type InjectionKey } from './apiInject';
 export { FastRefreshStoragePlugin } from './apiDebug';
 export { toUnisonHook } from './hook-manager/index';
@@ -72,7 +69,15 @@ export function reactRef<T>(initialValue: T) {
     ref.value = newValue;
   }
   ref.value = initialValue
-  return ref;
+  Object.defineProperty(ref, 'current', {
+    get() {
+      return ref.value;
+    },
+    set(value) {
+      ref.value = value;
+    }
+  })
+  return ref as typeof ref & { current: T };
 }
 export {
   // core

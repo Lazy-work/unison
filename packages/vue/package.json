@@ -1,6 +1,6 @@
 {
   "name": "@unisonjs/vue",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "packageManager": "pnpm@8.15.3",
   "type": "module",
   "main": "./dist/cjs/src/index.js",
@@ -51,7 +51,7 @@
     "unplugin-inline-enum": "^0.2.0"
   },
   "peerDependencies": {
-    "@unisonjs/core": ">=0.1.1"
+    "@unisonjs/core": ">=0.1.7"
   },
   "dependencies": {
     "@vue/shared": "^3.5.13"

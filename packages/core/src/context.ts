@@ -59,7 +59,7 @@ export type Event = {
 
 type OnFlushCallback = (event: Partial<Event>) => void;
 
-class OnBeforeMount extends React.Component {
+class OnBeforeMount extends React.Component<{ hooks: Function[] }> {
   componentWillUnmount(): void {
     for (const hook of this.props.hooks) {
       hook();
@@ -74,8 +74,8 @@ class Context {
   #parent: ComponentInternalInstance | null;
   #renderTrigger: () => void = __DEV__
     ? () => {
-        warn("Can't trigger a new rendering, the state is not setup properly");
-      }
+      warn("Can't trigger a new rendering, the state is not setup properly");
+    }
     : NOOP;
   #isRunning = false;
   #propsKeys: string[] = [];
@@ -150,7 +150,7 @@ class Context {
     });
     this.#renderEffect.scheduler = () => {
       this.triggerRendering();
-      this.#renderJob = queueJob(() => {});
+      this.#renderJob = queueJob(() => { });
       this.#shouldGenerateTemplate = true;
     };
   }
@@ -178,6 +178,10 @@ class Context {
 
   getPlugin<T extends UnisonPluginClass>(key: T): InstanceType<T> | undefined {
     return this.#plugins?.get(key) as InstanceType<T>;
+  }
+
+  get plugins() {
+    return this.#plugins;
   }
 
   set children(children: () => React.ReactNode) {

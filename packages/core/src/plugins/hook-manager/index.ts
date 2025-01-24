@@ -62,7 +62,7 @@ export class HookManager implements UnisonPlugin {
     this.#hookEffect.scheduler = () => instance.triggerRendering();
 
     instance.addEventListener(Events.BEFORE_FLUSHING_PRE_EFFECT, ({ job }) => {
-      if (!instance.isExecuted()) return;
+      if (!instance.isExecuted() || instance.isFastRefresh()) return;
       if (job) {
         const position = job.position || 0;
         while (this.#i < position) {
@@ -73,7 +73,7 @@ export class HookManager implements UnisonPlugin {
     });
 
     instance.addEventListener(Events.AFTER_FLUSHING_ALL_PRE_EFFECT, () => {
-      if (!instance.isExecuted()) return;
+      if (!instance.isExecuted() || instance.isFastRefresh()) return;
       while (this.#i < this.#hooks.length && !instance.hasPendingPreEffects()) {
         this.processHook(this.#hooks[this.#i]);
         this.#i++;
@@ -85,6 +85,16 @@ export class HookManager implements UnisonPlugin {
 
       this.#i = 0;
     });
+  }
+  reset() {
+    this.#hookKeys.length = 0;
+    this.#hookSignals.length = 0;
+    this.#hookValues.length = 0;
+    this.#hooks.length = 0;
+    this.#hookEffect = new ReactiveEffect(NOOP);
+  }
+  onInstanceFastRefresh(instance: ComponentInternalInstance): void {
+    this.reset();
   }
   onInstanceDisposed(): void {}
 

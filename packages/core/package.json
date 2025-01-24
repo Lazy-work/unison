@@ -4,9 +4,9 @@
   "packageManager": "pnpm@8.15.3",
   "type": "module",
   "scripts": {
-    "build": "pnpm build-vue && pnpm build-js && pnpm build-types",
-    "build-js": "rimraf dist && rollup -c rollup.config.js",
-    "build-types": "tsc --noCheck && pnpm dlx tsc-alias",
+    "build": "rimraf dist && pnpm build-vue && pnpm build-js && pnpm build-types",
+    "build-js": "rimraf dist/*.js && rollup -c rollup.config.js",
+    "build-types": "rimraf dist/types && tsc --noCheck && pnpm dlx tsc-alias",
     "build-vue": "pnpm build-vue-js && pnpm build-rm-vue-aliases",
     "build-vue-js": "(rimraf vue/temp && cd vue && pnpm tsc --noCheck) || exit 0;",
     "build-rm-vue-aliases": "(pnpm dlx tsc-alias -p vue/tsconfig.json) || exit 0;",

@@ -10,7 +10,6 @@
         "emitDeclarationOnly": true,
         "moduleResolution": "bundler",
         "allowJs": true,
-        "noCheck": true,
         "strict": true,
         "noUnusedLocals": true,
         "experimentalDecorators": true,

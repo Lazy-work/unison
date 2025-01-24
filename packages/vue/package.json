@@ -9,7 +9,8 @@
   "scripts": {
     "build:esm": "tsc --noCheck --module ESNext --outDir ./dist/esm",
     "build:cjs": "tsc --noCheck --module CommonJS --moduleResolution null --outDir ./dist/cjs",
-    "build": "rimraf dist && npm run build:esm && npm run build:cjs && sh replace_constants.sh",
+    "build": "rimraf dist && pnpm build:esm && pnpm build:cjs && sh replace_constants.sh && pnpm copy-dts",
+    "copy-dts": "copyfiles \"src/**/*.d.ts\" dist/cjs && copyfiles \"src/**/*.d.ts\" dist/esm",
     "prepublishOnly": "npm run build"
   },
   "exports": {

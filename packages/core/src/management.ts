@@ -49,8 +49,12 @@ export function $unison<T extends Record<string, any>>(fn: SetupComponent<T>, na
     instance.setupState();
     const trackedProps = instance.trackProps({ ...props, ref });
 
+    if (instance.isFastRefresh() && instance.plugins) { 
+      for (const plugin of instance.plugins.values()) plugin.onInstanceFastRefresh?.(instance); 
+    }
+
     if (!instance.isExecuted() || instance.isFastRefresh()) {
-      instance.children = fn(trackedProps);
+      instance.children = fn(trackedProps as any);
       instance.invalidateChildren();
     }
 

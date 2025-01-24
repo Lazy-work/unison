@@ -6,5 +6,6 @@ export type UnisonPluginClass = ClassType<UnisonPlugin>;
 
 export interface UnisonPlugin {
     onInstanceCreated(instance: ComponentInternalInstance): void
+    onInstanceFastRefresh(instance: ComponentInternalInstance): void
     onInstanceDisposed(instance: ComponentInternalInstance): void
 }

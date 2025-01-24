@@ -1,6 +1,6 @@
 # @unisonjs/vue
 
-## 0.1.7
+## 0.1.8
 
 ### Patch Changes
 
@@ -11,4 +11,4 @@
 - [#24](https://github.com/Lazy-work/unison/pull/24) [`059e731`](https://github.com/Lazy-work/unison/commit/059e7314e2ed11ef6a85286bc6ec3954458bf359) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Fix injection plugin initialization
 
 - Updated dependencies [[`59318d4`](https://github.com/Lazy-work/unison/commit/59318d44a85e3c9286b3a35fe3d9f29a4306cd0d), [`67f1f88`](https://github.com/Lazy-work/unison/commit/67f1f88f342100fc81d309d9572143f5132e937b)]:
-  - @unisonjs/core@0.1.7
+  - @unisonjs/core@0.1.8

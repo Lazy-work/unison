@@ -14,7 +14,7 @@
     "test": "vitest --",
     "build": "pnpm --filter \"*unison*\" build",
     "version": "changeset version",
-    "release": "changeset publish",
+    "publish": "changeset publish",
     "preinstall": "npx only-allow pnpm"
   },
   "peerDependencies": {

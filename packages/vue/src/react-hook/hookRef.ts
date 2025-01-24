@@ -1,7 +1,7 @@
 import { ReactiveFlags, TrackOpTypes } from '../reactivity/constants';
-import { type HookManager, currentListener, Dep, Listener } from '@unisonjs/core';
+import { type HookManager, BaseSignal, currentListener, Dep, Listener } from '@unisonjs/core';
 
-class HookRef<T = any> {
+class HookRef<T = any> extends BaseSignal<T> {
   /**
    * @internal
    */
@@ -36,6 +36,7 @@ class HookRef<T = any> {
   public readonly [ReactiveFlags.IS_READONLY]: boolean = true;
 
   constructor(manager: HookManager, hookIndex: number, valueIndex: number) {
+    super();
     this.#manager = manager;
     this.#hookIndex = hookIndex;
     this.#valueIndex = valueIndex;
@@ -58,6 +59,15 @@ class HookRef<T = any> {
     const currentValue = this.#manager.getHookValueAt(this.#hookIndex, this.#valueIndex);
 
     return currentValue as T;
+  }
+
+  trigger() {
+    const {listeners} = this;
+    if (listeners) {
+      for (const listener of listeners) listener.trigger?.();
+      listeners.length = 0;
+    }
+    this.dep.trigger()
   }
 }
 

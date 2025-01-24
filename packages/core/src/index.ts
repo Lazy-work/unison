@@ -2,7 +2,13 @@ export { $unison, createReactHook, usePlugin, type SetupComponent } from './mana
 export { type EventType } from './context';
 export { useUnison } from './use-unison';
 
-export * from './plugins/hook-manager/index';
+export { 
+  HookManager, 
+  toUnisonHook, 
+  BaseSignal, 
+  type UnisonHookOptions, 
+  type HookOptions 
+} from './plugins/hook-manager/index';
 
 export type * from './plugins/index';
 

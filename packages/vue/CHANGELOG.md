@@ -1,5 +1,14 @@
 # @unisonjs/vue
 
+## 0.1.9
+
+### Patch Changes
+
+- [#31](https://github.com/Lazy-work/unison/pull/31) [`a113490`](https://github.com/Lazy-work/unison/commit/a1134904a817bf1f3ff9a5d07be4b21373cdc4fb) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Rename $switch to $match
+
+- Updated dependencies [[`a113490`](https://github.com/Lazy-work/unison/commit/a1134904a817bf1f3ff9a5d07be4b21373cdc4fb)]:
+  - @unisonjs/core@0.1.9
+
 ## 0.1.8
 
 ### Patch Changes

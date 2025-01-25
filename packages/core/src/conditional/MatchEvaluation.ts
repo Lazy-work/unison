@@ -2,14 +2,14 @@ type DeepPartial<T> = T extends object ? {
     [P in keyof T]?: DeepPartial<T[P]>;
 } : T;
 type CaseParams<T> = T extends object ? [...(DeepPartial<T> | boolean)[], any] : [...(T | boolean)[], any];
-class SwitchEvaluation<T> {
+export default class MatchEvaluation<T> {
     #input: T;
     #result: any;
     constructor(input: T) {
         this.#input = input;
     }
 
-    case(...args: CaseParams<T>) {
+    with(...args: CaseParams<T>) {
         const patterns = args.slice(0, -1);
         const expression = args.at(-1);
         if (this.#result !== undefined) return this;
@@ -58,5 +58,3 @@ class SwitchEvaluation<T> {
         return result;
     }
 }
-
-export default SwitchEvaluation;

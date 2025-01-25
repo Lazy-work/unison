@@ -1,11 +1,11 @@
-import LogicalEvaluation from "./LogicalEvaluation";
-import MatchingEvaluation from "./SwitchEvaluation";
+import IfEvaluation from "./IfEvaluation";
+import MatchingEvaluation from "./MatchEvaluation";
 
 export function $if(bool: boolean) {
-    return new LogicalEvaluation(bool);
+    return new IfEvaluation(bool);
 }
 
-export function $switch<T>(input: T) {
+export function $match<T>(input: T) {
     return new MatchingEvaluation(input);
 }
 
@@ -13,4 +13,4 @@ export function v<T>(value: T) {
     return { value };
 }
 
-export type { LogicalEvaluation, MatchingEvaluation };
+export type { IfEvaluation, MatchingEvaluation };

@@ -1,43 +1,43 @@
-import { $switch } from "../../src";
+import { $match } from "../../src";
 
 describe('$match test suite', () => {
     it('should match primitive cases', () => {
         let input;
         let result;
         input = 0;
-        result = $switch(input)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 'two')
+        result = $match(input)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 'two')
             .default(null);
 
 
         expect(result).toBe('zero');
 
         input = 1;
-        result = $switch(input)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 'two')
+        result = $match(input)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 'two')
             .default(null);
 
 
         expect(result).toBe('one');
 
         input = 2;
-        result = $switch(input)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 'two')
+        result = $match(input)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 'two')
             .default(null);
 
         expect(result).toBe('two');
 
         input = -1;
-        result = $switch(input)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 'two')
+        result = $match(input)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 'two')
             .default(null);
 
 
@@ -46,63 +46,63 @@ describe('$match test suite', () => {
 
     it('should match grouped primitive cases', () => {
         let result;
-        result = $switch(0)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 3, 4, 5, '2-5')
+        result = $match(0)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 3, 4, 5, '2-5')
             .default(null);
 
 
         expect(result).toBe('zero');
 
-        result = $switch(1)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 3, 4, 5, '2-5')
+        result = $match(1)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 3, 4, 5, '2-5')
             .default(null);
 
 
         expect(result).toBe('one');
 
-        result = $switch(2)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 3, 4, 5, '2-5')
+        result = $match(2)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 3, 4, 5, '2-5')
             .default(null);
 
         expect(result).toBe('2-5');
 
-        result = $switch(3)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 3, 4, 5, '2-5')
-            .default(null);
-
-
-        expect(result).toBe('2-5');
-
-        result = $switch(4)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 3, 4, 5, '2-5')
+        result = $match(3)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 3, 4, 5, '2-5')
             .default(null);
 
 
         expect(result).toBe('2-5');
 
-        result = $switch(5)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 3, 4, 5, '2-5')
+        result = $match(4)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 3, 4, 5, '2-5')
             .default(null);
 
 
         expect(result).toBe('2-5');
 
-        result = $switch(6)
-            .case(0, 'zero')
-            .case(1, 'one')
-            .case(2, 3, 4, 5, '2-5')
+        result = $match(5)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 3, 4, 5, '2-5')
+            .default(null);
+
+
+        expect(result).toBe('2-5');
+
+        result = $match(6)
+            .with(0, 'zero')
+            .with(1, 'one')
+            .with(2, 3, 4, 5, '2-5')
             .default(null);
 
         expect(result).toBe(null);
@@ -141,36 +141,36 @@ describe('$match test suite', () => {
             LOADING,
             ERROR
         }
-        let result = $switch(pending)
-            .case({ status: { value: 'success' } }, Result.SUCCESS)
-            .case({ status: { value: "error" } }, Result.ERROR)
-            .case({ status: { value: 'pending' } }, Result.LOADING)
+        let result = $match(pending)
+            .with({ status: { value: 'success' } }, Result.SUCCESS)
+            .with({ status: { value: "error" } }, Result.ERROR)
+            .with({ status: { value: 'pending' } }, Result.LOADING)
             .default(null);
         expect(result).toBe(Result.LOADING);
 
 
-        result = $switch(error)
-            .case({ status: { value: 'success' } }, Result.SUCCESS)
-            .case({ status: { value: "error" } }, Result.ERROR)
-            .case({ status: { value: 'pending' } }, Result.LOADING)
+        result = $match(error)
+            .with({ status: { value: 'success' } }, Result.SUCCESS)
+            .with({ status: { value: "error" } }, Result.ERROR)
+            .with({ status: { value: 'pending' } }, Result.LOADING)
             .default(null);
 
 
         expect(result).toBe(Result.ERROR);
 
-        result = $switch(success)
-            .case({ status: { value: 'success' } }, Result.SUCCESS)
-            .case({ status: { value: "error" } }, Result.ERROR)
-            .case({ status: { value: 'pending' } }, Result.LOADING)
+        result = $match(success)
+            .with({ status: { value: 'success' } }, Result.SUCCESS)
+            .with({ status: { value: "error" } }, Result.ERROR)
+            .with({ status: { value: 'pending' } }, Result.LOADING)
             .default(null);
 
         expect(result).toBe(Result.SUCCESS);
 
 
-        result = $switch(nope)
-            .case({ status: { value: 'success' } }, Result.SUCCESS)
-            .case({ status: { value: "error" } }, Result.ERROR)
-            .case({ status: { value: 'pending' } }, Result.LOADING)
+        result = $match(nope)
+            .with({ status: { value: 'success' } }, Result.SUCCESS)
+            .with({ status: { value: "error" } }, Result.ERROR)
+            .with({ status: { value: 'pending' } }, Result.LOADING)
             .default(null);
 
 
@@ -210,36 +210,36 @@ describe('$match test suite', () => {
             LOADING,
             ERROR
         }
-        let result = $switch(pending)
-            .case({ status: 'success' }, Result.SUCCESS)
-            .case({ status: 'error' }, Result.ERROR)
-            .case({ status: 'pending' }, Result.LOADING)
+        let result = $match(pending)
+            .with({ status: 'success' }, Result.SUCCESS)
+            .with({ status: 'error' }, Result.ERROR)
+            .with({ status: 'pending' }, Result.LOADING)
             .default(null);
         expect(result).toBe(Result.LOADING);
 
 
-        result = $switch(error)
-            .case({ status: 'success' }, Result.SUCCESS)
-            .case({ status: 'error' }, Result.ERROR)
-            .case({ status: 'pending' }, Result.LOADING)
+        result = $match(error)
+            .with({ status: 'success' }, Result.SUCCESS)
+            .with({ status: 'error' }, Result.ERROR)
+            .with({ status: 'pending' }, Result.LOADING)
             .default(null);
 
 
         expect(result).toBe(Result.ERROR);
 
-        result = $switch(success)
-            .case({ status: 'success' }, Result.SUCCESS)
-            .case({ status: 'error' }, Result.ERROR)
-            .case({ status: 'pending' }, Result.LOADING)
+        result = $match(success)
+            .with({ status: 'success' }, Result.SUCCESS)
+            .with({ status: 'error' }, Result.ERROR)
+            .with({ status: 'pending' }, Result.LOADING)
             .default(null);
 
         expect(result).toBe(Result.SUCCESS);
 
 
-        result = $switch(nope)
-            .case({ status: 'success' }, Result.SUCCESS)
-            .case({ status: 'error' }, Result.ERROR)
-            .case({ status: 'pending' }, Result.LOADING)
+        result = $match(nope)
+            .with({ status: 'success' }, Result.SUCCESS)
+            .with({ status: 'error' }, Result.ERROR)
+            .with({ status: 'pending' }, Result.LOADING)
             .default(null);
 
 

@@ -1,4 +1,4 @@
-class LogicalEvaluation {
+export default class IfEvaluation {
     #state = false;
     #onTrue: any;
     #alternative: any;
@@ -32,5 +32,3 @@ class LogicalEvaluation {
         return result;
     }
 }
-
-export default LogicalEvaluation;

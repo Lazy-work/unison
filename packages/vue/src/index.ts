@@ -3,7 +3,7 @@ export {
   createReactHook,
   useUnison,
   $if,
-  $switch,
+  $match,
   v,
   nextTick,
   getCurrentInstance,

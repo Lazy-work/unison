@@ -245,5 +245,4 @@ describe('$match test suite', () => {
 
         expect(result).toBe(null);
     })
-
 })

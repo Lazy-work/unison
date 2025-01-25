@@ -36,8 +36,8 @@ export default defineConfig({
     setupFiles: 'scripts/setup-vitest.ts',
     environment: 'jsdom',
     include: [
-			'packages/core/__tests__/*.spec.{js,jsx,ts,tsx}',
-			'packages/vue/__tests__/*.spec.{js,jsx,ts,tsx}',
+			'packages/core/__tests__/**/*.spec.{js,jsx,ts,tsx}',
+			'packages/vue/__tests__/**/*.spec.{js,jsx,ts,tsx}',
 		],
   },
 })

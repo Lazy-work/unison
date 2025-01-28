@@ -1,4 +1,4 @@
-import { Events } from '../../context';
+import Context, { Events, isFastRefresh } from '../../context';
 import React, { useState } from 'react';
 import { NOOP, isFunction, isObject } from '#vue-internals/shared/general';
 import { ReactiveEffect } from '#vue-internals/reactivity/effect';
@@ -62,7 +62,7 @@ export class HookManager implements UnisonPlugin {
     this.#hookEffect.scheduler = () => instance.triggerRendering();
 
     instance.addEventListener(Events.BEFORE_FLUSHING_PRE_EFFECT, ({ job }) => {
-      if (!instance.isExecuted() || instance.isFastRefresh()) return;
+      if (!instance.isExecuted() || isFastRefresh()) return;
       if (job) {
         const position = job.position || 0;
         while (this.#i < position) {
@@ -73,7 +73,7 @@ export class HookManager implements UnisonPlugin {
     });
 
     instance.addEventListener(Events.AFTER_FLUSHING_ALL_PRE_EFFECT, () => {
-      if (!instance.isExecuted() || instance.isFastRefresh()) return;
+      if (!instance.isExecuted() || isFastRefresh()) return;
       while (this.#i < this.#hooks.length && !instance.hasPendingPreEffects()) {
         this.processHook(this.#hooks[this.#i]);
         this.#i++;

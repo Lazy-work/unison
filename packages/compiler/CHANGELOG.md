@@ -1,5 +1,11 @@
 # babel-plugin-unisonjs-compiler
 
+## 0.2.1
+
+### Patch Changes
+
+- [#33](https://github.com/Lazy-work/unison/pull/33) [`84bb3e9`](https://github.com/Lazy-work/unison/commit/84bb3e9807c4e8a6d6eb00f466fdb38ea00bc489) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Fix directive "no unison" top level
+
 ## 0.2.0
 
 ### Minor Changes

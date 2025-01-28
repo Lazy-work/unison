@@ -1,5 +1,11 @@
 # @unisonjs/core
 
+## 0.1.10
+
+### Patch Changes
+
+- [#34](https://github.com/Lazy-work/unison/pull/34) [`03ccfd6`](https://github.com/Lazy-work/unison/commit/03ccfd6e3b9aeaf1438d4b8d435f1304185c6130) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Fix component reloading on file change (hmr/fast refresh)
+
 ## 0.1.9
 
 ### Patch Changes

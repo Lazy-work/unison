@@ -1,5 +1,14 @@
 # unplugin-unisonjs
 
+## 0.1.9
+
+### Patch Changes
+
+- [#35](https://github.com/Lazy-work/unison/pull/35) [`3406900`](https://github.com/Lazy-work/unison/commit/340690099209d4ce3cc40ef998243d2f6e2fb880) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Fix id filter for webpack
+
+- Updated dependencies [[`84bb3e9`](https://github.com/Lazy-work/unison/commit/84bb3e9807c4e8a6d6eb00f466fdb38ea00bc489)]:
+  - babel-plugin-unisonjs-compiler@0.2.1
+
 ## 0.1.8
 
 ### Patch Changes

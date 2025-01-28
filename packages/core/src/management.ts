@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import Context from './context';
+import Context, { isFastRefresh } from './context';
 import { setCurrentInstance } from './index';
 
 import type { UnisonPluginClass } from './plugins';
@@ -42,6 +42,9 @@ export type SetupComponent<T extends Record<string, any>> = (props: ShallowReact
  * @param name - component name
  */
 export function $unison<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
+  if (!isFastRefresh() && typeof window !== "undefined") {
+    window.__UNISON_REFRESH__ = { root: null };
+  }
   const component = React.forwardRef<T['ref'], T>((props, ref) => {
     const [instance] = useState(initInstance);
     const unset = setCurrentInstance(instance);
@@ -49,11 +52,11 @@ export function $unison<T extends Record<string, any>>(fn: SetupComponent<T>, na
     instance.setupState();
     const trackedProps = instance.trackProps({ ...props, ref });
 
-    if (instance.isFastRefresh() && instance.plugins) { 
-      for (const plugin of instance.plugins.values()) plugin.onInstanceFastRefresh?.(instance); 
+    if (isFastRefresh() && instance.plugins) {
+      for (const plugin of instance.plugins.values()) plugin.onInstanceFastRefresh?.(instance);
     }
 
-    if (!instance.isExecuted() || instance.isFastRefresh()) {
+    if (!instance.isExecuted() || isFastRefresh()) {
       instance.children = fn(trackedProps as any);
       instance.invalidateChildren();
     }

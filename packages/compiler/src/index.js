@@ -407,6 +407,10 @@ export default function (babel, opts = {}) {
     visitor: {
       Program: {
         enter(path) {
+          if (noUnison(path.node.directives)) {
+            path.stop();
+            return;
+          };
           program = path;
           let unisonImported = false;
           path.traverse(hasUnisonVisitor, { hasUnison: () => (unisonImported = true) });
@@ -418,8 +422,6 @@ export default function (babel, opts = {}) {
               t.importDeclaration([t.importSpecifier(id, id)], t.stringLiteral(moduleName)),
             ]);
           }
-
-          if (noUnison(path.node.directives)) path.stop();
 
           if (mode === 'directive' && useUnison(path.node.directives)) {
             mode = 'full';

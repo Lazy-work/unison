@@ -1,5 +1,5 @@
-import React, { createElement, useEffect, useInsertionEffect, useLayoutEffect, useState } from 'react';
-import { extend, isArray, NOOP } from '#vue-internals/shared/index';
+import React, { useEffect, useInsertionEffect, useLayoutEffect, useState } from 'react';
+import { isArray, NOOP } from '#vue-internals/shared/index';
 import {
   SchedulerJob,
   flushJobsUntil,
@@ -11,7 +11,6 @@ import {
 } from '#vue-internals/runtime-core/scheduler';
 import { EffectScope, shallowReactive, ReactiveEffect } from '#vue-internals/reactivity/index';
 import { warn } from '#vue-internals/runtime-core/warning';
-import { WatchEffectOptions } from '#vue-internals/runtime-core/apiWatch';
 import { LifecycleHooks } from '#vue-internals/runtime-core/enums';
 import { UnisonPlugin, UnisonPluginClass } from './plugins/index';
 import { ComponentInternalInstance, getCurrentInstance } from './index';

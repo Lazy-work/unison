@@ -58,6 +58,9 @@ export type Event = {
 };
 
 type OnFlushCallback = (event: Partial<Event>) => void;
+export function isFastRefresh() {
+  return !!(typeof window !== 'undefined' && window.__UNISON_REFRESH__);
+}
 
 class OnBeforeMount extends React.Component<{ hooks: Function[] }> {
   componentWillUnmount(): void {
@@ -162,7 +165,7 @@ class Context {
     this.#nbExecution++;
     this.#isRunning = true;
     this.#scope.on();
-    if (this.isFastRefresh() && !window.__UNISON_REFRESH__.root) {
+    if (isFastRefresh() && !window.__UNISON_REFRESH__.root) {
       window.__UNISON_REFRESH__.root = this;
     }
   }
@@ -366,7 +369,7 @@ class Context {
       this.#updated = false;
       this.#isRunning = false;
       this.#scope.off();
-      if (this.isFastRefresh() && window.__UNISON_REFRESH__.root === this) {
+      if (isFastRefresh() && window.__UNISON_REFRESH__.root === this) {
         window.__UNISON_REFRESH__ = undefined;
       }
       switchToAuto();
@@ -394,9 +397,6 @@ class Context {
     return this.#executed;
   }
 
-  isFastRefresh() {
-    return !!(typeof window !== 'undefined' && window.__UNISON_REFRESH__);
-  }
 
   executed() {
     this.#executed = true;

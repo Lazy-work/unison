@@ -410,4 +410,41 @@ describe('testing scheduling with react', () => {
     expect(tmp).toBe('unmounted');
     expect(root.outerHTML).toBe('<div></div>');
   });
+  it('should not setup after render on state change', async () => {
+    const fn = vi.fn();
+    let count = new Ref(0);
+    const Comp = $unison(() => {
+      fn();
+      return () => <p>{count.value}</p>;
+    });
+
+    const { container } = render(<Comp />);
+
+    expect(fn).toHaveBeenCalledTimes(1);
+    count.value++;
+    await nextTick();
+    expect(container.innerHTML).toBe('<p>1</p>');
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
+
+  it('should keep same reference after render on props change', async () => {
+    const fn = vi.fn();
+    let count = new Ref(0);
+    const Container = $unison(() => {
+      return () => <Comp count={count.value} />
+    });
+
+    const Comp = $unison((props) => {
+      fn();
+      return () => <p>{props.count}</p>;
+    });
+
+    const { container } = render(<Container />);
+
+    expect(fn).toHaveBeenCalledTimes(1);
+    count.value++;
+    await nextTick();
+    expect(container.innerHTML).toBe('<p>1</p>');
+    expect(fn).toHaveBeenCalledTimes(1);
+  });
 });

@@ -63,7 +63,13 @@ export function $unison<T extends Record<string, any>>(fn: SetupComponent<T>, na
 
     instance.runEffects();
     useEffect(unset);
-    return instance.render();
+    const result = instance.render();
+
+    if (isFastRefresh() && window.__UNISON_REFRESH__.root === instance) {
+      window.__UNISON_REFRESH__ = undefined;
+    }
+
+    return result;
   });
   if (name) {
     Object.defineProperty(component, 'name', {

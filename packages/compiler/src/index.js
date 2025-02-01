@@ -47,43 +47,17 @@ export default function (babel, opts = {}) {
   };
 
   const isDirtyTraverse = {
-    'ArrowFunctionExpression|FunctionExpression': {
-      enter(path) {
-        if (!this.ignoredBlock) {
-          this.ignoredBlock = path.node;
-          this.ignore = true;
-        }
-      },
-      exit(path) {
-        if (this.ignoredBlock === path.node) {
-          this.ignoredBlock = null;
-          this.ignore = false;
-        }
-      },
+    'ArrowFunctionExpression|FunctionExpression'(path) {
+      path.skip();
     },
-    JSXExpressionContainer: {
-      enter(path) {
-        if (this.toInspect.includes(path.node)) {
-          this.observe = true;
-        }
-      },
-      exit(path) {
-        if (this.toInspect.includes(path.node)) {
-          this.observe = false;
-        }
-      },
-    },
-    MemberExpression(path) {
-      if (this.observe && !this.ignore) {
-        this.dirty();
-        path.stop();
+    JSXExpressionContainer(path) {
+      if (!this.toInspect.includes(path.node)) {
+        path.skip();
       }
     },
-    CallExpression(path) {
-      if (this.observe && !this.ignore) {
-        this.dirty();
-        path.stop();
-      }
+    'MemberExpression|CallExpression'(path) {
+      this.dirty();
+      path.stop();
     },
   };
 
@@ -126,23 +100,11 @@ export default function (babel, opts = {}) {
   }
 
   const optimizeStatic = {
-    'ArrowFunctionExpression|FunctionExpression': {
-      enter(path) {
-        if (!this.ignoredBlock) {
-          this.ignoredBlock = path.node;
-          this.ignore = true;
-        }
-      },
-      exit(path) {
-        if (this.ignoredBlock === path.node) {
-          this.ignoredBlock = null;
-          this.ignore = false;
-        }
-      },
+    'ArrowFunctionExpression|FunctionExpression'(path)  {
+      path.skip();
     },
     'JSXElement|JSXFragment': {
       enter(path) {
-        if (this.ignore) return;
         if (!this.dirtiness.has(path.node)) this.dirtiness.set(path.node, false);
 
         const parent = this.parents[this.parents.length - 1];
@@ -156,7 +118,6 @@ export default function (babel, opts = {}) {
         this.parents.push(path.node);
       },
       exit(path) {
-        if (this.ignore) return;
         if (path.node === this.parents.at(-1)) {
           this.parents.length--;
         }
@@ -172,18 +133,13 @@ export default function (babel, opts = {}) {
 
   let rsxIdentifier;
   const breakDownReturn = {
+    'FunctionExpression|ArrowFunctionExpression'(path) {
+        path.skip()
+    },
     JSXElement: {
       exit(path) {
-        const container = path.findParent((path) => path.isJSXExpressionContainer());
-        if (container) {
-          const isInFunctionCall = path
-            .findParent((path) => path.node === container.node || path.isCallExpression())
-            .isCallExpression();
-          if (isInFunctionCall) return;
-        }
         const props = path.get('openingElement');
         props.traverse(optimizeFnProp, {
-          types: t,
           seen: this.seen,
           componentReturn: this.componentReturn,
         });
@@ -204,29 +160,19 @@ export default function (babel, opts = {}) {
   };
 
   const findReturns = {
-    'ArrowFunctionExpression|FunctionExpression|FunctionDeclaration': {
-      enter(path) {
-        if (!this.ignoredBlock) {
-          this.ignoredBlock = path.node;
-          this.ignore = true;
-        }
-      },
-      exit(path) {
-        if (this.ignoredBlock === path.node) {
-          this.ignoredBlock = null;
-          this.ignore = false;
-        }
-      },
+    'ArrowFunctionExpression|FunctionExpression|FunctionDeclaration'(path) {
+      path.skip();
     },
     ReturnStatement(path) {
-      if (this.ignore) return;
       this.returns.push(path);
     },
   };
 
   const handleUnisonComponent = {
+    'FunctionDeclaration|FunctionExpression|ArrowFunctionExpression'(path) {
+      path.skip()
+    },
     ReturnStatement(path) {
-      const t = this.types;
       const argument = path.get('argument');
       if (this.componentReturn.node === path.node && isJSX(argument.node)) {
         argument.replaceWith(t.arrowFunctionExpression([], argument.node));
@@ -266,11 +212,9 @@ export default function (babel, opts = {}) {
   };
 
   function optimizeComponent(componentBody) {
-    componentBody.findParent((path) => path.isFunctionDeclaration() || path.isVariableDeclaration()).node;
     const returnIndex = componentBody.node.body.findIndex((item) => t.isReturnStatement(item));
     const componentReturn = componentBody.get(`body.${returnIndex}`);
     componentBody.traverse(handleUnisonComponent, {
-      types: t,
       componentReturn,
     });
   }
@@ -410,7 +354,7 @@ export default function (babel, opts = {}) {
           if (noUnison(path.node.directives)) {
             path.stop();
             return;
-          };
+          }
           program = path;
           let unisonImported = false;
           path.traverse(hasUnisonVisitor, { hasUnison: () => (unisonImported = true) });

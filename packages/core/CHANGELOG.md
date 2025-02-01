@@ -1,5 +1,11 @@
 # @unisonjs/core
 
+## 0.1.11
+
+### Patch Changes
+
+- [#37](https://github.com/Lazy-work/unison/pull/37) [`29e54c6`](https://github.com/Lazy-work/unison/commit/29e54c61dc188e4d29547897fd97aeda2469c520) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Fix component setup execution
+
 ## 0.1.10
 
 ### Patch Changes

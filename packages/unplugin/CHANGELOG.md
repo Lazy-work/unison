@@ -1,5 +1,12 @@
 # unplugin-unisonjs
 
+## 0.1.10
+
+### Patch Changes
+
+- Updated dependencies [[`91b7631`](https://github.com/Lazy-work/unison/commit/91b7631996285e7f9ae0f4a6b7d0022cd05d4990)]:
+  - babel-plugin-unisonjs-compiler@0.2.2
+
 ## 0.1.9
 
 ### Patch Changes

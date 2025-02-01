@@ -1,5 +1,11 @@
 # babel-plugin-unisonjs-compiler
 
+## 0.2.2
+
+### Patch Changes
+
+- [#38](https://github.com/Lazy-work/unison/pull/38) [`91b7631`](https://github.com/Lazy-work/unison/commit/91b7631996285e7f9ae0f4a6b7d0022cd05d4990) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Fix component return handling and simplify nested scope skipping
+
 ## 0.2.1
 
 ### Patch Changes

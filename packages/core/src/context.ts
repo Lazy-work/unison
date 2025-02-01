@@ -368,9 +368,6 @@ class Context {
       this.#updated = false;
       this.#isRunning = false;
       this.#scope.off();
-      if (isFastRefresh() && window.__UNISON_REFRESH__.root === this) {
-        window.__UNISON_REFRESH__ = undefined;
-      }
       switchToAuto();
     });
 

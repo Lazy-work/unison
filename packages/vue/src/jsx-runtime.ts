@@ -6,6 +6,7 @@ type Callback = () => React.ReactNode;
 
 
 class ElementCache implements UnisonPlugin {
+  onInstanceFastRefresh(instance: ComponentInternalInstance): void {}
   #cache = new Map<Callback, React.ReactNode | ComputedRefImpl<React.ReactNode>>();
 
   /**
@@ -13,7 +14,7 @@ class ElementCache implements UnisonPlugin {
    * @param key - The key associated with the element.
    * @returns The cached element or undefined if not found.
    */
-  getElement(key) {
+  getElement(key: Callback) {
     return this.#cache.get(key);
   }
 
@@ -40,7 +41,7 @@ export function rsx(callback: Callback) {
 
   let element = cache.getElement(callback);
   if (!element || isFastRefresh()) {
-    const ref: ComputedRefImpl<React.ReactNode> = computed(callback);
+    const ref: ComputedRefImpl<React.ReactNode> = computed(callback) as unknown as  ComputedRefImpl<React.ReactNode>;
     const result = ref.value;
 
     if (ref.dep.subs) {

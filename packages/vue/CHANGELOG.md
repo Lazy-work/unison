@@ -1,5 +1,14 @@
 # @unisonjs/vue
 
+## 0.1.10
+
+### Patch Changes
+
+- [#40](https://github.com/Lazy-work/unison/pull/40) [`feeb493`](https://github.com/Lazy-work/unison/commit/feeb493e46360029cf876d50949acf6ea55ad679) Thanks [@abdullah-wn](https://github.com/abdullah-wn)! - Fix fast refresh on children components
+
+- Updated dependencies [[`feeb493`](https://github.com/Lazy-work/unison/commit/feeb493e46360029cf876d50949acf6ea55ad679)]:
+  - @unisonjs/core@0.1.12
+
 ## 0.1.9
 
 ### Patch Changes

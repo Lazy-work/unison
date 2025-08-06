@@ -1,4 +1,4 @@
-import { usePlugin, getCurrentInstance, type UnisonPlugin, type ComponentInternalInstance } from '@unisonjs/core';
+import { isFastRefresh, usePlugin, getCurrentInstance, type UnisonPlugin, type ComponentInternalInstance } from '@unisonjs/core';
 import { unref } from './index';
 import { computed, type ComputedRefImpl } from './reactivity/computed';
 
@@ -39,7 +39,7 @@ export function rsx(callback: Callback) {
   if (!cache) return callback();
 
   let element = cache.getElement(callback);
-  if (!element) {
+  if (!element || isFastRefresh()) {
     const ref: ComputedRefImpl<React.ReactNode> = computed(callback);
     const result = ref.value;
 

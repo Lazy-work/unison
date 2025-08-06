@@ -42,7 +42,7 @@ export type SetupComponent<T extends Record<string, any>> = (props: ShallowReact
  * @param name - component name
  */
 export function $unison<T extends Record<string, any>>(fn: SetupComponent<T>, name?: string) {
-  if (!isFastRefresh() && typeof window !== "undefined") {
+  if (!isFastRefresh() && typeof window !== 'undefined') {
     window.__UNISON_REFRESH__ = { root: null };
   }
   const component = React.forwardRef<T['ref'], T>((props, ref) => {
@@ -62,12 +62,14 @@ export function $unison<T extends Record<string, any>>(fn: SetupComponent<T>, na
     }
 
     instance.runEffects();
-    useEffect(unset);
+    useEffect(() => {
+      unset();
+      // reset if end of fast refresh
+      if (isFastRefresh() && window.__UNISON_REFRESH__.root === instance) {
+        window.__UNISON_REFRESH__ = undefined;
+      }
+    });
     const result = instance.render();
-
-    if (isFastRefresh() && window.__UNISON_REFRESH__.root === instance) {
-      window.__UNISON_REFRESH__ = undefined;
-    }
 
     return result;
   });
